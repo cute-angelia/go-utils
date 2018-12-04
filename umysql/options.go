@@ -1,4 +1,4 @@
-package mysql
+package umysql
 
 type GormOptions struct {
 	Host     string

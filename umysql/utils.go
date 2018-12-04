@@ -1,4 +1,4 @@
-package mysql
+package umysql
 
 import (
 	"encoding/json"
