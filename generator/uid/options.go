@@ -1,4 +1,4 @@
-package idCrypt
+package uid
 
 type IdCryptOptions struct {
 	Dict64 [64]uint64

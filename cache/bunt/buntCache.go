@@ -15,6 +15,7 @@ import (
 	"time"
 	"fmt"
 	"log"
+	"os"
 )
 
 var BuntCaches map[string]*buntdb.DB
@@ -29,26 +30,41 @@ func (self *BuntCache) InitDb(name string, db string) error {
 	if BuntCaches[name] != nil {
 		return nil
 	} else {
+		// 无法创建
 		if cache, err := buntdb.Open(db); err != nil {
-			return err
-		} else {
-			if BuntCaches == nil {
-				BuntCaches = map[string]*buntdb.DB{}
+			// 移除异常 db
+			if _, e := os.Stat(db); e == nil {
+				os.Remove(db)
+
+				// 重新打开一次
+				if cache, err := buntdb.Open(db); err != nil {
+					return err
+				} else {
+					self.SetDb(name, cache)
+				}
 			}
-			BuntCaches[name] = cache
-			return nil
+		} else {
+			self.SetDb(name, cache)
 		}
 
+		return nil
 	}
 }
 
 func (self *BuntCache) GetDb(name string) *buntdb.DB {
 	if BuntCaches[name] == nil {
-		log.Println("buntdb.未初始化")
+		log.Println("buntdb.未初始化:" + name)
 		return nil
 	} else {
 		return BuntCaches[name]
 	}
+}
+
+func (self *BuntCache) SetDb(name string, db *buntdb.DB) {
+	if BuntCaches == nil {
+		BuntCaches = map[string]*buntdb.DB{}
+	}
+	BuntCaches[name] = db
 }
 
 /**

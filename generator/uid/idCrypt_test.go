@@ -1,4 +1,4 @@
-package idCrypt
+package uid
 
 import (
 	"testing"

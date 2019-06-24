@@ -1,4 +1,4 @@
-package idCrypt
+package uid
 
 func NewIdCrypt32(opt ...IdCryptOption) IdCrypt32 {
 	opts := NewIdCryptOptions(opt...)
