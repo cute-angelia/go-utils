@@ -1,12 +1,12 @@
-package md5
+package hash
 
 import (
-	"crypto/md5"
 	"encoding/hex"
+	"crypto/sha1"
 )
 
-func Encode(text string) string {
-	hasher := md5.New()
+func NewEncodeSha1(text string) string {
+	hasher := sha1.New()
 	hasher.Write([]byte(text))
 	return hex.EncodeToString(hasher.Sum(nil))
 }
