@@ -9,7 +9,7 @@ import (
 	"net/url"
 )
 
-func Get(client *http.Client, url string, cookie []*http.Cookie, header http.Header) (string, []*http.Cookie, error) {
+func Get(client *http.Client, url string, cookie []*http.Cookie, header http.Header) ([]byte, []*http.Cookie, error) {
 	requestGet, _ := http.NewRequest(
 		"GET",
 		url, nil)
@@ -63,13 +63,12 @@ func Get(client *http.Client, url string, cookie []*http.Cookie, header http.Hea
 		}
 
 		content, _ := ioutil.ReadAll(respGet.Body)
-		str := string(content)
 
-		return str, cookie, nil
+		return content, cookie, nil
 	}
 }
 
-func Post(client *http.Client, url string, data url.Values, cookie []*http.Cookie, header http.Header) (string, []*http.Cookie, error) {
+func Post(client *http.Client, url string, data url.Values, cookie []*http.Cookie, header http.Header) ([]byte, []*http.Cookie, error) {
 	req, _ := http.NewRequest(
 		"POST",
 		url, strings.NewReader(data.Encode()))
@@ -119,7 +118,6 @@ func Post(client *http.Client, url string, data url.Values, cookie []*http.Cooki
 	}
 
 	content, _ := ioutil.ReadAll(respPost.Body)
-	str := string(content)
 
-	return str, cookie, nil
+	return content, cookie, nil
 }
