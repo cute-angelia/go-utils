@@ -11,6 +11,7 @@ import (
 	"os"
 	"io"
 	"bytes"
+	"path/filepath"
 )
 
 func Get(client *http.Client, url string, cookie []*http.Cookie, header http.Header) ([]byte, []*http.Cookie, error) {
@@ -126,64 +127,58 @@ func Post(client *http.Client, url string, data url.Values, cookie []*http.Cooki
 	return content, cookie, nil
 }
 
-func Upload(client *http.Client, url string, values map[string]io.Reader) (err error) {
-	// Prepare a form that you will submit to that URL.
-	var b bytes.Buffer
-	w := multipart.NewWriter(&b)
-	for key, r := range values {
-		var fw io.Writer
-		if x, ok := r.(io.Closer); ok {
-			defer x.Close()
-		}
-		// Add an image file
-		if x, ok := r.(*os.File); ok {
-			if fw, err = w.CreateFormFile(key, x.Name()); err != nil {
-				return
-			}
+func Upload(client *http.Client, url string, params map[string]string, paramName, path string) ([]byte, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	// add params
+	for key, val := range params {
+		_ = writer.WriteField(key, val)
+	}
+
+	part, err := writer.CreateFormFile(paramName, filepath.Base(path))
+	if err != nil {
+		return nil, err
+	}
+	_, err = io.Copy(part, file)
+
+	err = writer.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	if req, err := http.NewRequest("POST", url, body); err != nil {
+		return nil, err
+	} else {
+		req.Header.Set("Content-Type", writer.FormDataContentType())
+
+		// log.Println("req", req)
+
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Println(err)
+			return nil, err
 		} else {
-			// Add other fields
-			if fw, err = w.CreateFormField(key); err != nil {
-				return
+			if content, err := ioutil.ReadAll(resp.Body); err != nil {
+				log.Println(err)
+				return nil, err
+			} else {
+				resp.Body.Close()
+				if resp.StatusCode == 200 {
+					fmt.Println(body)
+					return content, nil
+				} else {
+					return nil, fmt.Errorf("错误:%d", resp.Status)
+				}
 			}
+			//fmt.Println(resp.StatusCode)
+			//fmt.Println(resp.Header)
 		}
-		if _, err = io.Copy(fw, r); err != nil {
-			return err
-		}
-
 	}
-	// Don't forget to close the multipart writer.
-	// If you don't close it, your request will be missing the terminating boundary.
-	defer w.Close()
-
-	// Now that you have a form, you can submit it to your handler.
-	req, err := http.NewRequest("POST", url, &b)
-	if err != nil {
-		return
-	}
-	// Don't forget to set the content type, this will contain the boundary.
-	req.Header.Set("Content-Type", w.FormDataContentType())
-	//req.Header = header
-
-
-	log.Println("\n")
-	log.Println(req)
-	log.Println("\n")
-
-	// Submit the request
-	res, err := client.Do(req)
-	if err != nil {
-		return
-	}
-
-	content, _ := ioutil.ReadAll(res.Body)
-
-	defer res.Body.Close()
-
-	log.Println(string(content))
-
-	// Check the response
-	if res.StatusCode != http.StatusOK {
-		err = fmt.Errorf("bad status: %s", res.Status)
-	}
-	return
 }
