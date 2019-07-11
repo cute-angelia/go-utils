@@ -8,7 +8,7 @@ import (
 func Success(w http.ResponseWriter, r *http.Request, data interface{}, msg string) {
 	response := map[string]interface{}{
 		"code": 0,
-		"msg":  msg,
+		"message":  msg,
 		"data": data,
 	}
 
@@ -37,7 +37,7 @@ func Error(w http.ResponseWriter, r *http.Request, data interface{}, msg string,
 
 	response := map[string]interface{}{
 		"code": code,
-		"msg":  msg,
+		"message":  msg,
 		"data": nil,
 	}
 
