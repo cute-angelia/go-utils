@@ -14,7 +14,13 @@ type Jwt struct {
 	Secret string
 }
 
-func (self *Jwt) Generate(claims *jwt.Claims) (string, error) {
+func (self *Jwt) Generate(data map[string]interface{}) (string, error) {
+	claims := jwt.NewClaim()
+
+	for k, v := range data {
+		claims.Set(k, v)
+	}
+
 	algorithm := jwt.HmacSha256(self.Secret)
 	token, err := algorithm.Encode(claims)
 	if err != nil {
