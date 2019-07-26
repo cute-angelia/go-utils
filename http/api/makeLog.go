@@ -49,7 +49,8 @@ func (h *ApiLog) insertLog(createL interface{}) {
 	log.Println("to do insert")
 }
 
-func (h *ApiLog) createLog(r *http.Request, data map[string]interface{}) {
+// api 调用
+func (h *ApiLog) CreateLog(r *http.Request, data map[string]interface{}) {
 	uid := r.Header.Get("uid")
 
 	r.ParseForm()
