@@ -15,9 +15,15 @@ type Sign struct {
 }
 
 // 创建
-func NewSign() *Sign {
-	return &Sign{
-		apiKey: DEFAULT_WECHAT_KEY,
+func NewSign(apikey string) *Sign {
+	if len(apikey) > 0 {
+		return &Sign{
+			apiKey: apikey,
+		}
+	} else {
+		return &Sign{
+			apiKey: DEFAULT_WECHAT_KEY,
+		}
 	}
 }
 

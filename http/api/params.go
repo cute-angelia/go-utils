@@ -3,7 +3,31 @@ package api
 import (
 	"net/http"
 	"strconv"
+	"github.com/go-chi/chi"
 )
+
+// Query will get a query parameter by key.
+func QueryString(r *http.Request, key string) string {
+	return r.URL.Query().Get(key)
+}
+
+// QueryInt will get a query parameter by key and convert it to an int or return an error.
+// user?user_id=
+func QueryStringInt32(r *http.Request, key string) int32 {
+	v := r.URL.Query().Get(key)
+	val, _ := strconv.Atoi(v)
+	return int32(val)
+}
+
+// user/{user_id}
+func Param(r *http.Request, name string) string {
+	return chi.URLParam(r, name)
+}
+
+func ParamInt32(r *http.Request, name string) int32 {
+	p, _ := strconv.Atoi(chi.URLParam(r, name))
+	return int32(p)
+}
 
 func Post(r *http.Request, name string) string {
 	//if len(requireds) > 0 {

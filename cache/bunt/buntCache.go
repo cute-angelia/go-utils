@@ -20,6 +20,10 @@ import (
 
 var BuntCaches map[string]*buntdb.DB
 
+func NewBuntCache() *BuntCache {
+	return &BuntCache{}
+}
+
 type BuntCache struct {
 }
 
