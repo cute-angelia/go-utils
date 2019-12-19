@@ -32,8 +32,11 @@ type LRU struct {
 }
 
 // NewLRU creates a new LRU cache with default options.
-func NewLRU(maxSize int) *LRU {
-	return NewLRUWithOptions(maxSize, nil)
+func NewLRU(maxSize int, ttl time.Duration) *LRU {
+	opts := &Options{
+		TTL: ttl,
+	}
+	return NewLRUWithOptions(maxSize, opts)
 }
 
 // NewLRUWithOptions creates a new LRU cache with the given options.

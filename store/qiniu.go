@@ -14,6 +14,9 @@ var (
 	QiniuSdk *Qiniu
 )
 
+/**
+	qiniu
+ */
 func InitQiniu(ak, sk, bucket, zone string, prefix string) *Qiniu {
 	z := Qiniu{}
 	z.mac = qbox.NewMac(ak, sk)
@@ -34,15 +37,22 @@ func InitQiniu(ak, sk, bucket, zone string, prefix string) *Qiniu {
 
 	z.prefix = prefix
 
+	z.bucketManager = storage.NewBucketManager(z.mac, &storage.Config{
+		Zone:          z.zone,
+		UseHTTPS:      false,
+		UseCdnDomains: false,
+	})
+
 	return &z
 }
 
 // Qiniu qiniu
 type Qiniu struct {
-	prefix string
-	bucket string
-	zone   *storage.Region
-	mac    *qbox.Mac
+	prefix        string
+	bucket        string
+	zone          *storage.Region
+	mac           *qbox.Mac
+	bucketManager *storage.BucketManager
 }
 
 // NewQiniu new qiniu
@@ -78,4 +88,37 @@ func (q *Qiniu) Local(body []byte, src string) (string, error) {
 		return "", err
 	}
 	return fmt.Sprintf("%s", key), nil
+}
+
+// Local local upload
+func (q *Qiniu) LocalDiy(body []byte, key string, src string) (string, error) {
+	putPolicy := storage.PutPolicy{
+		Scope: q.bucket,
+	}
+	upToken := putPolicy.UploadToken(q.mac)
+	formUploader := storage.NewFormUploader(&storage.Config{
+		Zone:          q.zone,
+		UseHTTPS:      false,
+		UseCdnDomains: false,
+	})
+
+	if len(key) == 0 {
+		key = file.MakeNewName(true, src, "")
+	} else {
+		key = key + "/" + src
+	}
+
+	data := bytes.NewReader(body)
+	dataLen := int64(len(body))
+	err := formUploader.Put(context.Background(), &storage.PutRet{}, upToken, key, data, dataLen, &storage.PutExtra{}) // 上传
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s", key), nil
+}
+
+// delete
+// https://developer.qiniu.com/kodo/sdk/1238/go#rs-delete
+func (q *Qiniu) Delete(key string) (error) {
+	return q.bucketManager.Delete(q.bucket, key)
 }
