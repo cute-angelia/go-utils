@@ -11,9 +11,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"crypto/tls"
+	"io"
+	"github.com/guonaihong/gout"
+	"bytes"
 )
 
 // name snowflake
+// prefix set /tmp
 func MakeNewName(newname bool, src string, prefix string) string {
 	if strings.Contains(src, "?") {
 		src = strings.Split(src, "?")[0]
@@ -43,6 +47,15 @@ func MakeNewNameByTimeline(src string, prefix string) string {
 	return fmt.Sprintf("%s/%d%s", prefix, time.Now().UnixNano(), ext)
 }
 
+// 文件-读取本地文件 Local read local file
+func GetFileWithLocal(path string) ([]byte, error) {
+	imageFile, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	return ioutil.ReadAll(imageFile)
+}
+
 // 文件-读取网络文件 Net read net file
 func GetFileWithSrc(src string) ([]byte, error) {
 	tr := &http.Transport{
@@ -66,13 +79,57 @@ func GetFileWithSrc(src string) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
-// 文件-读取本地文件 Local read local file
-func GetFileWithLocal(path string) ([]byte, error) {
-	imageFile, err := os.Open(path)
+// 文件-读取网络文件 Net read net file
+func GetFileWithSrcWithGout(src string) ([]byte, error) {
+	var body []byte
+	err := gout.GET(src).
+		BindBody(&body).
+		Do()
+
 	if err != nil {
 		return nil, err
 	}
-	return ioutil.ReadAll(imageFile)
+
+	return body, nil
+}
+
+func HttpGet(url string) (resp *http.Response, err error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36")
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("httpGet: %s", resp.Status)
+	}
+	return resp, nil
+}
+
+// DownloadFileWithSrc
+func DownloadFileWithSrc(src string, savePath string) error {
+	body := []byte{}
+	if err := gout.GET(src).BindBody(&body).Do(); err != nil {
+		return err
+	}
+
+	r := bytes.NewReader(body)
+
+	// 创建目录
+	os.MkdirAll(path.Dir(savePath), os.ModePerm)
+	out, err := os.Create(savePath)
+
+	defer out.Close()
+	_, err = io.Copy(out, r)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 /**
