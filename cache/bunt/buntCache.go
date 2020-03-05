@@ -16,46 +16,42 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 var BuntCaches map[string]*buntdb.DB
 
-func NewBuntCache() *BuntCache {
-	return &BuntCache{}
-}
-
-type BuntCache struct {
-}
-
-/**
-	初始化
- */
-func (self *BuntCache) InitDb(name string, db string) error {
-	if BuntCaches[name] != nil {
+// 初始化缓存  内部使用昵称：保存名称
+func InitBuntCache(nickname string, dbname string) error {
+	if BuntCaches[nickname] != nil {
 		return nil
 	} else {
+		// dbname
+		db := dbname
+		if !strings.Contains(dbname, ".db") {
+			db = nickname + ".db"
+		}
 		// 无法创建
 		if cache, err := buntdb.Open(db); err != nil {
 			// 移除异常 db
 			if _, e := os.Stat(db); e == nil {
 				os.Remove(db)
 
-				// 重新打开一次
+				// retry 重新打开一次
 				if cache, err := buntdb.Open(db); err != nil {
-					return err
+					panic(err)
 				} else {
-					self.SetDb(name, cache)
+					SetDb(nickname, cache)
 				}
 			}
 		} else {
-			self.SetDb(name, cache)
+			SetDb(nickname, cache)
 		}
-
 		return nil
 	}
 }
 
-func (self *BuntCache) GetDb(name string) *buntdb.DB {
+func GetDb(name string) *buntdb.DB {
 	if BuntCaches[name] == nil {
 		log.Println("buntdb.未初始化:" + name)
 		return nil
@@ -64,7 +60,7 @@ func (self *BuntCache) GetDb(name string) *buntdb.DB {
 	}
 }
 
-func (self *BuntCache) SetDb(name string, db *buntdb.DB) {
+func SetDb(name string, db *buntdb.DB) {
 	if BuntCaches == nil {
 		BuntCaches = map[string]*buntdb.DB{}
 	}
@@ -74,8 +70,8 @@ func (self *BuntCache) SetDb(name string, db *buntdb.DB) {
 /**
 	设置
  */
-func (self *BuntCache) Set(dbname string, key string, val string, ttl time.Duration) error {
-	if db := self.GetDb(dbname); db != nil {
+func Set(dbname string, key string, val string, ttl time.Duration) error {
+	if db := GetDb(dbname); db != nil {
 		db.Update(func(tx *buntdb.Tx) error {
 			tx.Set(key, val, &buntdb.SetOptions{Expires: true, TTL: ttl})
 			return nil
@@ -89,8 +85,8 @@ func (self *BuntCache) Set(dbname string, key string, val string, ttl time.Durat
 /**
 	获取
  */
-func (self *BuntCache) Get(dbname string, key string) (string, error) {
-	if db := self.GetDb(dbname); db != nil {
+func Get(dbname string, key string) (string, error) {
+	if db := GetDb(dbname); db != nil {
 		val := ""
 		db.View(func(tx *buntdb.Tx) error {
 			val, _ = tx.Get(key)
@@ -104,15 +100,15 @@ func (self *BuntCache) Get(dbname string, key string) (string, error) {
 
 /**
 	查询是否锁定,
-	true => 我被锁住了
-	false => 没有锁
+	true => 我被锁住了， 不操作业务
+	false => 没有锁， 操作业务
  */
-func (self *BuntCache) IsLocked(dbname string, key string, val string, ttl time.Duration) (bool, error) {
-	value, _ := self.Get(dbname, key)
+func IsLocked(dbname string, key string, val string, ttl time.Duration) (bool, error) {
+	value, _ := Get(dbname, key)
 	if len(value) > 0 {
 		return true, nil
 	} else {
-		self.Set(dbname, key, val, ttl)
+		Set(dbname, key, val, ttl)
 		return false, nil
 	}
 }
