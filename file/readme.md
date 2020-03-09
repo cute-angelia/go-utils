@@ -1,19 +1,22 @@
-### golang 按行读取文件
+## go 文件相关操作
+
+### 文件相关
+
+- 读取-本地按行读取文件
 
 ```
 file, err := os.Open("app-2019-06-01.log")
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer file.Close()
-    scanner := bufio.NewScanner(file)
-    for scanner.Scan() {
-            lineText := scanner.Text()
-
-        }
+if err != nil {
+    log.Fatal(err)
+}
+defer file.Close()
+scanner := bufio.NewScanner(file)
+for scanner.Scan() {
+  lineText := scanner.Text()
+}
 ```
 
-### 整个读取
+- 读取-整个文件读取
 
 ```
 b, err := ioutil.ReadFile("app-2019-06-01.log") // just pass the file name
@@ -25,12 +28,10 @@ str := string(b) // convert content to a 'string'
 fmt.Println(str) // print the content as a 'string'
 ```
 
+- 写入-文件 ioutil.WriteFile
 
-写入文件
-有以下写入方式
-
-1、ioutil.WriteFile
-
+```
+// 这种方式每次都会覆盖 test.txt内容，如果test.txt文件不存在会创建。
 package main
 
 import (
@@ -45,10 +46,13 @@ func main() {
       panic(err)
    }
 }
-这种方式每次都会覆盖 test.txt内容，如果test.txt文件不存在会创建。
 
-2、os
+```
 
+- 写入-文件 os
+
+```
+// 此种方法可以在文件内容末尾添加新内容。
 package main
 
 import (
@@ -82,10 +86,11 @@ func main() {
    }
    fmt.Printf("写入 %d 个字节n", n)
 }
-此种方法可以在文件内容末尾添加新内容。
+```
 
-3、
+- 写入-文件 f.Write
 
+```
 package main
 
 import (
@@ -122,10 +127,11 @@ func main() {
    fmt.Printf("写入 %d 个字节n", n)
    f.Sync()
 }
-此种方法可以在文件内容末尾添加新内容。
+```
 
-4、bufio
+- 写入-文件 bufio
 
+```
 package main
 
 import (
@@ -161,4 +167,26 @@ func main() {
    fmt.Printf("写入 %d 个字节n", n)
    w.Flush()
 }
-此种方法可以在文件内容末尾添加新内容。
+
+```
+
+### 定义的方法
+
+- OpenLocalFile
+
+打开已经存在的文件， 不存在会新建一个， 返回 `*os.File`
+
+- 下载文件并保存到指定路径, more is see test.go
+
+```
+DownloadFileWithSrc("xxx.jpg", "/tmp/xxx.jpg")
+
+```
+
+### 测试
+
+```
+
+go test -v -run TestA$ file_test.go
+
+```

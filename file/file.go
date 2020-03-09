@@ -1,53 +1,74 @@
 package file
 
 import (
-	"os"
-	"path"
+	"bytes"
 	"fmt"
 	"github.com/cute-angelia/go-utils/generator/snowflake"
-	"runtime"
-	"time"
-	"strings"
-	"io/ioutil"
-	"net/http"
-	"crypto/tls"
-	"io"
 	"github.com/guonaihong/gout"
-	"bytes"
+	"io"
+	"io/ioutil"
+	"os"
+	"path"
+	"runtime"
+	"path/filepath"
+	"strings"
+	"time"
 )
 
-// name snowflake
-// prefix set /tmp
-func MakeNewName(newname bool, src string, prefix string) string {
-	if strings.Contains(src, "?") {
-		src = strings.Split(src, "?")[0]
+// 打开已经存在的文件， 不存在会新建一个， 返回 *os.File
+// open an existed file or create a file if not exists
+// 读写覆盖、0644 其他用户只读
+func OpenLocalFile(path string) *os.File {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		f, err := os.Create(path)
+		if err != nil {
+			panic(err)
+		}
+		return f
 	}
-
-	filesavepath := ""
-	if newname {
-		ext := path.Ext(src)
-		n, _ := snowflake.NewSnowId(1)
-
-		filesavepath = fmt.Sprintf("%s/%s%s", prefix, n.String(), ext)
-	} else {
-		z := path.Base(src)
-		filesavepath = fmt.Sprintf("%s/%s", prefix, z)
+	// open file in read-write mode
+	// path, os.O_RDWR, 0666) || 0644
+	f, err := os.OpenFile(path, os.O_RDWR, 0644)
+	if err != nil {
+		panic(err)
 	}
-
-	return filesavepath
+	return f
 }
 
-// name timeline
-func MakeNewNameByTimeline(src string, prefix string) string {
-	if strings.Contains(src, "?") {
-		src = strings.Split(src, "?")[0]
+// 打开已经存在的文件， 不存在会新建一个， 返回 *os.File
+// open an existed file or create a file if not exists
+// 读写覆盖 || 读写追加、0666 全读写， 0644 其他用户只读
+func OpenLocalFileWithFlagPerm(path string, flag int, perm os.FileMode) *os.File {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		f, err := os.Create(path)
+		if err != nil {
+			panic(err)
+		}
+		return f
 	}
-
-	ext := path.Ext(src)
-	return fmt.Sprintf("%s/%d%s", prefix, time.Now().UnixNano(), ext)
+	// open file in read-write mode
+	// path, os.O_RDWR|os.O_APPEND, 0666) || 0644
+	f, err := os.OpenFile(path, flag, perm)
+	if err != nil {
+		panic(err)
+	}
+	return f
 }
 
-// 文件-读取本地文件 Local read local file
+// 遍历文件夹
+func GetFilelist(searchDir string) []string {
+	fileList := []string{}
+	filepath.Walk(searchDir, func(path string, f os.FileInfo, err error) error {
+		if !f.IsDir() {
+			fileList = append(fileList, path)
+		}
+		return nil
+	})
+
+	return fileList
+}
+
+// 文件文件-读取本地文件 Local read local file
 func GetFileWithLocal(path string) ([]byte, error) {
 	imageFile, err := os.Open(path)
 	if err != nil {
@@ -57,27 +78,27 @@ func GetFileWithLocal(path string) ([]byte, error) {
 }
 
 // 文件-读取网络文件 Net read net file
-func GetFileWithSrc(src string) ([]byte, error) {
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-
-	client := &http.Client{Transport: tr, Timeout: time.Second * 6}
-	// set request
-	req, err := http.NewRequest("GET", src, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Close = true
-	// req.Header = args.Header
-	// get response
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	return ioutil.ReadAll(resp.Body)
-}
+//func GetFileWithSrc(src string) ([]byte, error) {
+//	tr := &http.Transport{
+//		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+//	}
+//
+//	client := &http.Client{Transport: tr, Timeout: time.Second * 6}
+//	// set request
+//	req, err := http.NewRequest("GET", src, nil)
+//	if err != nil {
+//		return nil, err
+//	}
+//	req.Close = true
+//	// req.Header = args.Header
+//	// get response
+//	resp, err := client.Do(req)
+//	if err != nil {
+//		return nil, err
+//	}
+//	defer resp.Body.Close()
+//	return ioutil.ReadAll(resp.Body)
+//}
 
 // 文件-读取网络文件 Net read net file
 func GetFileWithSrcWithGout(src string) ([]byte, error) {
@@ -93,86 +114,65 @@ func GetFileWithSrcWithGout(src string) ([]byte, error) {
 	return body, nil
 }
 
-func HttpGet(url string) (resp *http.Response, err error) {
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36")
-	resp, err = http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("httpGet: %s", resp.Status)
-	}
-	return resp, nil
-}
-
+// 下载文件
 // DownloadFileWithSrc
+// src,
+// savePath like /tmp/222.jpg
 func DownloadFileWithSrc(src string, savePath string) error {
-	body := []byte{}
-	if err := gout.GET(src).BindBody(&body).Do(); err != nil {
+	if body, err := GetFileWithSrcWithGout(src); err != nil {
 		return err
-	}
-
-	r := bytes.NewReader(body)
-
-	// 创建目录
-	os.MkdirAll(path.Dir(savePath), os.ModePerm)
-	out, err := os.Create(savePath)
-
-	defer out.Close()
-	_, err = io.Copy(out, r)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-/**
-	创建文件路径
- */
-func GeneratePathBySrc(newname bool, to string, src string, prefix string) string {
-	// 处理斜杠
-	s := to[len(to)-1: len(to)]
-	if s != "/" {
-		to = to + "/"
-	}
-
-	filesavepath := ""
-
-	if newname {
-		ext := path.Ext(src)
-		n, _ := snowflake.NewSnowId(1)
-		filesavepath = fmt.Sprintf("%s%s%d%s", to, prefix, n, ext)
 	} else {
-		z := path.Base(src)
-		filesavepath = fmt.Sprintf("%s%s%s", to, prefix, z)
-	}
+		r := bytes.NewReader(body)
 
-	return filesavepath
-}
-
-// 创建本地文件，方便写入数据，导出
-// OpenCreateFile open an existed file or create a file if not exists
-func OpenCreateFile(path string, flag int, perm os.FileMode) *os.File {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		f, err := os.Create(path)
+		//dir
+		saveDir := path.Dir(savePath)
+		err := os.MkdirAll(saveDir, os.ModePerm)
 		if err != nil {
 			panic(err)
 		}
-		return f
+
+		// Create the file
+		out, err := os.Create(savePath)
+		if err != nil {
+			return err
+		}
+		defer out.Close()
+
+		// Write the body to file
+		_, err = io.Copy(out, r)
+		return err
 	}
-	// open file in read-write mode
-	f, err := os.OpenFile(path, flag, perm)
-	if err != nil {
-		panic(err)
-	}
-	return f
 }
+
+// 对连接生成名字
+// random is use snowflake id
+// prefix is like parent dir like "tmp" example: xxxxx.jpg will => tmp/xxxxx.jpg
+func MakeSavePathWithUrl(random bool, src string, prefix string) string {
+	if strings.Contains(src, "?") {
+		src = strings.Split(src, "?")[0]
+	}
+	filesavepath := ""
+	if random {
+		ext := path.Ext(src)
+		n, _ := snowflake.NewSnowId(1)
+
+		filesavepath = fmt.Sprintf("%s/%s%s", prefix, n.String(), ext)
+	} else {
+		z := path.Base(src)
+		filesavepath = fmt.Sprintf("%s/%s", prefix, z)
+	}
+	return filesavepath
+}
+
+// name timeline
+func MakeSavePathWithUrlAndTimeline(src string, prefix string) string {
+	if strings.Contains(src, "?") {
+		src = strings.Split(src, "?")[0]
+	}
+	ext := path.Ext(src)
+	return fmt.Sprintf("%s/%d%s", prefix, time.Now().UnixNano(), ext)
+}
+
 
 // 获取用户文件夹
 func GetUserHomeDir() string {
