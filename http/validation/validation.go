@@ -48,10 +48,8 @@ package validation
 
 import (
 	"fmt"
-	api "github.com/micro/go-api/proto"
 	"reflect"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -109,25 +107,25 @@ type Validation struct {
 }
 
 // format
-func (v *Validation) Format(pair *api.Pair) string {
-	if pair != nil {
-		return pair.Values[0]
-	} else {
-		return ""
-	}
-}
-
-// format
-func (v *Validation) FormatInt(pair *api.Pair) int {
-	sv, _ := strconv.Atoi(v.Format(pair))
-	return sv
-}
-
-// format
-func (v *Validation) FormatInt32(pair *api.Pair) int32 {
-	sv, _ := strconv.Atoi(v.Format(pair))
-	return int32(sv)
-}
+//func (v *Validation) Format(pair *api.Pair) string {
+//	if pair != nil {
+//		return pair.Values[0]
+//	} else {
+//		return ""
+//	}
+//}
+//
+//// format
+//func (v *Validation) FormatInt(pair *api.Pair) int {
+//	sv, _ := strconv.Atoi(v.Format(pair))
+//	return sv
+//}
+//
+//// format
+//func (v *Validation) FormatInt32(pair *api.Pair) int32 {
+//	sv, _ := strconv.Atoi(v.Format(pair))
+//	return int32(sv)
+//}
 
 // Submit
 func (v *Validation) Submit(u interface{}) error {

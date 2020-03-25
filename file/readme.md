@@ -190,3 +190,31 @@ DownloadFileWithSrc("xxx.jpg", "/tmp/xxx.jpg")
 go test -v -run TestA$ file_test.go
 
 ```
+
+
+### other
+
+```
+ioutil 包实现了一些 I/O 实用函数。
+
+func NopCloser(r io.Reader) io.ReadCloser
+返回一个包裹起给定 Reader r 的 ReadCloser ， 这个 ReadCloser 带有一个无参数的 Close 方法。
+
+func ReadAll(r io.Reader) ([]byte, error)
+对 r 进行读取， 直到发生错误或者遇到 EOF 为止， 然后返回被读取的数据。
+
+func ReadDir(dirname string) ([]os.FileInfo, error)
+读取 dirname 指定的目录， 并返回一个根据文件名进行排序的目录节点列表
+
+func ReadFile(filename string) ([]byte, error)
+读取名字为 filename 的文件并返回文件中的内容。
+
+func TempDir(dir, pattern string) (name string, err error)
+在目录 dir 中新创建一个带有指定前缀 prefix 的临时目录， 然后返回该目录的路径。
+
+func TempFile(dir, pattern string) (f *os.File, err error)
+在目录 dir 新创建一个名字带有指定前缀 prefix 的临时文件， 以可读写的方式打开它， 并返回一个 *os.File 指针。
+
+func WriteFile(filename string, data []byte, perm os.FileMode) error
+将给定的数据 data 写入到名字为 filename 的文件里面。
+```

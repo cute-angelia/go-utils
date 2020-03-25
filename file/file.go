@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"github.com/cute-angelia/go-utils/generator/snowflake"
 	"github.com/guonaihong/gout"
+	"github.com/guonaihong/gout/dataflow"
 	"io"
 	"io/ioutil"
 	"os"
 	"path"
-	"runtime"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -59,7 +60,7 @@ func OpenLocalFileWithFlagPerm(path string, flag int, perm os.FileMode) *os.File
 func GetFilelist(searchDir string) []string {
 	fileList := []string{}
 	filepath.Walk(searchDir, func(path string, f os.FileInfo, err error) error {
-		if !f.IsDir() {
+		if !f.IsDir() && f.Name() != ".DS_Store" {
 			fileList = append(fileList, path)
 		}
 		return nil
@@ -103,14 +104,21 @@ func GetFileWithLocal(path string) ([]byte, error) {
 // 文件-读取网络文件 Net read net file
 func GetFileWithSrcWithGout(src string) ([]byte, error) {
 	var body []byte
-	err := gout.GET(src).
-		BindBody(&body).
-		Do()
+	err := gout.GET(src).Callback(func(c *dataflow.Context) error {
+		switch c.Code {
+		case 200:
+			c.BindBody(&body)
+			return nil
+		case 404: //http code为404时，服务端返回是html 字符串
+			return fmt.Errorf(src + " 404")
+		default:
+			return fmt.Errorf(src + " error")
+		}
+	}).Do()
 
 	if err != nil {
 		return nil, err
 	}
-
 	return body, nil
 }
 
@@ -118,21 +126,22 @@ func GetFileWithSrcWithGout(src string) ([]byte, error) {
 // DownloadFileWithSrc
 // src,
 // savePath like /tmp/222.jpg
-func DownloadFileWithSrc(src string, savePath string) error {
+func DownloadFileWithSrc(src string, dir string, filenamewithext string) error {
 	if body, err := GetFileWithSrcWithGout(src); err != nil {
 		return err
 	} else {
 		r := bytes.NewReader(body)
 
 		//dir
-		saveDir := path.Dir(savePath)
-		err := os.MkdirAll(saveDir, os.ModePerm)
+		// saveDir := path.Dir(dir)
+		err := os.MkdirAll(dir, os.ModePerm)
 		if err != nil {
 			panic(err)
 		}
 
 		// Create the file
-		out, err := os.Create(savePath)
+		filepath := fmt.Sprintf("%s/%s", dir, filenamewithext)
+		out, err := os.Create(filepath)
 		if err != nil {
 			return err
 		}
@@ -147,7 +156,7 @@ func DownloadFileWithSrc(src string, savePath string) error {
 // 对连接生成名字
 // random is use snowflake id
 // prefix is like parent dir like "tmp" example: xxxxx.jpg will => tmp/xxxxx.jpg
-func MakeSavePathWithUrl(random bool, src string, prefix string) string {
+func MakeNameByUrl(random bool, src string, prefix string) string {
 	if strings.Contains(src, "?") {
 		src = strings.Split(src, "?")[0]
 	}
@@ -155,24 +164,30 @@ func MakeSavePathWithUrl(random bool, src string, prefix string) string {
 	if random {
 		ext := path.Ext(src)
 		n, _ := snowflake.NewSnowId(1)
-
-		filesavepath = fmt.Sprintf("%s/%s%s", prefix, n.String(), ext)
+		if len(prefix) > 0 {
+			filesavepath = fmt.Sprintf("%s_%s%s", prefix, n.String(), ext)
+		} else {
+			filesavepath = fmt.Sprintf("%s%s", n.String(), ext)
+		}
 	} else {
 		z := path.Base(src)
-		filesavepath = fmt.Sprintf("%s/%s", prefix, z)
+		if len(prefix) > 0 {
+			filesavepath = fmt.Sprintf("%s_%s", prefix, z)
+		} else {
+			filesavepath = fmt.Sprintf("%s", z)
+		}
 	}
 	return filesavepath
 }
 
 // name timeline
-func MakeSavePathWithUrlAndTimeline(src string, prefix string) string {
+func MakeNameByTimeline(src string, prefix string) string {
 	if strings.Contains(src, "?") {
 		src = strings.Split(src, "?")[0]
 	}
 	ext := path.Ext(src)
 	return fmt.Sprintf("%s/%d%s", prefix, time.Now().UnixNano(), ext)
 }
-
 
 // 获取用户文件夹
 func GetUserHomeDir() string {
@@ -189,4 +204,22 @@ func GetUserHomeDir() string {
 		}
 	}
 	return os.Getenv("HOME")
+}
+
+func DeleteFile(path string) {
+	// delete file
+	var err = os.Remove(path)
+	if isError(err) {
+		return
+	}
+
+	fmt.Println("==> done deleting file")
+}
+
+func isError(err error) bool {
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	return (err != nil)
 }

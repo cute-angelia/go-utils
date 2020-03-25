@@ -69,6 +69,7 @@ func SetDb(name string, db *buntdb.DB) {
 
 /**
 	设置
+	不要设置为空
  */
 func Set(dbname string, key string, val string, ttl time.Duration) error {
 	if db := GetDb(dbname); db != nil {
@@ -92,7 +93,12 @@ func Get(dbname string, key string) (string, error) {
 			val, _ = tx.Get(key)
 			return nil
 		})
-		return val, nil
+
+		if len(val) == 0 {
+			return "", fmt.Errorf("数据为空")
+		} else {
+			return val, nil
+		}
 	} else {
 		return "", fmt.Errorf("无法找到 db")
 	}
