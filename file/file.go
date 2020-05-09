@@ -103,8 +103,11 @@ func GetFileWithLocal(path string) ([]byte, error) {
 
 // 文件-读取网络文件 Net read net file
 func GetFileWithSrcWithGout(src string) ([]byte, error) {
+	UserAgent := "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1"
 	var body []byte
-	err := gout.GET(src).Callback(func(c *dataflow.Context) error {
+	err := gout.GET(src).SetHeader(gout.H(gout.H{
+		"user-agent": UserAgent,
+	})).Callback(func(c *dataflow.Context) error {
 		switch c.Code {
 		case 200:
 			c.BindBody(&body)
@@ -112,7 +115,7 @@ func GetFileWithSrcWithGout(src string) ([]byte, error) {
 		case 404: //http code为404时，服务端返回是html 字符串
 			return fmt.Errorf(src + " 404")
 		default:
-			return fmt.Errorf(src + " error")
+			return fmt.Errorf(src + " error: %d", c.Code)
 		}
 	}).Do()
 

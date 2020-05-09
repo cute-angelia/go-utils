@@ -62,7 +62,7 @@ func NewQiniu() *Qiniu {
 
 // Net net upload
 func (q *Qiniu) Net(url string) (string, error) {
-	body, err := file.GetFileWithSrc(url)
+	body, err := file.GetFileWithSrcWithGout(url)
 	if err != nil {
 		return "", err
 	}
@@ -80,7 +80,7 @@ func (q *Qiniu) Local(body []byte, src string) (string, error) {
 		UseHTTPS:      false,
 		UseCdnDomains: false,
 	})
-	key := file.MakeNewName(true, src, q.prefix)
+	key := file.MakeNameByUrl(true, src, q.prefix)
 	data := bytes.NewReader(body)
 	dataLen := int64(len(body))
 	err := formUploader.Put(context.Background(), &storage.PutRet{}, upToken, key, data, dataLen, &storage.PutExtra{}) // 上传
@@ -103,7 +103,7 @@ func (q *Qiniu) LocalDiy(body []byte, key string, src string) (string, error) {
 	})
 
 	if len(key) == 0 {
-		key = file.MakeNewName(true, src, "")
+		key = file.MakeNameByUrl(true, src, "")
 	} else {
 		key = key + "/" + src
 	}
