@@ -58,7 +58,8 @@ func initDB(opts GormOptions) *gorm.DB {
 	dbUser := opts.Username
 	dbPasswd := opts.Password
 	dbPort := opts.Port
-	ocosMax := opts.ConnMax
+	maxIdleConns := opts.MaxIdleConns
+	maxOpenConns := opts.MaxOpenConns
 	dbType := "mysql"
 
 	connectString := ""
@@ -75,8 +76,15 @@ func initDB(opts GormOptions) *gorm.DB {
 		db, err = gorm.Open(dbType, connectString)
 	}
 
-	//最大打开连接数
-	db.DB().SetMaxIdleConns(ocosMax)
+	//最大闲置打开连接数
+	db.DB().SetMaxIdleConns(maxIdleConns)
+
+	// ==> 最大连接数
+	if maxOpenConns == 0 {
+		db.DB().SetMaxOpenConns(maxIdleConns * 2)
+	} else {
+		db.DB().SetMaxOpenConns(maxOpenConns)
+	}
 
 	// LogMode Print log
 	db.LogMode(opts.LogDebug)

@@ -1,14 +1,15 @@
 package umysql
 
 type GormOptions struct {
-	Host     string
-	Port     string
-	Username string
-	Password string
-	Dbname   string
-	Dsn      string
-	ConnMax  int
-	LogDebug bool
+	Host         string
+	Port         string
+	Username     string
+	Password     string
+	Dbname       string
+	Dsn          string
+	MaxIdleConns int
+	MaxOpenConns int
+	LogDebug     bool
 }
 
 type GormOption func(options *GormOptions)
@@ -23,8 +24,8 @@ func NewGormOpts(opts ...GormOption) GormOptions {
 		sopt.Port = "3306"
 	}
 
-	if sopt.ConnMax == 0 {
-		sopt.ConnMax = int(10)
+	if sopt.MaxIdleConns == 0 {
+		sopt.MaxIdleConns = int(10)
 	}
 
 	sopt.LogDebug = true
@@ -62,9 +63,15 @@ func WithGormOptDbname(dbname string) GormOption {
 	}
 }
 
-func WithGormOptConnmax(connmax int) GormOption {
+func WithGormOptMaxIdleConns(connmax int) GormOption {
 	return func(options *GormOptions) {
-		options.ConnMax = connmax
+		options.MaxIdleConns = connmax
+	}
+}
+
+func WithGormOptMaxOpenConns(connmax int) GormOption {
+	return func(options *GormOptions) {
+		options.MaxOpenConns = connmax
 	}
 }
 

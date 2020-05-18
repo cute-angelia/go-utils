@@ -46,7 +46,8 @@ func initPgDB(opts GormOptions) *gorm.DB {
 	)
 
 	// config
-	ocosMax := opts.ConnMax
+	maxIdleConns := opts.MaxIdleConns
+	maxOpenConns := opts.MaxOpenConns
 	dbType := "postgres"
 
 	connectString := ""
@@ -63,8 +64,13 @@ func initPgDB(opts GormOptions) *gorm.DB {
 	}
 
 	//最大打开连接数
-	db.DB().SetMaxIdleConns(ocosMax)
-	db.DB().SetMaxOpenConns(ocosMax * 10)
+	db.DB().SetMaxIdleConns(maxIdleConns)
+
+	if maxOpenConns == 0 {
+		db.DB().SetMaxOpenConns(maxIdleConns * 2)
+	} else {
+		db.DB().SetMaxOpenConns(maxOpenConns)
+	}
 
 	// LogMode Print log
 	db.LogMode(opts.LogDebug)
