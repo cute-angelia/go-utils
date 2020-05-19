@@ -80,11 +80,10 @@ func initDB(opts GormOptions) *gorm.DB {
 	db.DB().SetMaxIdleConns(maxIdleConns)
 
 	// ==> 最大连接数
-	if maxOpenConns == 0 {
-		db.DB().SetMaxOpenConns(maxIdleConns * 2)
-	} else {
-		db.DB().SetMaxOpenConns(maxOpenConns)
-	}
+	db.DB().SetMaxOpenConns(maxOpenConns)
+
+	// 最大时间
+	db.DB().SetConnMaxLifetime(opts.MaxLifetime)
 
 	// LogMode Print log
 	db.LogMode(opts.LogDebug)

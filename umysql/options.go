@@ -1,5 +1,7 @@
 package umysql
 
+import "time"
+
 type GormOptions struct {
 	Host         string
 	Port         string
@@ -9,6 +11,7 @@ type GormOptions struct {
 	Dsn          string
 	MaxIdleConns int
 	MaxOpenConns int
+	MaxLifetime  time.Duration
 	LogDebug     bool
 }
 
@@ -22,6 +25,10 @@ func NewGormOpts(opts ...GormOption) GormOptions {
 
 	if sopt.Port == "" {
 		sopt.Port = "3306"
+	}
+
+	if sopt.MaxLifetime == 0 {
+		sopt.MaxLifetime = time.Duration(time.Minute * 5)
 	}
 
 	if sopt.MaxIdleConns == 0 {
@@ -84,5 +91,11 @@ func WithGormLogDebug(logdebug bool) GormOption {
 func WithGormDsn(dsn string) GormOption {
 	return func(options *GormOptions) {
 		options.Dsn = dsn
+	}
+}
+
+func WithMaxLifeTime(maxLifeTime time.Duration) GormOption {
+	return func(options *GormOptions) {
+		options.MaxLifetime = maxLifeTime
 	}
 }
