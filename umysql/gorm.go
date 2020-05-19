@@ -1,16 +1,17 @@
 package umysql
 
 import (
+	"context"
 	"fmt"
 	"github.com/jinzhu/gorm"
+	"github.com/smacker/opentracing-gorm"
 	"log"
 	"time"
-	"github.com/smacker/opentracing-gorm"
-	"context"
 )
 
 // gorm 连接池, gorm 本身也提供了pool, 提供全局对象, 这里初始化全局对象
 var Gorm = make(map[string]*gorm.DB)
+
 // 配置, 为了断开重连
 var GormOpts = make(map[string]GormOptions)
 
@@ -83,7 +84,9 @@ func initDB(opts GormOptions) *gorm.DB {
 	db.DB().SetMaxOpenConns(maxOpenConns)
 
 	// 最大时间
-	db.DB().SetConnMaxLifetime(opts.MaxLifetime)
+	if opts.MaxLifetime > 0 {
+		db.DB().SetConnMaxLifetime(opts.MaxLifetime)
+	}
 
 	// LogMode Print log
 	db.LogMode(opts.LogDebug)

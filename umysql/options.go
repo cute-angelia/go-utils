@@ -27,10 +27,6 @@ func NewGormOpts(opts ...GormOption) GormOptions {
 		sopt.Port = "3306"
 	}
 
-	if sopt.MaxLifetime == 0 {
-		sopt.MaxLifetime = time.Duration(time.Minute * 5)
-	}
-
 	if sopt.MaxIdleConns == 0 {
 		sopt.MaxIdleConns = int(10)
 	}
