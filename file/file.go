@@ -126,7 +126,7 @@ func GetFileWithSrcWithGout(src string) ([]byte, error) {
 }
 
 func DownloadFile(src string, dir string, prefix string) (string, error) {
-	n := MakeNameByTimeline(src, prefix)
+	n := MakeNameByUrl(true, src, prefix)
 	return DownloadFileWithSrc(src, dir, n)
 }
 
@@ -198,7 +198,12 @@ func MakeNameByTimeline(src string, prefix string) string {
 		src = strings.Split(src, "?")[0]
 	}
 	ext := path.Ext(src)
-	return fmt.Sprintf("%s_%d%s", prefix, time.Now().UnixNano(), ext)
+
+	if len(prefix) == 0 {
+		return fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
+	} else {
+		return fmt.Sprintf("%s_%d%s", prefix, time.Now().UnixNano(), ext)
+	}
 }
 
 // 获取用户文件夹
