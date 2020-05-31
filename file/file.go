@@ -125,7 +125,7 @@ func GetFileWithSrcWithGout(src string) ([]byte, error) {
 	return body, nil
 }
 
-func DownloadFile(src string, dir string, prefix string) error {
+func DownloadFile(src string, dir string, prefix string) (string, error) {
 	n := MakeNameByTimeline(src, prefix)
 	return DownloadFileWithSrc(src, dir, n)
 }
@@ -135,9 +135,9 @@ func DownloadFile(src string, dir string, prefix string) error {
 // DownloadFileWithSrc
 // src,
 // savePath like /tmp/222.jpg
-func DownloadFileWithSrc(src string, dir string, filenamewithext string) error {
+func DownloadFileWithSrc(src string, dir string, filenamewithext string) (string, error) {
 	if body, err := GetFileWithSrcWithGout(src); err != nil {
-		return err
+		return "", err
 	} else {
 		r := bytes.NewReader(body)
 
@@ -149,16 +149,19 @@ func DownloadFileWithSrc(src string, dir string, filenamewithext string) error {
 		}
 
 		// Create the file
-		filepath := fmt.Sprintf("%s/%s", dir, filenamewithext)
-		out, err := os.Create(filepath)
+		ifile := fmt.Sprintf("%s/%s", dir, filenamewithext)
+		out, err := os.Create(ifile)
 		if err != nil {
-			return err
+			return "", err
 		}
 		defer out.Close()
 
 		// Write the body to file
-		_, err = io.Copy(out, r)
-		return err
+		if _, err = io.Copy(out, r); err != nil {
+			return "", err
+		} else {
+			return ifile, err
+		}
 	}
 }
 
