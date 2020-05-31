@@ -115,7 +115,7 @@ func GetFileWithSrcWithGout(src string) ([]byte, error) {
 		case 404: //http code为404时，服务端返回是html 字符串
 			return fmt.Errorf(src + " 404")
 		default:
-			return fmt.Errorf(src + " error: %d", c.Code)
+			return fmt.Errorf(src+" error: %d", c.Code)
 		}
 	}).Do()
 
@@ -125,6 +125,12 @@ func GetFileWithSrcWithGout(src string) ([]byte, error) {
 	return body, nil
 }
 
+func DownloadFile(src string, dir string, prefix string) error {
+	n := MakeNameByTimeline(src, prefix)
+	return DownloadFileWithSrc(src, dir, n)
+}
+
+// 有问题。- -
 // 下载文件
 // DownloadFileWithSrc
 // src,
@@ -189,7 +195,7 @@ func MakeNameByTimeline(src string, prefix string) string {
 		src = strings.Split(src, "?")[0]
 	}
 	ext := path.Ext(src)
-	return fmt.Sprintf("%s/%d%s", prefix, time.Now().UnixNano(), ext)
+	return fmt.Sprintf("%s_%d%s", prefix, time.Now().UnixNano(), ext)
 }
 
 // 获取用户文件夹
