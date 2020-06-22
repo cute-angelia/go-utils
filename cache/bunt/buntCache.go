@@ -11,12 +11,12 @@
 package bunt
 
 import (
-	"github.com/tidwall/buntdb"
-	"time"
 	"fmt"
+	"github.com/tidwall/buntdb"
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 var BuntCaches map[string]*buntdb.DB
@@ -68,9 +68,9 @@ func SetDb(name string, db *buntdb.DB) {
 }
 
 /**
-	设置
-	不要设置为空
- */
+设置
+不要设置为空
+*/
 func Set(dbname string, key string, val string, ttl time.Duration) error {
 	if db := GetDb(dbname); db != nil {
 		db.Update(func(tx *buntdb.Tx) error {
@@ -84,9 +84,9 @@ func Set(dbname string, key string, val string, ttl time.Duration) error {
 }
 
 /**
-	获取
- */
-func Get(dbname string, key string) (string, error) {
+获取
+*/
+func Get(dbname string, key string) string {
 	if db := GetDb(dbname); db != nil {
 		val := ""
 		db.View(func(tx *buntdb.Tx) error {
@@ -95,22 +95,23 @@ func Get(dbname string, key string) (string, error) {
 		})
 
 		if len(val) == 0 {
-			return "", fmt.Errorf("数据为空")
+			return ""
 		} else {
-			return val, nil
+			return val
 		}
 	} else {
-		return "", fmt.Errorf("无法找到 db")
+		log.Println(fmt.Errorf("无法找到 db" + dbname))
+		return ""
 	}
 }
 
 /**
-	查询是否锁定,
-	true => 我被锁住了， 不操作业务
-	false => 没有锁， 操作业务
- */
+查询是否锁定,
+true => 我被锁住了， 不操作业务
+false => 没有锁， 操作业务
+*/
 func IsLocked(dbname string, key string, val string, ttl time.Duration) (bool, error) {
-	value, _ := Get(dbname, key)
+	value := Get(dbname, key)
 	if len(value) > 0 {
 		return true, nil
 	} else {
