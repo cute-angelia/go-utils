@@ -110,12 +110,12 @@ func Get(dbname string, key string) string {
 true => 我被锁住了， 不操作业务
 false => 没有锁， 操作业务
 */
-func IsLocked(dbname string, key string, val string, ttl time.Duration) (bool, error) {
+func IsLocked(dbname string, key string, val string, ttl time.Duration) bool {
 	value := Get(dbname, key)
 	if len(value) > 0 {
-		return true, nil
+		return true
 	} else {
 		Set(dbname, key, val, ttl)
-		return false, nil
+		return false
 	}
 }
