@@ -119,3 +119,19 @@ func IsLocked(dbname string, key string, val string, ttl time.Duration) bool {
 		return false
 	}
 }
+
+/**
+查询是否锁定,
+true => 我被锁住了， 不操作业务
+false => 没有锁， 操作业务
+*/
+func IsLockedToday(dbname string, key string, val string, ttl time.Duration) bool {
+	key = fmt.Sprintf("%s_%s", key, time.Now().Format("2006-01-02"))
+	value := Get(dbname, key)
+	if len(value) > 0 {
+		return true
+	} else {
+		Set(dbname, key, val, ttl)
+		return false
+	}
+}
