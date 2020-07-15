@@ -135,6 +135,7 @@ func DownloadFile(src string, dir string, prefix string) (string, error) {
 // DownloadFileWithSrc
 // src,
 // savePath like /tmp/222.jpg
+// return filepath
 func DownloadFileWithSrc(src string, dir string, filenamewithext string) (string, error) {
 	if body, err := GetFileWithSrcWithGout(src); err != nil {
 		return "", err

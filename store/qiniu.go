@@ -7,8 +7,10 @@ import (
 	"github.com/cute-angelia/go-utils/file"
 	"github.com/qiniu/api.v7/auth"
 	"github.com/qiniu/api.v7/v7/storage"
+	"io"
 	"log"
 	"net/http"
+	"os"
 )
 
 type Qiniu struct {
@@ -20,14 +22,15 @@ type Qiniu struct {
 	FileType      int
 	Zone          string
 	BucketManager *storage.BucketManager
-	QiniuConfig    storage.Config
+	QiniuConfig   storage.Config
+	Domain        string
 }
 
 func NewQiNiu(ak, sk, bucket string, zone string) *Qiniu {
 	mac := auth.New(ak, sk)
 	cfg := storage.Config{
 		// 是否使用https域名进行资源管理
-		UseHTTPS: false,
+		UseHTTPS:      false,
 		UseCdnDomains: false,
 	}
 	// 指定空间所在的区域，如果不指定将自动探测
@@ -43,7 +46,7 @@ func NewQiNiu(ak, sk, bucket string, zone string) *Qiniu {
 		Sk:            sk,
 		Bucket:        bucket,
 		BucketManager: bucketManager,
-		QiniuConfig: cfg,
+		QiniuConfig:   cfg,
 	}
 }
 
@@ -54,7 +57,7 @@ func (self *Qiniu) SetConfig(prefix, cmd string, fileType int) *Qiniu {
 	return self
 }
 
-func (self *Qiniu) UploadByLocalFile(url string, key string) (string, error) {
+func (self *Qiniu) UploadByLocalFile(path string, key string) (string, error) {
 	putPolicy := storage.PutPolicy{
 		Scope: self.Bucket + ":" + key,
 	}
@@ -84,11 +87,59 @@ func (self *Qiniu) UploadByLocalFile(url string, key string) (string, error) {
 	//}
 	//putExtra.NoCrc32Check = true
 
-	if err := formUploader.PutFile(context.Background(), &ret, upToken, key, url, &storage.PutExtra{}); err != nil {
+	if err := formUploader.PutFile(context.Background(), &ret, upToken, key, path, &storage.PutExtra{}); err != nil {
 		log.Println(err)
 		return "", err
 	}
 	// log.Println(ret.Key, ret.Hash)
+
+	// 上传成功后删除文件
+	os.Remove(path)
+
+	log.Println("七牛上传成功：", path, ret.Key)
+	return ret.Key, nil
+}
+
+func (self *Qiniu) UploadByForm(f io.Reader, key string) (string, error) {
+	putPolicy := storage.PutPolicy{
+		Scope: self.Bucket + ":" + key,
+	}
+
+	mac := auth.New(self.Ak, self.Sk)
+	upToken := putPolicy.UploadToken(mac)
+
+	//设置代理
+	// proxyURL := "http://localhost:8888"
+	// proxyURI, _ := url.Parse(proxyURL)
+
+	//构建代理client对象
+	client := http.Client{
+		Transport: &http.Transport{
+			// Proxy: http.ProxyURL(proxyURI),
+		},
+	}
+
+	// 构建表单上传的对象
+	formUploader := storage.NewFormUploaderEx(&self.QiniuConfig, &storage.Client{Client: &client})
+	ret := storage.PutRet{}
+	// 可选配置
+	//putExtra := storage.PutExtra{
+	//	Params: map[string]string{
+	//		"x:name": "github logo",
+	//	},
+	//}
+	//putExtra.NoCrc32Check = true
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(f)
+
+	if err := formUploader.Put(context.Background(), &ret, upToken, key, f, int64(buf.Len()), &storage.PutExtra{}); err != nil {
+		log.Println(err)
+		return "", err
+	}
+	// log.Println(ret.Key, ret.Hash)
+
+	// 上传成功后删除文件
+	log.Println("七牛上传成功：", ret.Key)
 	return ret.Key, nil
 }
 
@@ -134,7 +185,7 @@ func (self *Qiniu) UploadByUrl(url string, key string) (string, error) {
 		log.Println(err)
 		return "", err
 	}
-	log.Println(ret.Key, ret.Hash)
+	log.Println("七牛上传成功：", url, ret.Key)
 	return ret.Key, nil
 }
 
@@ -164,7 +215,7 @@ func (self *Qiniu) ListKeys() {
 		// 处理
 		switch self.Cmd {
 		case "delete":
-			self.Delete(keys)
+			self.DeleteKeys(keys)
 		case "changeType":
 			self.ChangeType(keys)
 		}
@@ -179,7 +230,7 @@ func (self *Qiniu) ListKeys() {
 }
 
 // 删除
-func (self *Qiniu) Delete(keys []string) {
+func (self *Qiniu) DeleteKeys(keys []string) {
 	deleteOps := make([]string, 0, len(keys))
 	for _, key := range keys {
 		deleteOps = append(deleteOps, storage.URIDelete(self.Bucket, key))
@@ -200,6 +251,10 @@ func (self *Qiniu) Delete(keys []string) {
 			log.Println(ret.Code, ret.Data)
 		}
 	}
+}
+
+func (self *Qiniu) Delete(key string) error {
+	return self.BucketManager.Delete(self.Bucket, key)
 }
 
 // 更改类型
