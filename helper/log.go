@@ -8,7 +8,7 @@ import (
 )
 
 func SetLogWithOutputRotateLog(path string) *rotatelogs.RotateLogs {
-	log.SetFlags(log.LstdFlags | log.Lshortfile | log.LUTC)
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	writer, _ := rotatelogs.New(
 		path+".%Y%m%d%H%M",
 		rotatelogs.WithLinkName(path),
