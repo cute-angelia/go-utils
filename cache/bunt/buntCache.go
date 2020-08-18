@@ -70,7 +70,7 @@ func SetConfig(db *buntdb.DB, conf buntdb.Config) {
 			if err := db.ReadConfig(&config); err != nil {
 				log.Println("buntdb.DB GetConfig error", err)
 			} else {
-				log.Println("ReadConfig", config)
+				// log.Println("ReadConfig", config)
 			}
 		}
 	}
