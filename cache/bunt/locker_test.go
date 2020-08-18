@@ -21,12 +21,16 @@ func TestLocker(t *testing.T) {
 	for i := 1; i <= 30; i++ {
 		if IsNotLockedInLimit("cache", "test1", time.Hour, opt1) {
 			log.Println("opt1 > ", i)
+			//2020/08/13 17:17:17 opt1 >  1
+			//2020/08/13 17:17:17 opt1 >  2
+			//2020/08/13 17:17:17 opt1 >  3
 		}
 	}
 
 	for i := 1; i <= 30; i++ {
 		if IsNotLockedInLimit("cache", "test2", time.Hour, opt2) {
 			log.Println("opt2 > ", i)
+			// 2020/08/13 17:17:17 opt2 >  1
 		}
 	}
 

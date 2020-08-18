@@ -51,6 +51,31 @@ func InitBuntCache(nickname string, dbname string) error {
 	}
 }
 
+func SetConfig(db *buntdb.DB, conf buntdb.Config) {
+	if conf.AutoShrinkMinSize > 0 {
+		err := db.SetConfig(conf)
+		if err != nil {
+			log.Println("buntdb.DB SetConfig error", err)
+		}
+	} else {
+		err := db.SetConfig(buntdb.Config{
+			AutoShrinkMinSize:    200,
+			AutoShrinkPercentage: 300,
+			SyncPolicy:           buntdb.Always,
+		})
+		if err != nil {
+			log.Println("buntdb.DB SetConfig error", err)
+		} else {
+			var config buntdb.Config
+			if err := db.ReadConfig(&config); err != nil {
+				log.Println("buntdb.DB GetConfig error", err)
+			} else {
+				log.Println("ReadConfig", config)
+			}
+		}
+	}
+}
+
 func GetDb(name string) *buntdb.DB {
 	if BuntCaches[name] == nil {
 		log.Println("buntdb.未初始化:" + name)
@@ -65,6 +90,8 @@ func SetDb(name string, db *buntdb.DB) {
 		BuntCaches = map[string]*buntdb.DB{}
 	}
 	BuntCaches[name] = db
+
+	SetConfig(db, buntdb.Config{})
 }
 
 /**

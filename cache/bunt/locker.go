@@ -43,9 +43,10 @@ func WithToday(today bool) LockerOpt {
 }
 
 /**
-	没有锁住 处理业务逻辑
-	true => do somethings
- */
+	true => 非锁定状态，处理正常逻辑
+	false => 锁定状态，处理错误逻辑
+    if !bunt.IsNotLockedInLimit("cache", "SIGNPRE_REPEAT_"+nonce, time.Minute*60, bunt.NewLockerOpt(bunt.WithToday(true))) {
+*/
 func IsNotLockedInLimit(dbname string, key string, ttl time.Duration, opt LockerOpts) bool {
 	if opt.Today {
 		key = fmt.Sprintf("%s_%s", key, time.Now().Format("2006-01-02"))
