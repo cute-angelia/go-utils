@@ -24,3 +24,6 @@
 and more ...
 
 [golang-examples](https://github.com/SimonWaldherr/golang-examples)
+
+
+[![Page Views Count](https://badges.toozhao.com/badges/01EH4J7MXDPXTXC3MCMMZ407PV/green.svg)](https://badges.toozhao.com/badges/01EH4J7MXDPXTXC3MCMMZ407PV/green.svg "Get your own page views count badge on badges.toozhao.com")
