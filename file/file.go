@@ -8,6 +8,7 @@ import (
 	"github.com/guonaihong/gout/dataflow"
 	"io"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -204,6 +205,16 @@ func MakeNameByTimeline(src string, prefix string) string {
 		return fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
 	} else {
 		return fmt.Sprintf("%s_%d%s", prefix, time.Now().UnixNano(), ext)
+	}
+}
+
+// 保持原有名字
+func MakeNameWithoutQuery(uri string) string {
+	if z, err := url.Parse(uri); err != nil {
+		return MakeNameByTimeline(uri, "")
+	} else {
+		ts := strings.Split(z.Path, "/")
+		return ts[len(ts)-1]
 	}
 }
 

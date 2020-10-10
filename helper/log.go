@@ -19,6 +19,6 @@ func SetLogWithOutputRotateLog(path string) *rotatelogs.RotateLogs {
 }
 
 func SetLogWithOsOut() *os.File {
-	log.SetFlags(log.LstdFlags | log.Lshortfile | log.LUTC)
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	return os.Stdout
 }

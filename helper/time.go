@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"fmt"
 	"strings"
 	"time"
 )
@@ -26,4 +27,10 @@ func ConverRFC3339ToTime(layout string, inTime string) time.Time {
 		t, _ = time.ParseInLocation(layout, inTime, time.Local)
 	}
 	return t
+}
+
+//@brief：耗时统计函数
+func TimeCost(start time.Time) (string, time.Duration) {
+	tc := time.Since(start)
+	return fmt.Sprintf("time cost = %v", tc), tc
 }
