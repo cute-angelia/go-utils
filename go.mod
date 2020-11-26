@@ -29,6 +29,7 @@ require (
 	github.com/tebeka/strftime v0.1.5 // indirect
 	github.com/tidwall/buntdb v1.1.2
 	golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9
+	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/text v0.3.3
 )
