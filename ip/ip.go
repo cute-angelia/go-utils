@@ -14,27 +14,22 @@ import (
 var initIpDated interface{}
 
 func init() {
+	startTime := time.Now().UnixNano()
 	IPData.FilePath = "/tmp/qqwry.dat"
 	IPData.OnlineUrl = "https://best-ecology.oss-cn-hangzhou.aliyuncs.com/tool/ip/qqwry.dat"
 
 	initIpDated = IPData.InitIPData()
-}
 
-func GetInfo(ip string) map[string]ResultQQwry {
-	startTime := time.Now().UnixNano()
-	res := initIpDated
-
-	if v, ok := res.(error); ok {
+	if v, ok := initIpDated.(error); ok {
 		log.Panic(v)
 	}
 	endTime := time.Now().UnixNano()
-
 	log.Printf("IP 库加载完成 共加载:%d 条 IP 记录, 所花时间:%.1f ms\n", IPData.IPNum, float64(endTime-startTime)/1000000)
+}
 
+func GetInfo(ip string) map[string]ResultQQwry {
 	ips := strings.Split(ip, ",")
-
 	qqWry := NewQQwry()
-
 	rs := map[string]ResultQQwry{}
 	if len(ips) > 0 {
 		for _, v := range ips {
