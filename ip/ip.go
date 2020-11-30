@@ -41,9 +41,13 @@ func GetInfo(ip string) map[string]ResultQQwry {
 
 // RemoteIp 返回远程客户端的 IP，如 192.168.1.1
 // nginx
+//    location /api-auth {
+//        proxy_set_header X-Forwarded-For $remote_addr; 一级代理
+//    }
+
 //     location /api-auth {
-//        proxy_set_header X-Forwarded-For $http_x_forwarded_for;
-//        proxy_set_header X-Real-IP $remote_addr;
+//        proxy_set_header X-Forwarded-For $http_x_forwarded_for; // 二级代理获取头部配置
+//        proxy_set_header X-Real-IP $remote_addr; // 直接代理获取数据
 //        proxy_pass http://127.0.0.1:9104;
 //    }
 func RemoteIp(req *http.Request) string {
