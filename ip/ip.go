@@ -40,11 +40,17 @@ func GetInfo(ip string) map[string]ResultQQwry {
 }
 
 // RemoteIp 返回远程客户端的 IP，如 192.168.1.1
+// nginx
+//     location /api-auth {
+//        proxy_set_header X-Forwarded-For $http_x_forwarded_for;
+//        proxy_set_header X-Real-IP $remote_addr;
+//        proxy_pass http://127.0.0.1:9104;
+//    }
 func RemoteIp(req *http.Request) string {
 	remoteAddr := req.RemoteAddr
-	if ip := req.Header.Get("X-Real-IP"); ip != "" {
+	if ip := req.Header.Get("X-Forwarded-For"); ip != "" {
 		remoteAddr = ip
-	} else if ip = req.Header.Get("X-Forwarded-For"); ip != "" {
+	} else if ip = req.Header.Get("X-Real-IP"); ip != "" {
 		remoteAddr = ip
 	} else {
 		remoteAddr, _, _ = net.SplitHostPort(remoteAddr)
