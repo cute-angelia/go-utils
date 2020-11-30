@@ -11,12 +11,18 @@ import (
 
 // https://best-ecology.oss-cn-hangzhou.aliyuncs.com/tool/ip/qqwry.dat
 
-func GetInfo(ip string) map[string]ResultQQwry {
+var initIpDated interface{}
+
+func init() {
 	IPData.FilePath = "/tmp/qqwry.dat"
 	IPData.OnlineUrl = "https://best-ecology.oss-cn-hangzhou.aliyuncs.com/tool/ip/qqwry.dat"
 
+	initIpDated = IPData.InitIPData()
+}
+
+func GetInfo(ip string) map[string]ResultQQwry {
 	startTime := time.Now().UnixNano()
-	res := IPData.InitIPData()
+	res := initIpDated
 
 	if v, ok := res.(error); ok {
 		log.Panic(v)
