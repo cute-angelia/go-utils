@@ -3,6 +3,7 @@ module github.com/cute-angelia/go-utils
 go 1.14
 
 require (
+	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/astaxie/beego v1.12.1
 	github.com/fastly/go-utils v0.0.0-20180712184237-d95a45783239 // indirect
 	github.com/garyburd/redigo v1.6.0
@@ -32,4 +33,5 @@ require (
 	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/text v0.3.3
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )
