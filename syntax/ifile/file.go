@@ -1,9 +1,9 @@
-package file
+package ifile
 
 import (
 	"bytes"
 	"fmt"
-	"github.com/cute-angelia/go-utils/generator/snowflake"
+	"github.com/cute-angelia/go-utils/utils/generator/snowflake"
 	"github.com/guonaihong/gout"
 	"github.com/guonaihong/gout/dataflow"
 	"io"

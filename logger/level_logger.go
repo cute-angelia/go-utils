@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -67,6 +66,10 @@ func NewFileLoggerRotate(path string, flag int, depth int) *Logger {
 		rotatelogs.WithMaxAge(time.Duration(24*7)*time.Hour),
 		rotatelogs.WithRotationTime(time.Duration(24)*time.Hour),
 	)
+
+	// 普通日志 也追加到文件
+	log.SetOutput(writer)
+
 	logger := NewWriterLogger(writer, flag, depth)
 
 	return logger
@@ -82,6 +85,8 @@ func NewLogger(projectName string, isOn bool) *Logger {
 		// 下面配置日志每隔 1 天轮转一个新文件，保留最近 7 天的日志文件，多余的自动清理掉。
 		path := "./" + projectName + ".log"
 		Log = NewFileLoggerRotate(path, flag, 2)
+
+		log.Println("记录日志", path)
 	} else {
 		Log = NewLoggerStdoud(flag, 3)
 	}
@@ -274,8 +279,9 @@ func updateLevel(logLevel string) {
 		StdLogger.SetLevel(LevelInformational)
 	}
 }
-*/
+
 // GenerateFmtStr is a helper function to construct formatter string.
 func GenerateFmtStr(n int) string {
 	return strings.Repeat("%v ", n)
 }
+*/

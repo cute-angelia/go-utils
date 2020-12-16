@@ -1,4 +1,4 @@
-package gbk
+package str
 
 import (
 	"golang.org/x/text/encoding/simplifiedchinese"

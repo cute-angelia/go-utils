@@ -2,7 +2,7 @@ package ip
 
 import (
 	"encoding/binary"
-	"github.com/cute-angelia/go-utils/file"
+	file "github.com/cute-angelia/go-utils/syntax/ifile"
 	"io/ioutil"
 	"log"
 	"net"

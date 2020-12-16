@@ -1,4 +1,4 @@
-package zip
+package izip
 
 import (
 	"archive/zip"
