@@ -91,6 +91,11 @@ func initDB(opts GormOptions) *gorm.DB {
 	// LogMode Print log
 	db.LogMode(opts.LogDebug)
 
+	// with logger
+	if opts.Logger.LogWriter != nil {
+		db.SetLogger(opts.Logger)
+	}
+
 	// 设置 callback
 	otgorm.AddGormCallbacks(db)
 

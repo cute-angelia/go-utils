@@ -1,6 +1,9 @@
 package umysql
 
-import "time"
+import (
+	"github.com/jinzhu/gorm"
+	"time"
+)
 
 type GormOptions struct {
 	Host         string
@@ -13,6 +16,7 @@ type GormOptions struct {
 	MaxOpenConns int
 	MaxLifetime  time.Duration
 	LogDebug     bool
+	Logger       gorm.Logger
 }
 
 type GormOption func(options *GormOptions)
@@ -34,6 +38,12 @@ func NewGormOpts(opts ...GormOption) GormOptions {
 	sopt.LogDebug = true
 
 	return sopt
+}
+
+func WithGormOptLogger(logger gorm.Logger) GormOption {
+	return func(options *GormOptions) {
+		options.Logger = logger
+	}
 }
 
 func WithGormOptHost(host string) GormOption {
