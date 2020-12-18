@@ -43,6 +43,12 @@ func WithToday(today bool) LockerOpt {
 	}
 }
 
+func WithUid(uid int32) LockerOpt {
+	return func(options *LockerOpts) {
+		options.Uid = uid
+	}
+}
+
 /**
 	true => 非锁定状态，处理正常逻辑
 	false => 锁定状态，处理错误逻辑
