@@ -45,6 +45,11 @@ func PostInt32(r *http.Request, name string) int32 {
 	return int32(p)
 }
 
+func PostInt64(r *http.Request, name string) int64 {
+	p, _ := strconv.Atoi(r.PostFormValue(name))
+	return int64(p)
+}
+
 func PostFloat64(r *http.Request, name string) float64 {
 	p, _ := strconv.ParseFloat(r.PostFormValue(name), 64)
 	return p
