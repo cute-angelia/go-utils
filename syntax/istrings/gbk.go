@@ -1,4 +1,4 @@
-package str
+package istrings
 
 import (
 	"golang.org/x/text/encoding/simplifiedchinese"

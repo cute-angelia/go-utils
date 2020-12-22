@@ -1,4 +1,4 @@
-package str
+package istrings
 
 func PadRight(str, pad string, lenght int) string {
 	if len(str) >= lenght {
