@@ -7,6 +7,7 @@ require (
 	github.com/fastly/go-utils v0.0.0-20180712184237-d95a45783239 // indirect
 	github.com/garyburd/redigo v1.6.0
 	github.com/go-chi/chi v4.1.2+incompatible
+	github.com/go-redis/redis/v8 v8.4.4
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/guonaihong/gout v0.0.12
@@ -28,7 +29,7 @@ require (
 	github.com/tebeka/strftime v0.1.5 // indirect
 	github.com/tidwall/buntdb v1.1.2
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
-	golang.org/x/net v0.0.0-20200822124328-c89045814202
+	golang.org/x/net v0.0.0-20201202161906-c7110b5ffcbb
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
 	golang.org/x/text v0.3.3
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
