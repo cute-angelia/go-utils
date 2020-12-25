@@ -1,4 +1,4 @@
-package iredis2
+package iredis
 
 import (
 	"fmt"
