@@ -15,6 +15,7 @@ require (
 	github.com/jonboulle/clockwork v0.2.0 // indirect
 	github.com/lestrrat-go/file-rotatelogs v2.3.0+incompatible
 	github.com/lestrrat-go/strftime v1.0.3 // indirect
+	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/panjf2000/ants v1.3.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
@@ -28,6 +29,7 @@ require (
 	github.com/tebeka/strftime v0.1.5 // indirect
 	github.com/tidwall/buntdb v1.1.2
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	golang.org/x/image v0.0.0-20190802002840-cff245a6509b
 	golang.org/x/net v0.0.0-20200822124328-c89045814202
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
 	golang.org/x/text v0.3.3
