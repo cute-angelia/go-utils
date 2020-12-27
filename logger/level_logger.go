@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -38,12 +39,25 @@ type Logger struct {
 
 	// depth is the count of the number of frames to skip when computing the file name and line number if Llongfile or Lshortfile is set; a value of 1 will print the details for the caller of Output.
 	depth int
+
+	w io.Writer
+}
+
+func GetWriter() io.Writer {
+	if Log.w == nil {
+		return os.Stdout
+	}
+	return Log.w
 }
 
 // NewLogger makes a new logger prints to stdout.
 func NewLoggerStdoud(flag int, depth int) *Logger {
-	Logger := NewWriterLogger(os.Stdout, flag, depth)
-	return Logger
+	logger := NewWriterLogger(os.Stdout, flag, depth)
+
+	// 设置 writer， 给三方调用
+	logger.w = os.Stdout
+
+	return logger
 }
 
 // NewFileLogger makes a new file logger, it prints to file lfn. File will auto rotate by size maxsize.
@@ -56,6 +70,9 @@ func NewFileLoggerJack(lfn string, maxsize int, flag int, depth int) *Logger {
 
 	logger := NewWriterLogger(jack, flag, depth)
 
+	// 设置 writer， 给三方调用
+	logger.w = jack
+
 	return logger
 }
 
@@ -66,11 +83,13 @@ func NewFileLoggerRotate(path string, flag int, depth int) *Logger {
 		rotatelogs.WithMaxAge(time.Duration(24*7)*time.Hour),
 		rotatelogs.WithRotationTime(time.Duration(24)*time.Hour),
 	)
-
-	// 普通日志 也追加到文件
+	// 普通日志
 	log.SetOutput(writer)
 
 	logger := NewWriterLogger(writer, flag, depth)
+
+	// 设置 writer， 给三方调用
+	logger.w = writer
 
 	return logger
 }
@@ -279,9 +298,8 @@ func updateLevel(logLevel string) {
 		StdLogger.SetLevel(LevelInformational)
 	}
 }
-
+*/
 // GenerateFmtStr is a helper function to construct formatter string.
 func GenerateFmtStr(n int) string {
 	return strings.Repeat("%v ", n)
 }
-*/

@@ -46,7 +46,7 @@ func Error(w http.ResponseWriter, r *http.Request, data interface{}, msg string,
 	response := map[string]interface{}{
 		"code":    code,
 		"message": msg,
-		"data":    nil,
+		"data":    data,
 	}
 
 	if LogRequestAndData {

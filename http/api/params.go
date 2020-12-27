@@ -1,9 +1,9 @@
 package api
 
 import (
+	"github.com/go-chi/chi"
 	"net/http"
 	"strconv"
-	"github.com/go-chi/chi"
 )
 
 // Query will get a query parameter by key.
@@ -45,6 +45,11 @@ func PostInt32(r *http.Request, name string) int32 {
 	return int32(p)
 }
 
+func PostInt64(r *http.Request, name string) int64 {
+	p, _ := strconv.Atoi(r.PostFormValue(name))
+	return int64(p)
+}
+
 func PostFloat64(r *http.Request, name string) float64 {
 	p, _ := strconv.ParseFloat(r.PostFormValue(name), 64)
 	return p
@@ -53,4 +58,9 @@ func PostFloat64(r *http.Request, name string) float64 {
 func GetUserUid(r *http.Request) int32 {
 	uid, _ := strconv.Atoi(r.Header.Get("jwt_uid"))
 	return int32(uid)
+}
+
+func GetUserUidInt64(r *http.Request) int64 {
+	uid, _ := strconv.Atoi(r.Header.Get("jwt_uid"))
+	return int64(uid)
 }
