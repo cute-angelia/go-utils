@@ -99,6 +99,10 @@ func NewLogger(projectName string, isOn bool) *Logger {
 		return Log
 	}
 	flag := log.LstdFlags | log.Lshortfile | log.Lmsgprefix
+
+	// 设置 flag
+	log.SetFlags(flag)
+
 	if isOn {
 		//  初始化日志
 		// 下面配置日志每隔 1 天轮转一个新文件，保留最近 7 天的日志文件，多余的自动清理掉。
