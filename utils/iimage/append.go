@@ -71,7 +71,7 @@ func AppendSingle(imgpath1 string, imgpath2 string, outpath string, outtype stri
 	return nil
 }
 
-func AppendMulti(multiPaths []string, outpath string, outtype string) error {
+func AppendMulti(multiPaths []string, outpath string, outtype string, deleted bool) error {
 	if len(multiPaths) <= 1 {
 		return errors.New("合成图片不足2个")
 	}
@@ -137,6 +137,12 @@ func AppendMulti(multiPaths []string, outpath string, outtype string) error {
 
 	if err != nil {
 		return err
+	} else {
+		if deleted {
+			for _, i2 := range multiPaths {
+				os.RemoveAll(i2)
+			}
+		}
 	}
 
 	return nil
