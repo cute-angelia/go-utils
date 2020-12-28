@@ -5,6 +5,7 @@ package iimage
 */
 
 import (
+	"errors"
 	"image"
 	"image/draw"
 	"image/jpeg"
@@ -70,8 +71,12 @@ func AppendSingle(imgpath1 string, imgpath2 string, outpath string, outtype stri
 	return nil
 }
 
-func AppendMulti(imgpath1 string, multiPaths []string, outpath string, outtype string) error {
-	img1, _, err := OpenAndDecode(imgpath1)
+func AppendMulti(multiPaths []string, outpath string, outtype string) error {
+	if len(multiPaths) <= 1 {
+		return errors.New("合成图片不足2个")
+	}
+
+	img1, _, err := OpenAndDecode(multiPaths[0])
 	if err != nil {
 		return err
 	}
@@ -83,7 +88,7 @@ func AppendMulti(imgpath1 string, multiPaths []string, outpath string, outtype s
 	MaxY := img1.Bounds().Max.Y
 
 	// new
-	for i := 0; i < len(multiPaths); i++ {
+	for i := 1; i < len(multiPaths); i++ {
 		img2, _, err := OpenAndDecode(multiPaths[i])
 		log.Println("追加图片：", multiPaths[i])
 		if err != nil {
