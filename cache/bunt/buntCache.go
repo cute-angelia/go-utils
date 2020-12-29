@@ -134,15 +134,12 @@ func Get(dbname string, key string) string {
 
 func Delete(dbname string, key string) error {
 	if db := GetDb(dbname); db != nil {
-		val := ""
-		db.View(func(tx *buntdb.Tx) error {
-			val, _ = tx.Delete(key)
-			return nil
+		return db.Update(func(tx *buntdb.Tx) error {
+			_, err := tx.Delete(key)
+			return err
 		})
-		return nil
 	} else {
 		log.Println(fmt.Errorf("无法找到 db" + dbname))
 		return fmt.Errorf("无法找到 db" + dbname)
 	}
 }
-

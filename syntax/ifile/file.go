@@ -37,6 +37,14 @@ func OpenLocalFile(path string) *os.File {
 	return f
 }
 
+func IsExist(path string) bool {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return false
+	} else {
+		return true
+	}
+}
+
 // 打开已经存在的文件， 不存在会新建一个， 返回 *os.File
 // open an existed file or create a file if not exists
 // 读写覆盖 || 读写追加、0666 全读写， 0644 其他用户只读
