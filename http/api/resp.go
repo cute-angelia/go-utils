@@ -21,7 +21,7 @@ func Success(w http.ResponseWriter, r *http.Request, data interface{}, msg strin
 	// FIXED 优化,协程处理
 	// ApiMakeLog.createLog(r, response)
 	if LogRequestAndData {
-		logr(r, response)
+		logr(r, response, "[success]")
 	}
 
 	// json
@@ -50,7 +50,7 @@ func Error(w http.ResponseWriter, r *http.Request, data interface{}, msg string,
 	}
 
 	if LogRequestAndData {
-		logr(r, response)
+		logr(r, response, "[error]")
 	}
 
 	// 日志
@@ -65,7 +65,7 @@ func Error(w http.ResponseWriter, r *http.Request, data interface{}, msg string,
 	}
 }
 
-func logr(r *http.Request, response interface{}) {
+func logr(r *http.Request, response interface{}, msg string) {
 	// 打印日志
 	go func() {
 		z, _ := json.Marshal(r.PostForm)
@@ -73,8 +73,6 @@ func logr(r *http.Request, response interface{}) {
 		zuid := r.Header.Get("jwt_uid")
 
 		log.Println("------------------------------------------------------------------------------")
-		log.Printf("用户: %s, 请求地址: %s?%s", zuid, r.URL.Path, r.URL.RawQuery)
-
 		jwt_app_start_time := r.Header.Get("jwt_app_start_time")
 		if len(jwt_app_start_time) > 0 {
 			un, _ := strconv.Atoi(jwt_app_start_time)
@@ -91,8 +89,8 @@ func logr(r *http.Request, response interface{}) {
 			log.Printf("用户: %s, TimeCost: %v %s", zuid, tc, flags)
 		}
 
-		log.Printf("用户: %s, 请求数据: %s,", zuid, z)
-		log.Printf("用户: %s, 响应数据: %s", zuid, z2)
+		log.Printf("%s 用户: %s, 请求地址: %s, 请求参数: %s, 请求数据: %s,", msg, zuid, r.URL.Path, r.URL.RawQuery, z)
+		log.Printf("%s 用户: %s, 请求地址: %s, 响应数据: %s", msg, zuid, r.URL.Path, z2)
 		log.Println("------------------------------------------------------------------------------")
 	}()
 }
