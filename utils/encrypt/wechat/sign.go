@@ -1,11 +1,11 @@
 package wechat
 
 import (
-	"sort"
 	"crypto/md5"
 	"encoding/hex"
-	"strings"
 	"fmt"
+	"sort"
+	"strings"
 )
 
 const DEFAULT_WECHAT_KEY = "19dfg06250bzxc9247ec02edce69f6a2d"
@@ -31,15 +31,19 @@ func (c *Sign) SetApiKey(apiKey string) {
 	c.apiKey = apiKey
 }
 
+func (c *Sign) GetApiKey() string {
+	return c.apiKey
+}
+
 // 验证签名
 func (c *Sign) ValidSign(signIn string, signOut string) bool {
 	return signIn == signOut
 }
 
 /**
-	Signature 签名算法
-	query = r.URL.Query()
- */
+Signature 签名算法
+query = r.URL.Query()
+*/
 func (c *Sign) Signature(query map[string][]string) string {
 	// 排序
 	keys := make([]string, 0, len(query))
