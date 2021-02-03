@@ -1,8 +1,8 @@
 package umysql
 
 import (
-	"encoding/json"
 	"context"
+	"encoding/json"
 	"fmt"
 )
 
@@ -32,4 +32,33 @@ func GetPageData(ctx context.Context, dbName string, table string, page int32, p
 func Convert(src interface{}, dest interface{}) {
 	temp, _ := json.Marshal(src)
 	json.Unmarshal(temp, dest)
+}
+
+// gorm updates 对 model 为 0 的数据不处理， 这里转化为 map 对象处理
+func ConvertMap(in interface{}, noKey []string) map[string]interface{} {
+	var inInterface map[string]interface{}
+	inrec, _ := json.Marshal(in)
+	json.Unmarshal(inrec, &inInterface)
+
+	if _, ok := inInterface["id"]; ok {
+		delete(inInterface, "id")
+	}
+
+	if _, ok := inInterface["uid"]; ok {
+		delete(inInterface, "uid")
+	}
+
+	for _, i2 := range noKey {
+		if _, ok := inInterface[i2]; ok {
+			delete(inInterface, i2)
+		}
+	}
+
+	for k, v := range inInterface {
+		if fmt.Sprintf("%v", v) == "" {
+			delete(inInterface, k)
+		}
+	}
+
+	return inInterface
 }
