@@ -218,3 +218,35 @@ func TempFile(dir, pattern string) (f *os.File, err error)
 func WriteFile(filename string, data []byte, perm os.FileMode) error
 将给定的数据 data 写入到名字为 filename 的文件里面。
 ```
+
+
+### http 读取文本
+
+```
+
+// 根据字段名获取表单文件
+	formFile, _, err := r.FormFile("file")
+	if err != nil {
+		log.Printf("Get form file failed: %s\n", err)
+		return
+	}
+	defer formFile.Close()
+
+	buf := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buf, formFile); err != nil {
+		log.Println(err)
+		api.Error(w, r, "", -1)
+	} else {
+		scanner := bufio.NewScanner(buf)
+		for scanner.Scan() {
+			lineText := scanner.Text()
+			if len(lineText) > 0 {
+				// kindid := r.FormValue("kindid")
+				// kindidii, _ := strconv.Atoi(kindid)
+				// insert(lineText, int32(kindidii))
+			}
+		}
+	}
+
+
+```
