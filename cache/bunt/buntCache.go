@@ -41,10 +41,16 @@ func InitBuntCache(nickname string, dbname string) error {
 				if cache, err := buntdb.Open(db); err != nil {
 					panic(err)
 				} else {
+					cache.SetConfig(buntdb.Config{
+						AutoShrinkDisabled: true,
+					})
 					SetDb(nickname, cache)
 				}
 			}
 		} else {
+			cache.SetConfig(buntdb.Config{
+				AutoShrinkDisabled: true,
+			})
 			SetDb(nickname, cache)
 		}
 		return nil
@@ -53,14 +59,16 @@ func InitBuntCache(nickname string, dbname string) error {
 
 func SetConfig(db *buntdb.DB, conf buntdb.Config) {
 	if conf.AutoShrinkMinSize > 0 {
+		conf.AutoShrinkDisabled = true
 		err := db.SetConfig(conf)
 		if err != nil {
 			log.Println("buntdb.DB SetConfig error", err)
 		}
 	} else {
 		err := db.SetConfig(buntdb.Config{
-			AutoShrinkMinSize:    200,
-			AutoShrinkPercentage: 300,
+			AutoShrinkDisabled:   true,
+			AutoShrinkMinSize:    50,
+			AutoShrinkPercentage: 100,
 			SyncPolicy:           buntdb.Always,
 		})
 		if err != nil {
