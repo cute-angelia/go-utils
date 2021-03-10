@@ -23,3 +23,16 @@ func TestCmd(t *testing.T) {
 		log.Println("hello1:", nuts.Get(bucket, "hello1"))
 	}
 }
+
+func TestLocker(t *testing.T) {
+	nuts := Load("test").Build(WithDir("/tmp/nutsdb"))
+	bucket := "test"
+
+	for {
+		time.Sleep(time.Second)
+		opts := NewLockerOpt(WithLimit(10), WithToday(true))
+		if nuts.IsNotLockedInLimit(bucket, "hello", 86400, opts) {
+			log.Println("i in")
+		}
+	}
+}

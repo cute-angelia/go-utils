@@ -1,8 +1,10 @@
 package nuts
 
 import (
+	"fmt"
 	"github.com/xujiajun/nutsdb"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -36,6 +38,34 @@ func newComponent(cfg *config) *Component {
 	}
 }
 
+/**
+	true => 非锁定状态，处理正常逻辑
+	false => 锁定状态，处理错误逻辑
+    if !bunt.IsNotLockedInLimit("cache", "SIGNPRE_REPEAT_"+nonce, time.Minute*60, bunt.NewLockerOpt(bunt.WithToday(true))) {
+*/
+func (self Component) IsNotLockedInLimit(bucket string, key string, ttl uint32, opts LockerOpts) bool {
+	if opts.Today {
+		key = fmt.Sprintf("%s_%s", key, time.Now().Format("2006-01-02"))
+	}
+	if opts.Uid > 0 {
+		key = fmt.Sprintf("%s_%d", key, opts.Uid)
+	}
+
+	value := self.Get(bucket, key)
+	if len(value) > 0 {
+		n, _ := strconv.Atoi(value)
+		if n >= opts.Limit {
+			return false
+		} else {
+			self.Set(bucket, key, fmt.Sprintf("%d", n+1), ttl)
+			return true
+		}
+	} else {
+		self.Set(bucket, key, "1", ttl)
+		return true
+	}
+}
+
 func (self Component) Set(bucket string, key string, val string, ttl uint32) {
 	if err := self.db.Update(
 		func(tx *nutsdb.Tx) error {
@@ -66,9 +96,8 @@ func (self Component) Get(bucket string, key string) string {
 			}
 			return nil
 		}); err != nil {
-
 		// log
-		logError("Get", err)
+		// logError("Get", err)
 	}
 
 	return res
