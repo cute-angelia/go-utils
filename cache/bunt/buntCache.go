@@ -42,15 +42,21 @@ func InitBuntCache(nickname string, dbname string) error {
 					panic(err)
 				} else {
 					cache.SetConfig(buntdb.Config{
-						AutoShrinkDisabled: true,
+						AutoShrinkDisabled:   true,
+						AutoShrinkMinSize:    40,
+						AutoShrinkPercentage: 30,
 					})
+					cache.Shrink()
 					SetDb(nickname, cache)
 				}
 			}
 		} else {
 			cache.SetConfig(buntdb.Config{
-				AutoShrinkDisabled: true,
+				AutoShrinkDisabled:   true,
+				AutoShrinkMinSize:    40,
+				AutoShrinkPercentage: 30,
 			})
+			cache.Shrink()
 			SetDb(nickname, cache)
 		}
 		return nil

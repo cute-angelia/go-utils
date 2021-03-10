@@ -46,6 +46,20 @@ func TestLocker(t *testing.T) {
 
 }
 
+func TestShrink(t *testing.T) {
+	if err := InitBuntCache("cache", "/tmp/test_1.db"); err != nil {
+		log.Println(err)
+		return
+	}
+	db := GetDb("cache")
+	db.SetConfig(buntdb.Config{
+		AutoShrinkDisabled:   true,
+		AutoShrinkMinSize:    10,
+		AutoShrinkPercentage: 10,
+	})
+	db.Shrink()
+}
+
 func TestAutoShrink(t *testing.T) {
 
 	if err := InitBuntCache("cache", "/tmp/test_1.db"); err != nil {
@@ -54,6 +68,7 @@ func TestAutoShrink(t *testing.T) {
 	}
 
 	db := GetDb("cache")
+
 	db.SetConfig(buntdb.Config{
 		AutoShrinkDisabled:   true,
 		AutoShrinkMinSize:    1,
@@ -65,14 +80,15 @@ func TestAutoShrink(t *testing.T) {
 		time.Sleep(time.Second * 10)
 	}
 
-	db.Shrink()
+	// defer db.Shrink()
+
 	log.Println("end")
 }
 
 func writeCache() {
 	for i := 0; i < 10000; i++ {
 		log.Println("--> ", i)
-		Set("cache", fmt.Sprintf("%s%d", "test", i), RandomString.RandomString(332), time.Hour)
+		Set("cache", fmt.Sprintf("%s%d", "test", i), RandomString.RandomString(332), time.Minute)
 	}
 }
 
@@ -82,7 +98,7 @@ func TestAutoShrink2(t *testing.T) {
 	if db, err := buntdb.Open(dbpath); err == nil {
 		db.SetConfig(buntdb.Config{
 			AutoShrinkDisabled:   true,
-			AutoShrinkMinSize:    1,
+			AutoShrinkMinSize:    10,
 			AutoShrinkPercentage: 30,
 		})
 		for i := 0; i < 20; i++ {
