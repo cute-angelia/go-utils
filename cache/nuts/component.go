@@ -86,7 +86,7 @@ func (self Component) Set(bucket string, key string, val string, ttl uint32) {
 	}
 }
 
-func (self Component) Incr(bucket string, key string, val string, ttl uint32) {
+func (self Component) Incr(bucket string, key string, val string, ttl uint32) int {
 	self.locker.Lock()
 	defer self.locker.Unlock()
 
@@ -97,6 +97,8 @@ func (self Component) Incr(bucket string, key string, val string, ttl uint32) {
 	}
 	valint, _ := strconv.Atoi(val)
 	self.Set(bucket, key, fmt.Sprintf("%d", vint+valint), ttl)
+
+	return vint + valint
 }
 
 func (self Component) Get(bucket string, key string) string {
