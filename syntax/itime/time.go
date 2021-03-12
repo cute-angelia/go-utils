@@ -6,6 +6,12 @@ import (
 	"time"
 )
 
+func TimeZero() time.Time {
+	timeStr := time.Now().Format("2006-01-02")
+	t, _ := time.ParseInLocation("2006-01-02", timeStr, time.Local)
+	return t
+}
+
 func ConverRFC3339(layout string, inTime string) string {
 	t := ConverRFC3339ToTime(layout, inTime)
 	return t.Format(layout)
