@@ -36,3 +36,14 @@ func TestLocker(t *testing.T) {
 		}
 	}
 }
+
+func TestIncr(t *testing.T) {
+	nuts := Load("test").Build(WithDir("/tmp/nutsdb"))
+	bucket := "test"
+
+	for {
+		nuts.Incr(bucket, "test", "1", 100)
+
+		log.Println(nuts.Get(bucket, "test"))
+	}
+}

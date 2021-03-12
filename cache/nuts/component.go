@@ -5,6 +5,7 @@ import (
 	"github.com/xujiajun/nutsdb"
 	"log"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -17,6 +18,7 @@ func init() {
 type Component struct {
 	config *config
 	db     *nutsdb.DB
+	locker sync.Mutex
 }
 
 func newComponent(cfg *config) *Component {
@@ -82,6 +84,19 @@ func (self Component) Set(bucket string, key string, val string, ttl uint32) {
 
 		logError("Set", err)
 	}
+}
+
+func (self Component) Incr(bucket string, key string, val string, ttl uint32) {
+	self.locker.Lock()
+	defer self.locker.Unlock()
+
+	vcache := self.Get(bucket, key)
+	vint := 0
+	if vcacheint, err := strconv.Atoi(vcache); err == nil {
+		vint = vcacheint
+	}
+	valint, _ := strconv.Atoi(val)
+	self.Set(bucket, key, fmt.Sprintf("%d", vint+valint), ttl)
 }
 
 func (self Component) Get(bucket string, key string) string {
