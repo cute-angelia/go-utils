@@ -5,8 +5,8 @@ import (
 	"context"
 	"fmt"
 	file "github.com/cute-angelia/go-utils/syntax/ifile"
-	"github.com/qiniu/api.v7/v7/auth"
-	"github.com/qiniu/api.v7/v7/storage"
+	"github.com/qiniu/go-sdk/v7/auth"
+	"github.com/qiniu/go-sdk/v7/storage"
 	"io"
 	"log"
 	"net/http"
@@ -100,7 +100,7 @@ func (self *Qiniu) UploadByLocalFile(path string, key string) (string, error) {
 	return ret.Key, nil
 }
 
-func (self *Qiniu) UploadByForm(f io.Reader, key string) (string, error) {
+func (self *Qiniu) UploadByForm(f io.Reader, filesize int64, key string) (string, error) {
 	putPolicy := storage.PutPolicy{
 		Scope: self.Bucket + ":" + key,
 	}
@@ -129,10 +129,10 @@ func (self *Qiniu) UploadByForm(f io.Reader, key string) (string, error) {
 	//	},
 	//}
 	//putExtra.NoCrc32Check = true
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(f)
+	//buf := new(bytes.Buffer)
+	//buf.ReadFrom(f)
 
-	if err := formUploader.Put(context.Background(), &ret, upToken, key, f, int64(buf.Len()), &storage.PutExtra{}); err != nil {
+	if err := formUploader.Put(context.Background(), &ret, upToken, key, f, filesize, &storage.PutExtra{}); err != nil {
 		log.Println(err)
 		return "", err
 	}
