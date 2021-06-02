@@ -1,13 +1,21 @@
 package istrings
 
-func PadRight(str, pad string, lenght int) string {
-	if len(str) >= lenght {
+import "fmt"
+
+// rpad adds padding to the right of a string.
+func Rpad(s string, padding int) string {
+	template := fmt.Sprintf("%%-%ds", padding)
+	return fmt.Sprintf(template, s)
+}
+
+func PadRight(str, padstr string, strlenght int) string {
+	if len(str) >= strlenght {
 		return str
 	}
 	for {
-		str += pad
-		if len(str) >= lenght {
-			return str[0:lenght]
+		str += padstr
+		if len(str) >= strlenght {
+			return str[0:strlenght]
 		}
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/cute-angelia/go-utils/utils/generator/snowflake"
 	"github.com/guonaihong/gout"
 	"github.com/guonaihong/gout/dataflow"
+	"github.com/mitchellh/go-homedir"
 	"io"
 	"io/ioutil"
 	"net/url"
@@ -16,6 +17,10 @@ import (
 	"strings"
 	"time"
 )
+
+func HomeDir() (string, error)  {
+	return homedir.Dir()
+}
 
 // 打开已经存在的文件， 不存在会新建一个， 返回 *os.File
 // open an existed file or create a file if not exists
