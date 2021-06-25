@@ -40,6 +40,10 @@ func Post(r *http.Request, name string) string {
 	return r.PostFormValue(name)
 }
 
+func PostArray(r *http.Request, name string) []string {
+	return r.PostForm[name]
+}
+
 func PostInt32(r *http.Request, name string) int32 {
 	p, _ := strconv.Atoi(r.PostFormValue(name))
 	return int32(p)
