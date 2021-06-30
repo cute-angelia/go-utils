@@ -3,6 +3,7 @@ package idownload
 import (
 	"github.com/gotomicro/ego/core/econf"
 	"github.com/gotomicro/ego/core/elog"
+	"strings"
 )
 
 type Option func(c *Container)
@@ -90,6 +91,8 @@ func WithProxyHttp(ProxyHttp string) Option {
 
 //ProxySocks5 string // 代理 ip:port
 func WithProxySocks5(ProxySocks5 string) Option {
+	ProxySocks5 = strings.Replace(ProxySocks5, "socks5://", "", -1)
+
 	return func(c *Container) {
 		c.config.ProxySocks5 = ProxySocks5
 	}
