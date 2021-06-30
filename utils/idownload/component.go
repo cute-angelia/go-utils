@@ -1,4 +1,4 @@
-package download_img
+package idownload
 
 import (
 	"bytes"
@@ -9,11 +9,12 @@ import (
 	"github.com/guonaihong/gout/dataflow"
 	"image"
 	"io"
+	"log"
 	"os"
 	"sync"
 )
 
-const PackageName = "component.download.img"
+const PackageName = "component.download.file"
 
 type Component struct {
 	config *config
@@ -29,28 +30,66 @@ func newComponent(compName string, config *config, logger *elog.Component) *Comp
 	}
 }
 
-func (c *Component) Download(imgurl string) {
-	name := ifile.MakeNameWithoutQuery(imgurl)
-	if c.config.Rename {
-		name = ifile.MakeNameByTimeline(imgurl, "")
+// 请求文件
+func (c *Component) RequestFile(src string) ([]byte, error) {
+	var body []byte
+	igout := gout.GET(src)
+
+	if len(c.config.ProxySocks5) > 0 {
+		igout.SetSOCKS5(c.config.ProxySocks5)
+	}
+	if len(c.config.ProxyHttp) > 0 {
+		igout.SetProxy(c.config.ProxyHttp)
 	}
 
-	if ifileDownload, err := c.DownloadFileWithSrc(imgurl, c.config.Dest, name); err != nil {
-		c.print("下载图片", err.Error(), "error")
+	err := igout.SetHeader(gout.H(gout.H{
+		"cookie":     c.config.Cookie,
+		"user-agent": c.config.UserAgent,
+	})).Callback(func(c *dataflow.Context) error {
+		switch c.Code {
+		case 200:
+			c.BindBody(&body)
+			return nil
+		case 404: //http code为404时，服务端返回是html 字符串
+			return fmt.Errorf(src + " 404")
+		default:
+			return fmt.Errorf(src+" error: %d", c.Code)
+		}
+	}).Do()
+
+	if err != nil {
+		log.Println("request file error ->", err)
+	}
+	return body, err
+}
+
+// 下载文件
+func (c *Component) Download(imgurl string) {
+	name := ifile.NewFileName(imgurl).GetNameOrigin(c.config.NamePrefix)
+	if c.config.Rename {
+		name = ifile.NewFileName(imgurl).GetNameTimeline(c.config.NamePrefix)
+	}
+
+	if body, err := c.RequestFile(imgurl); err != nil {
+		return
 	} else {
-		// 过滤图片
-		if c.config.Width > 0 || c.config.Height > 0 {
-			if !c.Limit(ifileDownload) {
-				c.print("下载图片", "成功"+ifileDownload, "")
-			}
+		if ifileDownload, err := c.saveFile(body, name); err != nil {
+			c.print("下载文件", err.Error(), "error")
 		} else {
-			c.print("下载图片", "成功"+ifileDownload, "")
+			// 过滤图片
+			if c.config.Width > 0 || c.config.Height > 0 {
+				if !c.limit(ifileDownload) {
+					c.print("下载文件", "成功"+ifileDownload, "")
+				}
+			} else {
+				c.print("下载文件", "成功"+ifileDownload, "")
+			}
 		}
 	}
 }
 
 // 限制图片大小
-func (c *Component) Limit(localFile string) bool {
+func (c *Component) limit(localFile string) bool {
 	f := ifile.OpenLocalFile(localFile)
 	if i, _, err := image.DecodeConfig(f); err != nil {
 		c.print("限制图片大小", fmt.Sprintf("图片不存在 %s", localFile), "error")
@@ -75,33 +114,14 @@ func (c *Component) Limit(localFile string) bool {
 	return false
 }
 
-// 下载文件类库
-func (c *Component) DownloadFileWithSrc(src string, dir string, filenamewithext string) (string, error) {
-	var body []byte
-	err := gout.GET(src).SetHeader(gout.H(gout.H{
-		"cookie":     c.config.Cookie,
-		"user-agent": c.config.UserAgent,
-	})).Callback(func(c *dataflow.Context) error {
-		switch c.Code {
-		case 200:
-			c.BindBody(&body)
-			return nil
-		case 404: //http code为404时，服务端返回是html 字符串
-			return fmt.Errorf(src + " 404")
-		default:
-			return fmt.Errorf(src+" error: %d", c.Code)
-		}
-	}).Do()
-
-	if err != nil {
-		return "", err
-	}
+// 保存文件
+func (c *Component) saveFile(body []byte, filenamewithext string) (string, error) {
+	dir := c.config.Dest
 
 	r := bytes.NewReader(body)
-
 	//dir
 	// saveDir := path.Dir(dir)
-	err = os.MkdirAll(dir, os.ModePerm)
+	err := os.MkdirAll(dir, os.ModePerm)
 	if err != nil {
 		panic(err)
 	}
