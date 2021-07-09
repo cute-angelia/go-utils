@@ -58,7 +58,7 @@ func (c *Component) RequestFile(src string) ([]byte, error) {
 	}).Do()
 
 	if err != nil {
-		log.Println("request file error ->", err)
+		log.Println("request file error -> ",src, err)
 	}
 	return body, err
 }
