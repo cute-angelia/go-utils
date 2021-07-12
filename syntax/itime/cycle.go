@@ -46,24 +46,30 @@ func GetWeekDay() (string, string) {
 /**
  * 获得当前季度的初始和结束日期
  **/
-func GetQuarterDay() (string, string) {
+func GetQuarterDay() (string, string, int) {
 	year := time.Now().Format("2006")
 	month := int(time.Now().Month())
 	var firstOfQuarter string
 	var lastOfQuarter string
+	var quarter int
+
 	if month >= 1 && month <= 3 {
 		//1月1号
 		firstOfQuarter = year + "-01-01 00:00:00"
 		lastOfQuarter = year + "-03-31 23:59:59"
+		quarter = 1
 	} else if month >= 4 && month <= 6 {
 		firstOfQuarter = year + "-04-01 00:00:00"
 		lastOfQuarter = year + "-06-30 23:59:59"
+		quarter = 2
 	} else if month >= 7 && month <= 9 {
 		firstOfQuarter = year + "-07-01 00:00:00"
 		lastOfQuarter = year + "-09-30 23:59:59"
+		quarter = 3
 	} else {
 		firstOfQuarter = year + "-10-01 00:00:00"
 		lastOfQuarter = year + "-12-31 23:59:59"
+		quarter = 4
 	}
-	return firstOfQuarter, lastOfQuarter
+	return firstOfQuarter, lastOfQuarter, quarter
 }
