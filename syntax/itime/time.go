@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+// 时间相关
+const TIME_FORMAT_DATE = "2006-01-02"
+const TIME_FORMAT = "2006-01-02 15:04:05"
+
 func TimeZero() time.Time {
 	timeStr := time.Now().Format("2006-01-02")
 	t, _ := time.ParseInLocation("2006-01-02", timeStr, time.Local)
