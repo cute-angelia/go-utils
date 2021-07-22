@@ -29,7 +29,7 @@ require (
 	github.com/tebeka/strftime v0.1.5 // indirect
 	github.com/tidwall/buntdb v1.1.2
 	github.com/xujiajun/nutsdb v0.5.0
-	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	golang.org/x/crypto v0.0.0-20201216223049-8b5274cf687f
 	golang.org/x/image v0.0.0-20190802002840-cff245a6509b
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
@@ -39,6 +39,7 @@ require (
 
 require (
 	github.com/gotomicro/ego v0.5.6
+	github.com/minio/minio-go/v7 v7.0.12
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/qiniu/go-sdk/v7 v7.9.5
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
