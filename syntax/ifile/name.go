@@ -31,9 +31,9 @@ func (f fileName) GetNameOrigin(prefix string) string {
 
 // name 按时间错
 func (f fileName) GetNameTimeline(prefix string) string {
-	newName := ""
-	if strings.Contains(f.uri, "?") {
-		newName = strings.Split(f.uri, "?")[0]
+	newName := f.uri
+	if strings.Contains(newName, "?") {
+		newName = strings.Split(newName, "?")[0]
 	}
 	ext := path.Ext(newName)
 

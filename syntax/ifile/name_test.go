@@ -1,6 +1,9 @@
 package ifile
 
-import "testing"
+import (
+	"path"
+	"testing"
+)
 
 /**
 === RUN   TestName
@@ -11,7 +14,7 @@ import "testing"
     name_test.go:14: test_1624955091917614000.jpg
     name_test.go:15: test_361424000968129401.jpg
 --- PASS: TestName (0.00s)
- */
+*/
 func TestName(t *testing.T) {
 	uri := "https://www.baidu.com/a.jpg?z=23"
 
@@ -23,4 +26,12 @@ func TestName(t *testing.T) {
 	t.Log(NewFileName(uri).GetNameOrigin(prefix))
 	t.Log(NewFileName(uri).GetNameTimeline(prefix))
 	t.Log(NewFileName(uri).GetNameSnowFlow(prefix))
+
+	// test 3
+	iurl := "https://pbs.twimg.com/media/Eq3Ilp6XYAItcSw.jpg?format=jpg&name=orig"
+	name := NewFileName(iurl).GetNameTimeline(prefix)
+	t.Log(name)
+
+	ext := path.Ext(iurl)
+	t.Log(ext)
 }
