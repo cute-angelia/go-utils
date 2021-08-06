@@ -25,7 +25,7 @@ type Component struct {
 	config *config
 	logger *elog.Component
 	locker sync.Mutex
-	client *minio.Client
+	Client *minio.Client
 }
 
 var comp *Component
@@ -45,7 +45,7 @@ func newComponent(compName string, config *config, logger *elog.Component) *Comp
 			name:   compName,
 			config: config,
 			logger: logger,
-			client: minioClient,
+			Client: minioClient,
 		}
 	})
 
@@ -62,7 +62,7 @@ func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration)
 	}
 
 	reqParams := make(url.Values)
-	if presignedURL, err := e.client.PresignedGetObject(context.Background(), bucket, key, t, reqParams); err != nil {
+	if presignedURL, err := e.Client.PresignedGetObject(context.Background(), bucket, key, t, reqParams); err != nil {
 		e.logger.Info(err.Error())
 		return "", err
 	} else {
@@ -95,7 +95,7 @@ func (e *Component) GenerateHashKey(bucketType int32, bucket string, prefix stri
 
 // 上传文件
 func (e Component) PutObject(bucket string, objectName string, reader io.Reader, objectSize int64, objopt minio.PutObjectOptions) minio.UploadInfo {
-	uploadInfo, err := e.client.PutObject(context.Background(), bucket, objectName, reader, objectSize, objopt)
+	uploadInfo, err := e.Client.PutObject(context.Background(), bucket, objectName, reader, objectSize, objopt)
 	if err != nil {
 		fmt.Println(err)
 		return uploadInfo
@@ -114,7 +114,7 @@ func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string
 	idown := idownload.Load("").Build(idownload.WithProxySocks5(e.config.ProxySocks5))
 	filebyte, _ := idown.RequestFile(uri)
 
-	if info, err := e.client.PutObject(context.TODO(), bucket, objectName, bytes.NewReader(filebyte), int64(len(filebyte)), objopt); err != nil {
+	if info, err := e.Client.PutObject(context.TODO(), bucket, objectName, bytes.NewReader(filebyte), int64(len(filebyte)), objopt); err != nil {
 		log.Println(err)
 	} else {
 		uri = bucket + "/" + info.Key
@@ -131,7 +131,7 @@ func (e Component) DeleteObject(objectNameWithBucket string) error {
 
 	log.Println("删除对象1", objectNameWithBucket, bucket, objectName)
 
-	err := e.client.RemoveObject(context.Background(), bucket, objectName, opts)
+	err := e.Client.RemoveObject(context.Background(), bucket, objectName, opts)
 	if err != nil {
 		log.Println("删除对象2", err, objectNameWithBucket, bucket, objectName)
 		return err
