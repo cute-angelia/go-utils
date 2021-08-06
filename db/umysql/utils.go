@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/jinzhu/gorm"
 )
 
 // ps: interface 全部传指针
@@ -61,4 +62,33 @@ func ConvertMap(in interface{}, noKey []string) map[string]interface{} {
 	}
 
 	return inInterface
+}
+
+func QueryGenerate(orm *gorm.DB, key string, opt string, value interface{}) *gorm.DB {
+	switch v := value.(type) {
+	case string:
+		if len(v) > 0 {
+			if opt == "like" {
+				orm = orm.Where(fmt.Sprintf("%s like ?", key), "%"+v+"%")
+			} else {
+				orm = orm.Where(fmt.Sprintf("%s %s ?", key, opt), v)
+			}
+		}
+	case int:
+		if v > 0 {
+			orm = orm.Where(fmt.Sprintf("%s %s ?", key, opt), v)
+		}
+	case int32:
+		if v > 0 {
+			orm = orm.Where(fmt.Sprintf("%s %s ?", key, opt), v)
+		}
+	case []int32:
+		if len(v) > 0 {
+			orm = orm.Where(fmt.Sprintf("%s %s (?)", key, opt), v)
+		}
+	default:
+		orm = orm.Where(fmt.Sprintf("%s %s ?", key, opt), v)
+	}
+
+	return orm
 }
