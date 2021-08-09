@@ -35,16 +35,16 @@ func (c *Component) RequestFile(src string) ([]byte, error) {
 	var body []byte
 	igout := gout.GET(src).SetTimeout(c.config.Timeout)
 
-	if c.config.Debug {
-		log.Println("配置信息：", fmt.Sprintf("%+v", c.config))
-	}
+	// if c.config.Debug {
+		log.Println(PackageName, "配置信息：", fmt.Sprintf("%+v", c.config))
+	//}
 
 	if len(c.config.ProxySocks5) > 0 {
-		log.Println("===== ProxySocks5 =====:", c.config.ProxySocks5)
+		log.Println(PackageName, "===== ProxySocks5 =====:", c.config.ProxySocks5)
 		igout = igout.SetSOCKS5(c.config.ProxySocks5)
 	}
 	if len(c.config.ProxyHttp) > 0 {
-		log.Println("===== ProxyHttp =====:", c.config.ProxyHttp)
+		log.Println(PackageName, "===== ProxyHttp =====:", c.config.ProxyHttp)
 		igout = igout.SetProxy(c.config.ProxyHttp)
 	}
 
@@ -64,7 +64,7 @@ func (c *Component) RequestFile(src string) ([]byte, error) {
 	}).Do()
 
 	if err != nil {
-		log.Println("request file error -> ", src, err)
+		log.Println(PackageName, "request file error -> ", src, err)
 	}
 	return body, err
 }
