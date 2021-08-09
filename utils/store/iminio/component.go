@@ -112,20 +112,23 @@ func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string
 	}
 	// 更换图片到本地
 	idown := idownload.Load("").Build(idownload.WithProxySocks5(e.config.ProxySocks5))
-	filebyte, _ := idown.RequestFile(uri)
-
-	// 打印日志
-	if e.config.Debug {
-		log.Printf("获取图片: %s, 代理：%s", uri, e.config.ProxySocks5)
-	}
-
-	if info, err := e.Client.PutObject(context.TODO(), bucket, objectName, bytes.NewReader(filebyte), int64(len(filebyte)), objopt); err != nil {
-		log.Println("上传失败：❌", err)
+	if filebyte, err := idown.RequestFile(uri); err != nil {
+		log.Println("获取图片失败：❌", err)
+		return ""
 	} else {
-		uri = bucket + "/" + info.Key
-		log.Println("上传成功：✅", uri)
+		// 打印日志
+		if e.config.Debug {
+			log.Printf("获取图片: %s, 代理：%s", uri, e.config.ProxySocks5)
+		}
+
+		if info, err := e.Client.PutObject(context.TODO(), bucket, objectName, bytes.NewReader(filebyte), int64(len(filebyte)), objopt); err != nil {
+			log.Println("上传失败：❌", err)
+		} else {
+			uri = bucket + "/" + info.Key
+			log.Println("上传成功：✅", uri)
+		}
+		return uri
 	}
-	return uri
 }
 
 // 删除文件
