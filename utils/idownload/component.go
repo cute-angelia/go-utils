@@ -36,16 +36,18 @@ func (c *Component) RequestFile(src string) ([]byte, error) {
 	igout := gout.GET(src)
 
 	if len(c.config.ProxySocks5) > 0 {
-		igout.SetSOCKS5(c.config.ProxySocks5)
+		log.Println("proxy:", c.config.ProxySocks5)
+		igout = igout.SetSOCKS5(c.config.ProxySocks5)
 	}
 	if len(c.config.ProxyHttp) > 0 {
-		igout.SetProxy(c.config.ProxyHttp)
+		log.Println("proxy:", c.config.ProxyHttp)
+		igout = igout.SetProxy(c.config.ProxyHttp)
 	}
 
-	err := igout.SetHeader(gout.H(gout.H{
+	err := igout.SetHeader(gout.H{
 		"cookie":     c.config.Cookie,
 		"user-agent": c.config.UserAgent,
-	})).Callback(func(c *dataflow.Context) error {
+	}).Callback(func(c *dataflow.Context) error {
 		switch c.Code {
 		case 200:
 			c.BindBody(&body)
@@ -58,7 +60,7 @@ func (c *Component) RequestFile(src string) ([]byte, error) {
 	}).Do()
 
 	if err != nil {
-		log.Println("request file error -> ",src, err)
+		log.Println("request file error -> ", src, err)
 	}
 	return body, err
 }
