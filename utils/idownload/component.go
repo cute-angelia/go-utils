@@ -40,11 +40,11 @@ func (c *Component) RequestFile(src string) ([]byte, error) {
 	}
 
 	if len(c.config.ProxySocks5) > 0 {
-		log.Println("proxy:", c.config.ProxySocks5)
+		log.Println("===== ProxySocks5 =====:", c.config.ProxySocks5)
 		igout = igout.SetSOCKS5(c.config.ProxySocks5)
 	}
 	if len(c.config.ProxyHttp) > 0 {
-		log.Println("proxy:", c.config.ProxyHttp)
+		log.Println("===== ProxyHttp =====:", c.config.ProxyHttp)
 		igout = igout.SetProxy(c.config.ProxyHttp)
 	}
 
