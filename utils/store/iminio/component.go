@@ -28,28 +28,21 @@ type Component struct {
 	Client *minio.Client
 }
 
-var comp *Component
-var once2 sync.Once
-
 // newComponent ...
 func newComponent(compName string, config *config, logger *elog.Component) *Component {
-	once2.Do(func() {
-		minioClient, err := minio.New(config.Endpoint, &minio.Options{
-			Creds:  credentials.NewStaticV4(config.AccesskeyId, config.SecretaccessKey, ""),
-			Secure: config.UseSSL,
-		})
-		if err != nil {
-			logger.Error("发生错误" + err.Error())
-		}
-		comp = &Component{
-			name:   compName,
-			config: config,
-			logger: logger,
-			Client: minioClient,
-		}
+	minioClient, err := minio.New(config.Endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(config.AccesskeyId, config.SecretaccessKey, ""),
+		Secure: config.UseSSL,
 	})
-
-	return comp
+	if err != nil {
+		logger.Error("发生错误" + err.Error())
+	}
+	return &Component{
+		name:   compName,
+		config: config,
+		logger: logger,
+		Client: minioClient,
+	}
 }
 
 //获取链接 不带bucket
@@ -66,7 +59,7 @@ func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration)
 		e.logger.Info(err.Error())
 		return "", err
 	} else {
-		log.Println(PackageName,"Successfully URL: ", presignedURL)
+		log.Println(PackageName, "Successfully URL: ", presignedURL)
 		bunt.Set("cache", hashkey, presignedURL.String(), t)
 		return presignedURL.String(), nil
 	}
@@ -117,7 +110,7 @@ func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string
 		idownload.WithTimeout(e.config.Timeout),
 	)
 	if filebyte, err := idown.RequestFile(uri); err != nil {
-		log.Println(PackageName,"获取图片失败：❌", err)
+		log.Println(PackageName, "获取图片失败：❌", err)
 		return ""
 	} else {
 		// 打印日志
@@ -126,10 +119,10 @@ func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string
 		}
 
 		if info, err := e.Client.PutObject(context.TODO(), bucket, objectName, bytes.NewReader(filebyte), int64(len(filebyte)), objopt); err != nil {
-			log.Println(PackageName,"上传失败：❌", err)
+			log.Println(PackageName, "上传失败：❌", err)
 		} else {
 			uri = bucket + "/" + info.Key
-			log.Println(PackageName,"上传成功：✅", uri)
+			log.Println(PackageName, "上传成功：✅", uri)
 		}
 		return uri
 	}
@@ -141,11 +134,11 @@ func (e Component) DeleteObject(objectNameWithBucket string) error {
 	}
 	bucket, objectName := e.GetBucketAndObjectName(objectNameWithBucket)
 
-	log.Println(PackageName,"删除对象1", objectNameWithBucket, bucket, objectName)
+	log.Println(PackageName, "删除对象1", objectNameWithBucket, bucket, objectName)
 
 	err := e.Client.RemoveObject(context.Background(), bucket, objectName, opts)
 	if err != nil {
-		log.Println(PackageName,"删除对象失败：❌", err, objectNameWithBucket, bucket, objectName)
+		log.Println(PackageName, "删除对象失败：❌", err, objectNameWithBucket, bucket, objectName)
 		return err
 	}
 	return nil
@@ -173,4 +166,8 @@ func (e Component) GetPutObjectOptions(contentType string) minio.PutObjectOption
 		return minio.PutObjectOptions{ContentType: contentType}
 	}
 	return minio.PutObjectOptions{ContentType: "image/jpeg,image/png,image/jpeg"}
+}
+
+func (e Component) GetConfig() {
+	log.Println(PackageName, "配置信息：", fmt.Sprintf("%+v", e.config))
 }

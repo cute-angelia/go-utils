@@ -35,9 +35,9 @@ func (c *Component) RequestFile(src string) ([]byte, error) {
 	var body []byte
 	igout := gout.GET(src).SetTimeout(c.config.Timeout)
 
-	// if c.config.Debug {
+	if c.config.Debug {
 		log.Println(PackageName, "配置信息：", fmt.Sprintf("%+v", c.config))
-	//}
+	}
 
 	if len(c.config.ProxySocks5) > 0 {
 		log.Println(PackageName, "===== ProxySocks5 =====:", c.config.ProxySocks5)

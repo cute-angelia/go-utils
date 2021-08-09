@@ -1,8 +1,10 @@
 package iminio
 
 import (
+	"fmt"
 	"github.com/gotomicro/ego/core/econf"
 	"github.com/gotomicro/ego/core/elog"
+	"log"
 	"strings"
 	"time"
 )
@@ -78,5 +80,6 @@ func (c *Container) Build(options ...Option) *Component {
 	for _, option := range options {
 		option(c)
 	}
+	log.Println(PackageName, fmt.Sprintf("%+v", c.config))
 	return newComponent(c.name, c.config, c.logger)
 }
