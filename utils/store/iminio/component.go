@@ -111,7 +111,11 @@ func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string
 		return uri
 	}
 	// 更换图片到本地
-	idown := idownload.Load("").Build(idownload.WithProxySocks5(e.config.ProxySocks5))
+	idown := idownload.Load("").Build(
+		idownload.WithProxySocks5(e.config.ProxySocks5),
+		idownload.WithDebug(e.config.Debug),
+		idownload.WithTimeout(e.config.Timeout),
+	)
 	if filebyte, err := idown.RequestFile(uri); err != nil {
 		log.Println("获取图片失败：❌", err)
 		return ""

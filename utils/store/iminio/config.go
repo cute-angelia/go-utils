@@ -1,5 +1,7 @@
 package iminio
 
+import "time"
+
 // config options
 type config struct {
 	Endpoint        string
@@ -10,6 +12,7 @@ type config struct {
 	ProxySocks5 string
 
 	Debug bool //  打印日志
+	Timeout time.Duration // 超时时间
 }
 
 // DefaultConfig 返回默认配置
