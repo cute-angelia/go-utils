@@ -17,9 +17,8 @@ type config struct {
 	Cookie      string // cookie
 	UserAgent   string // user-agent
 
-	Timeout time.Duration
-
-	Debug bool
+	Timeout time.Duration // 超时时间
+	Debug bool //  debug 日志
 }
 
 // DefaultConfig 返回默认配置

@@ -4,6 +4,7 @@ import (
 	"github.com/gotomicro/ego/core/econf"
 	"github.com/gotomicro/ego/core/elog"
 	"strings"
+	"time"
 )
 
 type Option func(c *Container)
@@ -109,6 +110,20 @@ func WithCookie(Cookie string) Option {
 func WithUserAgent(UserAgent string) Option {
 	return func(c *Container) {
 		c.config.UserAgent = UserAgent
+	}
+}
+
+// timeout
+func WithTimeout(timeout time.Duration) Option {
+	return func(c *Container) {
+		c.config.Timeout = timeout
+	}
+}
+
+// debug
+func WithDebug(Debug bool) Option {
+	return func(c *Container) {
+		c.config.Debug = Debug
 	}
 }
 
