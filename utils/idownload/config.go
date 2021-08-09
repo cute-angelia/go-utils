@@ -1,5 +1,7 @@
 package idownload
 
+import "time"
+
 // config options
 type config struct {
 	Width  int // 图片-最小宽度
@@ -14,6 +16,10 @@ type config struct {
 	ProxySocks5 string // 代理 ip:port
 	Cookie      string // cookie
 	UserAgent   string // user-agent
+
+	Timeout time.Duration
+
+	Debug bool
 }
 
 // DefaultConfig 返回默认配置
@@ -29,5 +35,7 @@ func DefaultConfig() *config {
 		Cookie:      "",
 		UserAgent:   "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
 		DefaultExt:  "",
+		Timeout:     time.Second * 6,
+		Debug:       false,
 	}
 }
