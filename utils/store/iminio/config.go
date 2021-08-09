@@ -6,8 +6,10 @@ type config struct {
 	AccesskeyId     string
 	SecretaccessKey string
 
-	UseSSL          bool
-	ProxySocks5     string
+	UseSSL      bool
+	ProxySocks5 string
+
+	Debug bool //  打印日志
 }
 
 // DefaultConfig 返回默认配置

@@ -49,6 +49,11 @@ func WithSecretaccessKey(SecretaccessKey string) Option {
 		c.config.SecretaccessKey = SecretaccessKey
 	}
 }
+func WithDebug(Debug bool) Option {
+	return func(c *Container) {
+		c.config.Debug = Debug
+	}
+}
 func WithUseSSL(UseSSL bool) Option {
 	return func(c *Container) {
 		c.config.UseSSL = UseSSL

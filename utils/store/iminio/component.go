@@ -114,11 +114,16 @@ func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string
 	idown := idownload.Load("").Build(idownload.WithProxySocks5(e.config.ProxySocks5))
 	filebyte, _ := idown.RequestFile(uri)
 
+	// 打印日志
+	if e.config.Debug {
+		log.Printf("获取图片: %s, 代理：%s", uri, e.config.ProxySocks5)
+	}
+
 	if info, err := e.Client.PutObject(context.TODO(), bucket, objectName, bytes.NewReader(filebyte), int64(len(filebyte)), objopt); err != nil {
-		log.Println(err)
+		log.Println("上传失败：❌", err)
 	} else {
 		uri = bucket + "/" + info.Key
-		fmt.Println("上传成功：", uri)
+		log.Println("上传成功：✅", uri)
 	}
 	return uri
 }
@@ -133,7 +138,7 @@ func (e Component) DeleteObject(objectNameWithBucket string) error {
 
 	err := e.Client.RemoveObject(context.Background(), bucket, objectName, opts)
 	if err != nil {
-		log.Println("删除对象2", err, objectNameWithBucket, bucket, objectName)
+		log.Println("删除对象失败：❌", err, objectNameWithBucket, bucket, objectName)
 		return err
 	}
 	return nil
