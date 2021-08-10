@@ -2,6 +2,7 @@ package conf
 
 import (
 	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -26,6 +27,5 @@ func TestJson(t *testing.T) {
 }
 
 func TestEnv(t *testing.T) {
-	t.Log(GetEnv("SY_REDIS_CACHE_HOST_PROXY"))
+	assert.Equal(t, "192.168.1.234", GetEnv("SY_REDIS_CACHE_HOST_PROXY"))
 }
-
