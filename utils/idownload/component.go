@@ -12,6 +12,7 @@ import (
 	"log"
 	"os"
 	"sync"
+	"time"
 )
 
 const PackageName = "component.download.file"
@@ -59,7 +60,7 @@ func (c *Component) RequestFile(src string) ([]byte, error) {
 		default:
 			return fmt.Errorf(src+" error: %d", c.Code)
 		}
-	}).Do()
+	}).F().Retry().Attempt(3).WaitTime(time.Second * 2).MaxWaitTime(time.Second * 30).Do()
 
 	if err != nil {
 		log.Println(PackageName, "request file error -> ", src, err)

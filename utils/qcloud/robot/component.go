@@ -3,6 +3,7 @@ package robot
 import (
 	"github.com/guonaihong/gout"
 	"log"
+	"time"
 )
 
 type Component struct {
@@ -23,7 +24,7 @@ func (self Component) SendText(content string) {
 			"mentioned_list":        self.config.MentionedList,
 			"mentioned_mobile_list": self.config.MentionedMobileList,
 		},
-	}).Debug(self.config.Debug).Do()
+	}).Debug(self.config.Debug).F().Retry().Attempt(3).WaitTime(time.Second).Do()
 }
 
 func (self Component) SendMarkDown(content string) {
@@ -34,7 +35,7 @@ func (self Component) SendMarkDown(content string) {
 			"mentioned_list":        self.config.MentionedList,
 			"mentioned_mobile_list": self.config.MentionedMobileList,
 		},
-	}).Debug(self.config.Debug).Do()
+	}).Debug(self.config.Debug).F().Retry().Attempt(3).Do()
 }
 
 func logError(key string, err error) {

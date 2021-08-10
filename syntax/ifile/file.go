@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 // 打开已经存在的文件， 不存在会新建一个， 返回 *os.File
@@ -96,7 +97,7 @@ func GetFileWithSrcWithGout(src string) ([]byte, error) {
 		default:
 			return fmt.Errorf(src+" error: %d", c.Code)
 		}
-	}).Do()
+	}).F().Retry().Attempt(3).WaitTime(time.Second).MaxWaitTime(time.Second*30).Do()
 
 	if err != nil {
 		return nil, err

@@ -10,7 +10,7 @@ require (
 	github.com/go-redis/redis/v8 v8.4.4
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
-	github.com/guonaihong/gout v0.0.12
+	github.com/guonaihong/gout v0.2.4
 	github.com/jehiah/go-strftime v0.0.0-20171201141054-1d33003b3869 // indirect
 	github.com/jinzhu/gorm v1.9.14
 	github.com/jonboulle/clockwork v0.2.0 // indirect
@@ -31,17 +31,20 @@ require (
 	github.com/xujiajun/nutsdb v0.5.0
 	golang.org/x/crypto v0.0.0-20201216223049-8b5274cf687f
 	golang.org/x/image v0.0.0-20190802002840-cff245a6509b
-	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4
+	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d
 	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602
-	golang.org/x/text v0.3.5
+	golang.org/x/text v0.3.6
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )
 
 require (
 	github.com/gotomicro/ego v0.5.6
+	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/minio/minio-go/v7 v7.0.12
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/qiniu/go-sdk/v7 v7.9.5
 	github.com/spf13/viper v1.8.1
+	golang.org/x/sys v0.0.0-20210809222454-d867a43fc93e // indirect
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
+	google.golang.org/protobuf v1.27.1 // indirect
 )
