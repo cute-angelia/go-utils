@@ -59,6 +59,6 @@ func (t *AntsPool) RunningTask() int {
 }
 
 // 步骤 4
-func (t *AntsPool) stop() {
+func (t *AntsPool) Stop() {
 	t.pool.Release()
 }
