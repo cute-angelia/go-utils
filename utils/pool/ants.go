@@ -6,18 +6,18 @@ import (
 	"sync"
 )
 
-type antsPool struct {
+type AntsPool struct {
 	pool    *ants.Pool
 	wg      *sync.WaitGroup
 	taskNum int
 }
 
-func NewPoolAnts(num int) *antsPool {
+func NewPoolAnts(num int) *AntsPool {
 	if num <= 0 {
 		panic(fmt.Errorf("需要制定协程数量"))
 	}
 
-	ap := antsPool{}
+	ap := AntsPool{}
 	// 预先分配内存 WithPreAlloc
 	if p, err := ants.NewPool(num, ants.WithPreAlloc(true)); err != nil {
 		panic(err)
@@ -29,7 +29,7 @@ func NewPoolAnts(num int) *antsPool {
 }
 
 // 步骤 1
-func (t *antsPool) InitTask(taskNum int) {
+func (t *AntsPool) InitTask(taskNum int) {
 	var wg sync.WaitGroup
 
 	// 检查数量
@@ -42,7 +42,7 @@ func (t *antsPool) InitTask(taskNum int) {
 }
 
 // 步骤 2
-func (t *antsPool) SubmitTask(fc func()) error {
+func (t *AntsPool) SubmitTask(fc func()) error {
 	if t.taskNum <= 0 {
 		return fmt.Errorf("you should InitTask, 需要指定任务数量")
 	} else {
@@ -53,12 +53,12 @@ func (t *antsPool) SubmitTask(fc func()) error {
 }
 
 // 步骤 3
-func (t *antsPool) RunningTask() int {
+func (t *AntsPool) RunningTask() int {
 	t.wg.Wait()
 	return t.pool.Running()
 }
 
 // 步骤 4
-func (t *antsPool) stop() {
+func (t *AntsPool) stop() {
 	t.pool.Release()
 }
