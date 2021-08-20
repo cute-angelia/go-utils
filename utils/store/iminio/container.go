@@ -75,6 +75,12 @@ func WithProxySocks5(ProxySocks5 string) Option {
 	}
 }
 
+func WithReplaceMode(ReplaceMode int) Option {
+	return func(c *Container) {
+		c.config.ReplaceMode = ReplaceMode
+	}
+}
+
 // Build ...
 func (c *Container) Build(options ...Option) *Component {
 	for _, option := range options {

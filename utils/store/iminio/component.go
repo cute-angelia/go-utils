@@ -81,14 +81,33 @@ func (e *Component) SignCoverWithCache(cover string, t time.Duration) string {
 	}
 }
 
-// 用于缓存
+// 生成缓存
 func (e *Component) GenerateHashKey(bucketType int32, bucket string, prefix string) string {
 	return hash.NewEncodeMD5(fmt.Sprintf("%d%s%s", bucketType, bucket, prefix))
+}
+
+func (e Component) GetObjectStat(bucket string, objectName string) (minio.ObjectInfo, error) {
+	objInfo, err := e.Client.StatObject(context.Background(), bucket, objectName, minio.StatObjectOptions{})
+	if err != nil {
+		fmt.Println(err)
+	}
+	return objInfo, err
 }
 
 // 上传文件
 func (e Component) PutObject(bucket string, objectName string, reader io.Reader, objectSize int64, objopt minio.PutObjectOptions) minio.UploadInfo {
 	uploadInfo, err := e.Client.PutObject(context.Background(), bucket, objectName, reader, objectSize, objopt)
+	if err != nil {
+		fmt.Println(err)
+		return uploadInfo
+	}
+	fmt.Println("Successfully uploaded bytes: ", uploadInfo)
+	return uploadInfo
+}
+
+// 按文件上传
+func (e Component) FPutObject(bucket string, objectName string, filePath string, objopt minio.PutObjectOptions) minio.UploadInfo {
+	uploadInfo, err := e.Client.FPutObject(context.Background(), bucket, objectName, filePath, objopt)
 	if err != nil {
 		fmt.Println(err)
 		return uploadInfo
