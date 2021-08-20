@@ -12,6 +12,7 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"io"
 	"log"
+	"math/rand"
 	"net/url"
 	"strings"
 	"sync"
@@ -94,26 +95,52 @@ func (e Component) GetObjectStat(bucket string, objectName string) (minio.Object
 	return objInfo, err
 }
 
-// 上传文件
-func (e Component) PutObject(bucket string, objectName string, reader io.Reader, objectSize int64, objopt minio.PutObjectOptions) minio.UploadInfo {
-	uploadInfo, err := e.Client.PutObject(context.Background(), bucket, objectName, reader, objectSize, objopt)
-	if err != nil {
-		fmt.Println(err)
-		return uploadInfo
+func (e Component) CheckMode(objectName string) (newObjectName string, canupload bool) {
+	// 跳过
+	if e.config.ReplaceMode == ReplaceModeIgnore {
+		canupload = false
+		newObjectName = objectName
 	}
-	fmt.Println("Successfully uploaded bytes: ", uploadInfo)
-	return uploadInfo
+	if e.config.ReplaceMode == ReplaceModeReplace {
+		canupload = true
+		newObjectName = objectName
+	}
+	if e.config.ReplaceMode == ReplaceModeTwo {
+		rand.Seed(time.Now().Unix())
+		canupload = true
+		newObjectName = fmt.Sprintf("bak_%d_%s", rand.Intn(100), objectName)
+	}
+	return
+}
+
+// 上传文件
+func (e Component) PutObject(bucket string, objectNameIn string, reader io.Reader, objectSize int64, objopt minio.PutObjectOptions) minio.UploadInfo {
+	if objectName, ok := e.CheckMode(objectNameIn); ok {
+		uploadInfo, err := e.Client.PutObject(context.Background(), bucket, objectName, reader, objectSize, objopt)
+		if err != nil {
+			fmt.Println(err)
+			return uploadInfo
+		}
+		fmt.Println("Successfully uploaded bytes: ", uploadInfo)
+		return uploadInfo
+	} else {
+		return minio.UploadInfo{}
+	}
 }
 
 // 按文件上传
-func (e Component) FPutObject(bucket string, objectName string, filePath string, objopt minio.PutObjectOptions) minio.UploadInfo {
-	uploadInfo, err := e.Client.FPutObject(context.Background(), bucket, objectName, filePath, objopt)
-	if err != nil {
-		fmt.Println(err)
+func (e Component) FPutObject(bucket string, objectNameIn string, filePath string, objopt minio.PutObjectOptions) minio.UploadInfo {
+	if objectName, ok := e.CheckMode(objectNameIn); ok {
+		uploadInfo, err := e.Client.FPutObject(context.Background(), bucket, objectName, filePath, objopt)
+		if err != nil {
+			fmt.Println(err)
+			return uploadInfo
+		}
+		fmt.Println("Successfully uploaded bytes: ", uploadInfo)
 		return uploadInfo
+	} else {
+		return minio.UploadInfo{}
 	}
-	fmt.Println("Successfully uploaded bytes: ", uploadInfo)
-	return uploadInfo
 }
 
 // 提供链接，上传到 minio
@@ -138,7 +165,7 @@ func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string
 		}
 
 		if info, err := e.Client.PutObject(context.TODO(), bucket, objectName, bytes.NewReader(filebyte), int64(len(filebyte)), objopt); err != nil {
-			log.Println(PackageName, "上传失败：❌", err)
+			log.Println(PackageName, "上传失败：❌", err, uri)
 		} else {
 			uri = bucket + "/" + info.Key
 			log.Println(PackageName, "上传成功：✅", uri)

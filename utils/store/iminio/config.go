@@ -17,6 +17,12 @@ type config struct {
 	ReplaceMode int // 替换模式， 1跳过， 2覆盖  3保留两者
 }
 
+const (
+	ReplaceModeIgnore  = 1
+	ReplaceModeReplace = 2
+	ReplaceModeTwo     = 3
+)
+
 // DefaultConfig 返回默认配置
 func DefaultConfig() *config {
 	return &config{
