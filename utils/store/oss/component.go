@@ -2,10 +2,9 @@ package oss
 
 import (
 	"bytes"
-	"crypto/sha1"
-	"encoding/hex"
 	"errors"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/cute-angelia/go-utils/syntax/ifile"
 	"github.com/cute-angelia/go-utils/utils/idownload"
 	"github.com/gotomicro/ego/core/elog"
 	"io"
@@ -72,24 +71,15 @@ func (e Component) PutObjectWithSrc(uri string, objectName string) (string, stri
 	} else {
 		// 打印日志
 		if e.config.Debug {
-			log.Printf(PackageName, "获取图片: %s, 代理：%s", uri, e.config.ProxySocks5)
+			log.Printf(PackageName+"获取图片: %s, 代理：%s", uri, e.config.ProxySocks5)
 		}
 
-		ib := bytes.NewReader(filebyte)
-
-		log.Println("file,==>", objectName, ib.Size())
-
-		if p, err := e.PutObject(objectName, ib); err != nil {
+		if p, err := e.PutObject(objectName, bytes.NewReader(filebyte)); err != nil {
 			log.Println(PackageName, "上传失败：❌", err, uri)
 			return "", "", errors.New("获取图片失败：❌：" + uri)
 		} else {
-			log.Println(PackageName, "上传成功：✅", uri)
-
-			log.Println("file222 ==>", objectName, ib.Size())
-
-			h := sha1.New()
-			io.Copy(h, ib)
-			return p,  hex.EncodeToString(h.Sum(nil)), nil
+			log.Printf(PackageName+"上传成功：✅ %s => %s", uri, objectName)
+			return p, ifile.FileHashSHA1(bytes.NewReader(filebyte)), nil
 		}
 	}
 }

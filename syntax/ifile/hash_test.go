@@ -2,6 +2,7 @@ package ifile
 
 import (
 	"bytes"
+	"github.com/guonaihong/gout"
 	"log"
 	"os"
 	"testing"
@@ -39,4 +40,12 @@ func TestHash(t *testing.T) {
 		t.Log(FileHashSHA1(fileOpen2))
 		t.Log(len(FileHashSHA1(fileOpen2)))
 	}
+
+	t.Log("test img")
+
+	var imgbyte []byte
+	img := "https://img1.baidu.com/it/u=4170534835,2356446070&fm=253&fmt=auto&app=120&f=JPEG?w=349&h=364"
+	gout.GET(img).BindBody(&imgbyte).Do()
+
+	t.Log(len(imgbyte), FileHashSHA1(bytes.NewReader(imgbyte)))
 }
