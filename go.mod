@@ -3,7 +3,9 @@ module github.com/cute-angelia/go-utils
 go 1.16
 
 require (
+	github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible
 	github.com/astaxie/beego v1.12.3
+	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/garyburd/redigo v1.6.2
 	github.com/go-chi/chi v1.5.4
 	github.com/go-redis/redis/v8 v8.11.3
@@ -19,12 +21,13 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/opentracing/opentracing-go v1.2.0
-	github.com/panjf2000/ants/v2 v2.4.6 // indirect
+	github.com/panjf2000/ants/v2 v2.4.6
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1
 	github.com/qiniu/go-sdk/v7 v7.9.8
 	github.com/robbert229/jwt v2.0.0+incompatible
 	github.com/robfig/cron/v3 v3.0.1
+	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/smacker/opentracing-gorm v0.0.0-20181207094635-cd4974441042
 	github.com/sony/sonyflake v1.0.0
 	github.com/spf13/viper v1.8.1

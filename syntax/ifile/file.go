@@ -152,3 +152,4 @@ func isError(err error) bool {
 	}
 	return (err != nil)
 }
+
