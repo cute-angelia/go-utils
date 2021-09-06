@@ -17,6 +17,13 @@ import (
 
 const PackageName = "component.download.file"
 
+type FileInfo struct {
+	Width     int
+	Height    int
+	SourceUrl string
+	Path      string
+}
+
 type Component struct {
 	config *config
 	logger *elog.Component
@@ -69,7 +76,8 @@ func (c *Component) RequestFile(src string) ([]byte, error) {
 }
 
 // 下载文件
-func (c *Component) Download(imgurl string) (string, error) {
+func (c *Component) Download(imgurl string) (FileInfo, error) {
+	var fi FileInfo
 	name := ifile.NewFileName(imgurl).GetNameOrigin(c.config.NamePrefix)
 	if c.config.Rename {
 		name = ifile.NewFileName(imgurl).GetNameTimeline(c.config.NamePrefix)
@@ -77,22 +85,31 @@ func (c *Component) Download(imgurl string) (string, error) {
 
 	if body, err := c.RequestFile(imgurl); err != nil {
 		log.Println("error:", err)
-		return "", err
+		return fi, err
 	} else {
 		if ifileDownload, err := c.saveFile(body, name); err != nil {
 			c.print("下载文件", err.Error(), "error")
-			return "", err
+			return fi, err
 		} else {
 			// 过滤图片
 			if c.config.Width > 0 || c.config.Height > 0 {
 				// 限制图片大小
 				if errlimit := c.limitWidthHeightUseIsNot(ifileDownload); errlimit != nil {
-					return "", errlimit
+					return fi, errlimit
 				}
 			}
 
+			// 图片大小
+			f := ifile.OpenLocalFile(ifileDownload)
+			if imgconfig, _, err := image.DecodeConfig(f); err == nil {
+				fi.Width = imgconfig.Width
+				fi.Height = imgconfig.Height
+			}
+			fi.Path = name
+			fi.SourceUrl = imgurl
+
 			c.print("下载文件", "成功"+ifileDownload, "")
-			return name, nil
+			return fi, nil
 		}
 	}
 }
