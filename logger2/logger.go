@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"time"
 )
 
 type logger struct {
@@ -14,8 +15,9 @@ type logger struct {
 	project    string
 	isOnline   bool
 	maxSize    int
-	maxBackups int // log nums
-	maxAge     int //days
+	maxBackups int  // log nums
+	maxAge     int  // days
+	everyday   bool // log every day
 }
 
 func NewLogger(options ...func(*logger)) *logger {
@@ -50,13 +52,29 @@ func NewLogger(options ...func(*logger)) *logger {
 			},
 		})
 	} else {
-		l.Out = &lumberjack.Logger{
+		jackLog := &lumberjack.Logger{
 			Filename:   fmt.Sprintf("./%s.log", ilogger.project),
 			MaxSize:    ilogger.maxSize, // megabytes
 			MaxBackups: 10,
 			MaxAge:     10, //days
 			LocalTime:  true,
 		}
+		l.Out = jackLog
+		// 每日分割
+		if ilogger.everyday {
+			go func() {
+				for {
+					now := time.Now()
+					// 计算下一个零点
+					next := now.Add(time.Hour * 24)
+					next = time.Date(next.Year(), next.Month(), next.Day(), 0, 0, 0, 0, next.Location())
+					t := time.NewTimer(next.Sub(now))
+					<-t.C
+					jackLog.Rotate()
+				}
+			}()
+		}
+
 		l.SetFormatter(&logrus.JSONFormatter{
 			TimestampFormat: "2006-01-02 15:04:05",
 			CallerPrettyfier: func(f *runtime.Frame) (string, string) {
@@ -97,5 +115,11 @@ func WithMaxBackups(maxBackups int) func(*logger) {
 func WithMaxAge(maxAge int) func(*logger) {
 	return func(s *logger) {
 		s.maxAge = maxAge
+	}
+}
+
+func WithEveryday(everyday bool) func(*logger) {
+	return func(s *logger) {
+		s.everyday = everyday
 	}
 }
