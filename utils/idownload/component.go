@@ -22,6 +22,7 @@ type FileInfo struct {
 	Height    int
 	SourceUrl string
 	Path      string
+	Sha1      string
 }
 
 type Component struct {
@@ -39,7 +40,7 @@ func newComponent(compName string, config *config, logger *elog.Component) *Comp
 }
 
 // 请求文件
-func (c *Component) RequestFile(src string) ([]byte, error) {
+func (c *Component) RequestFile(src string) ([]byte, string, error) {
 	var body []byte
 	igout := gout.GET(src).SetTimeout(c.config.Timeout)
 
@@ -72,7 +73,7 @@ func (c *Component) RequestFile(src string) ([]byte, error) {
 	if err != nil {
 		log.Println(PackageName, "request file error -> ", src, err)
 	}
-	return body, err
+	return body, ifile.FileHashSHA1(bytes.NewReader(body)), err
 }
 
 // 下载文件
@@ -83,7 +84,7 @@ func (c *Component) Download(imgurl string) (FileInfo, error) {
 		name = ifile.NewFileName(imgurl).GetNameTimeline(c.config.NamePrefix)
 	}
 
-	if body, err := c.RequestFile(imgurl); err != nil {
+	if body,sha1, err := c.RequestFile(imgurl); err != nil {
 		log.Println("error:", err)
 		return fi, err
 	} else {
@@ -107,6 +108,7 @@ func (c *Component) Download(imgurl string) (FileInfo, error) {
 			}
 			fi.Path = name
 			fi.SourceUrl = imgurl
+			fi.Sha1 = sha1
 
 			c.print("下载文件", "成功"+ifileDownload, "")
 			return fi, nil

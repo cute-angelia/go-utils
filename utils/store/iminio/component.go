@@ -144,10 +144,11 @@ func (e Component) FPutObject(bucket string, objectNameIn string, filePath strin
 }
 
 // 提供链接，上传到 minio
-func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string, objopt minio.PutObjectOptions) string {
+// return key & hash sha1
+func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string, objopt minio.PutObjectOptions) (string,string) {
 	// http 不处理
 	if !strings.Contains(uri, "http") {
-		return uri
+		return uri, ""
 	}
 	// 更换图片到本地
 	idown := idownload.Load("").Build(
@@ -155,9 +156,9 @@ func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string
 		idownload.WithDebug(e.config.Debug),
 		idownload.WithTimeout(e.config.Timeout),
 	)
-	if filebyte, err := idown.RequestFile(uri); err != nil {
+	if filebyte,sha1, err := idown.RequestFile(uri); err != nil {
 		log.Println(PackageName, "获取图片失败：❌", err)
-		return ""
+		return "", ""
 	} else {
 		// 打印日志
 		if e.config.Debug {
@@ -170,7 +171,7 @@ func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string
 			uri = bucket + "/" + info.Key
 			log.Println(PackageName, "上传成功：✅", uri)
 		}
-		return uri
+		return uri, sha1
 	}
 }
 
