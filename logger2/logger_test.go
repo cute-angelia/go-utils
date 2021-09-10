@@ -18,3 +18,4 @@ func TestLogger(t *testing.T) {
 		logger2.WithTime(time.Now()).WithField("title", "for test").Error("not sup")
 	}
 }
+

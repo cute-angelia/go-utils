@@ -73,3 +73,20 @@ func GetQuarterDay() (string, string, int) {
 	}
 	return firstOfQuarter, lastOfQuarter, quarter
 }
+
+/**
+ * 每日零点执行任务
+ */
+func TimingSettlement() {
+	for {
+		now := time.Now()
+		// 计算下一个零点
+		next := now.Add(time.Hour * 24)
+		next = time.Date(next.Year(), next.Month(), next.Day(), 0, 0, 0, 0, next.Location())
+		t := time.NewTimer(next.Sub(now))
+		<-t.C
+		// log.Printf("定时结算Boottime表数据，结算完成: %v\n", time.Now())
+		//以下为定时执行的操作
+		// todo
+	}
+}
