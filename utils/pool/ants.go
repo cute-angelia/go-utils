@@ -12,6 +12,7 @@ type AntsPool struct {
 	taskNum int
 }
 
+// num 协程数量
 func NewPoolAnts(num int) *AntsPool {
 	if num <= 0 {
 		panic(fmt.Errorf("需要制定协程数量"))
@@ -28,7 +29,7 @@ func NewPoolAnts(num int) *AntsPool {
 	return &ap
 }
 
-// 步骤 1
+// 步骤 1  任务数量
 func (t *AntsPool) InitTask(taskNum int) {
 	var wg sync.WaitGroup
 

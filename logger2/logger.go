@@ -20,6 +20,8 @@ type logger struct {
 	everyday   bool // log every day
 }
 
+var Logger *logger
+
 func NewLogger(options ...func(*logger)) *logger {
 	ilogger := &logger{}
 	for _, o := range options {
@@ -87,7 +89,9 @@ func NewLogger(options ...func(*logger)) *logger {
 	// logger
 	ilogger.Logger = l
 
-	return ilogger
+	// 赋值变量，外部使用
+	Logger = ilogger
+	return Logger
 }
 
 func WithProject(project string) func(*logger) {
@@ -117,7 +121,6 @@ func WithMaxAge(maxAge int) func(*logger) {
 		s.maxAge = maxAge
 	}
 }
-
 func WithEveryday(everyday bool) func(*logger) {
 	return func(s *logger) {
 		s.everyday = everyday
