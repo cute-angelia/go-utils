@@ -28,6 +28,7 @@ require (
 	github.com/robbert229/jwt v2.0.0+incompatible
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/satori/go.uuid v1.2.0 // indirect
+	github.com/sirupsen/logrus v1.8.1
 	github.com/smacker/opentracing-gorm v0.0.0-20181207094635-cd4974441042
 	github.com/sony/sonyflake v1.0.0
 	github.com/spf13/viper v1.8.1
