@@ -6,15 +6,15 @@ import (
 	"strings"
 )
 
-/*
-	Encode Url String
-	one ->
-		url.QueryEscape(text)
-	multi ->
-		params := url.Values{}
-		params.Add("q", "1 + 2")
-		params.Add("s", "example for golangcode.com")
-		output := params.Encode()
+/* 编码 UrlEncode
+Encode Url String
+one ->
+	url.QueryEscape(text)
+multi ->
+	params := url.Values{}
+	params.Add("q", "1 + 2")
+	params.Add("s", "example for golangcode.com")
+	output := params.Encode()
 */
 func EncodeUrl(uri string) (string, error) {
 	if strings.Contains(uri, "http") {
@@ -29,5 +29,22 @@ func EncodeUrl(uri string) (string, error) {
 		} else {
 			return l.Encode(), nil
 		}
+	}
+}
+
+func RemoveParam(uri string, removes []string) (string, error) {
+	if u, err := url.Parse(uri); err != nil {
+		return uri, err
+	} else {
+		m, _ := url.ParseQuery(u.RawQuery)
+		// 移除
+		for k, _ := range m {
+			for _, v := range removes {
+				if k == v {
+					delete(m, k)
+				}
+			}
+		}
+		return fmt.Sprintf("%s://%s%s?%s", u.Scheme, u.Host, u.Path, m.Encode()), nil
 	}
 }

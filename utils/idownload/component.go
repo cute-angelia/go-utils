@@ -17,6 +17,14 @@ import (
 
 const PackageName = "component.download.file"
 
+type FileInfo struct {
+	Width     int
+	Height    int
+	SourceUrl string
+	Path      string
+	Sha1      string
+}
+
 type Component struct {
 	config *config
 	logger *elog.Component
@@ -32,7 +40,7 @@ func newComponent(compName string, config *config, logger *elog.Component) *Comp
 }
 
 // 请求文件
-func (c *Component) RequestFile(src string) ([]byte, error) {
+func (c *Component) RequestFile(src string) ([]byte, string, error) {
 	var body []byte
 	igout := gout.GET(src).SetTimeout(c.config.Timeout)
 
@@ -65,58 +73,76 @@ func (c *Component) RequestFile(src string) ([]byte, error) {
 	if err != nil {
 		log.Println(PackageName, "request file error -> ", src, err)
 	}
-	return body, err
+	return body, ifile.FileHashSHA1(bytes.NewReader(body)), err
 }
 
 // 下载文件
-func (c *Component) Download(imgurl string) {
+func (c *Component) Download(imgurl string) (FileInfo, error) {
+	var fi FileInfo
 	name := ifile.NewFileName(imgurl).GetNameOrigin(c.config.NamePrefix)
 	if c.config.Rename {
 		name = ifile.NewFileName(imgurl).GetNameTimeline(c.config.NamePrefix)
 	}
 
-	if body, err := c.RequestFile(imgurl); err != nil {
-		return
+	if body,sha1, err := c.RequestFile(imgurl); err != nil {
+		log.Println("error:", err)
+		return fi, err
 	} else {
 		if ifileDownload, err := c.saveFile(body, name); err != nil {
 			c.print("下载文件", err.Error(), "error")
+			return fi, err
 		} else {
 			// 过滤图片
 			if c.config.Width > 0 || c.config.Height > 0 {
-				if !c.limit(ifileDownload) {
-					c.print("下载文件", "成功"+ifileDownload, "")
+				// 限制图片大小
+				if errlimit := c.limitWidthHeightUseIsNot(ifileDownload); errlimit != nil {
+					return fi, errlimit
 				}
-			} else {
-				c.print("下载文件", "成功"+ifileDownload, "")
 			}
+
+			// 图片大小
+			f := ifile.OpenLocalFile(ifileDownload)
+			if imgconfig, _, err := image.DecodeConfig(f); err == nil {
+				fi.Width = imgconfig.Width
+				fi.Height = imgconfig.Height
+			}
+			fi.Path = name
+			fi.SourceUrl = imgurl
+			fi.Sha1 = sha1
+
+			c.print("下载文件", "成功"+ifileDownload, "")
+			return fi, nil
 		}
 	}
 }
 
+// 删除图片
+func (c *Component) RemoveFile(filepath string) error {
+	return os.Remove(filepath)
+}
+
 // 限制图片大小
-func (c *Component) limit(localFile string) bool {
+func (c *Component) limitWidthHeightUseIsNot(localFile string) error {
 	f := ifile.OpenLocalFile(localFile)
 	if i, _, err := image.DecodeConfig(f); err != nil {
 		c.print("限制图片大小", fmt.Sprintf("图片不存在 %s", localFile), "error")
-		return true
+		return err
 	} else {
 		if c.config.Width > 0 {
 			if i.Width < c.config.Width {
 				os.Remove(localFile)
-				c.print("限制图片大小", fmt.Sprintf("小于规定宽度:%d，移除图片", c.config.Width), "error")
-				return true
+				return fmt.Errorf(fmt.Sprintf("限制图片大小:小于规定宽度:%d，移除图片", c.config.Width))
 			}
 		}
 		if c.config.Height > 0 {
 			if i.Height < c.config.Height {
 				os.Remove(localFile)
-				c.print("限制图片大小", fmt.Sprintf("小于规定g高度:%d，移除图片", c.config.Width), "error")
-				return true
+				return fmt.Errorf(fmt.Sprintf("限制图片大小:小于规定高度:%d，移除图片", c.config.Height))
 			}
 		}
 	}
 
-	return false
+	return nil
 }
 
 // 保存文件

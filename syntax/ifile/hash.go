@@ -32,9 +32,7 @@ func FileHashMd5(reader io.Reader) string {
 func FileHashSHA1(reader io.Reader) string {
 	h := sha1.New()
 	_, err := io.Copy(h, reader)
-
-	log.Println(h, "hg",h.Size())
-
+	// log.Println(h, "hg",h.Size())
 	if err != nil {
 		return ""
 	}

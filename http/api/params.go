@@ -29,6 +29,19 @@ func ParamInt32(r *http.Request, name string) int32 {
 	return int32(p)
 }
 
+func UploadParseMultipartForm(r *http.Request, maxMemory int64) error {
+	return r.ParseMultipartForm(maxMemory)
+}
+
+func Upload(r *http.Request, name string) string {
+	return r.FormValue(name)
+}
+
+func Upload32(r *http.Request, name string) int32 {
+	p, _ := strconv.Atoi(r.FormValue(name))
+	return int32(p)
+}
+
 func Post(r *http.Request, name string) string {
 	//if len(requireds) > 0 {
 	//	if vs := r.PostForm[name]; len(vs) > 0 {
