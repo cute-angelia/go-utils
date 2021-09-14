@@ -46,7 +46,7 @@ func newComponent(compName string, config *config, logger *elog.Component) *Comp
 	}
 }
 
-//获取链接 不带bucket
+// 获取链接 不带bucket
 func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration) (string, error) {
 	hashkey := e.GenerateHashKey(1, bucket, key)
 	cachedata := bunt.Get("cache", hashkey)
@@ -66,7 +66,7 @@ func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration)
 	}
 }
 
-//获取链接 链接带 bucket
+// 获取链接 链接带 bucket
 func (e *Component) SignCoverWithCache(cover string, t time.Duration) string {
 	if strings.Contains(cover, "http") {
 		return cover
@@ -87,6 +87,50 @@ func (e *Component) GenerateHashKey(bucketType int32, bucket string, prefix stri
 	return hash.NewEncodeMD5(fmt.Sprintf("%d%s%s", bucketType, bucket, prefix))
 }
 
+// Objects 获取
+func (e *Component) GetObjectsByPage(bucket string, prefix string, page int32, perpage int32) ([]string, bool) {
+	var objs []string
+	// 控制流程
+	count := int32(0)
+	notall := false
+	offset := (page - 1) * perpage
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	opt := minio.ListObjectsOptions{
+		Prefix:    prefix,
+		Recursive: false,
+	}
+	objectCh := e.Client.ListObjects(ctx, bucket, opt)
+
+	for object := range objectCh {
+		if object.Err == nil {
+			// log.Printf("---->1 count:%d, offset:%d, perpage:%d, %v", count, offset, perpage, count >= offset)
+			// 小于当前游标
+			if count >= offset {
+				// 当前计数 - 游标
+				// log.Printf("<---- count:%d, offset:%d, perpage:%d, %v false:继续", count, offset, perpage, count-offset >= perpage)
+				if count-offset >= perpage {
+					notall = true
+					cancel()
+					break
+				}
+				//if img_url, err := e.SignUrlWithCache(bucket, object.Key, time.Hour*24*6); err == nil {
+				objs = append(objs, bucket+"/"+object.Key)
+				count++
+				//}
+			} else {
+				count++
+			}
+		} else {
+			log.Println("object.Err", object.Err)
+		}
+	}
+	return objs, notall
+}
+
+// Objects 状态
 func (e Component) GetObjectStat(bucket string, objectName string) (minio.ObjectInfo, error) {
 	objInfo, err := e.Client.StatObject(context.Background(), bucket, objectName, minio.StatObjectOptions{})
 	if err != nil {
@@ -145,7 +189,7 @@ func (e Component) FPutObject(bucket string, objectNameIn string, filePath strin
 
 // 提供链接，上传到 minio
 // return key & hash sha1
-func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string, objopt minio.PutObjectOptions) (string,string) {
+func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string, objopt minio.PutObjectOptions) (string, string) {
 	// http 不处理
 	if !strings.Contains(uri, "http") {
 		return uri, ""
@@ -156,7 +200,7 @@ func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string
 		idownload.WithDebug(e.config.Debug),
 		idownload.WithTimeout(e.config.Timeout),
 	)
-	if filebyte,sha1, err := idown.RequestFile(uri); err != nil {
+	if filebyte, sha1, err := idown.RequestFile(uri); err != nil {
 		log.Println(PackageName, "获取图片失败：❌", err)
 		return "", ""
 	} else {
