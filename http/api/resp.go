@@ -33,9 +33,23 @@ func Success(w http.ResponseWriter, r *http.Request, data interface{}, msg strin
 	}
 }
 
-/**
-错误
-*/
+// 缓存返回
+func SuccessCache(w http.ResponseWriter, code int, msg string, cacheData interface{}) {
+	response := map[string]interface{}{
+		"code":    code,
+		"message": msg,
+		"data":    cacheData,
+	}
+	// json
+	w.Header().Set("Content-Type", "application/json")
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+}
+
+// 错误
 func Error(w http.ResponseWriter, r *http.Request, data interface{}, msg string, code int32) {
 	// 内部错误
 	if code == 500 {
