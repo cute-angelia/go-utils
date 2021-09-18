@@ -59,6 +59,11 @@ func WithDebug(debug bool) Option {
 		c.config.Debug = debug
 	}
 }
+func WithDeleteKey(deleteKey string) Option {
+	return func(c *Container) {
+		c.config.DeleteKey = deleteKey
+	}
+}
 
 // Build ...
 func (c *Container) MustBuild(dbName string, cacheKey string, options ...Option) *Component {

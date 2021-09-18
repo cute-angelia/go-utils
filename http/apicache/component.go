@@ -7,6 +7,7 @@ import (
 	"github.com/cute-angelia/go-utils/cache/bunt"
 	"github.com/gotomicro/ego/core/elog"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 )
@@ -91,7 +92,31 @@ func (e *Component) GetCacheAndWriter(w http.ResponseWriter, msg string) (string
 }
 
 func (e *Component) SetCache(data interface{}) error {
+	defer func() {
+		if len(e.config.DeleteKey) > 0 {
+			cacheKey := bunt.Get(e.config.DbName, e.config.DeleteKey)
+			if len(cacheKey) > 0 {
+				bunt.Set(e.config.DbName, e.config.DeleteKey, cacheKey+"|"+e.getKey(), e.config.Timeout)
+			} else {
+				bunt.Set(e.config.DbName, e.config.DeleteKey, e.getKey(), e.config.Timeout)
+			}
+		}
+	}()
+
 	e.debug(e.getKey()+"set cache", "start set cache")
 	ds, _ := json.Marshal(data)
 	return bunt.Set(e.config.DbName, e.getKey(), string(ds), e.config.Timeout)
+}
+
+func (e *Component) DeleteCache() error {
+	cacheKey := bunt.Get(e.config.DbName, e.config.DeleteKey)
+	if len(cacheKey) > 3 {
+		cas := strings.Split(cacheKey, "|")
+		for _, ca := range cas {
+			bunt.Delete(e.config.DbName, ca)
+		}
+		return nil
+	} else {
+		return errors.New("缓存不存在")
+	}
 }

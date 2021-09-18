@@ -6,9 +6,10 @@ const PackageName = "component.http.apicache"
 
 // config options
 type config struct {
-	Timeout  time.Duration // 失效时间
-	DbName   string
-	CacheKey string
+	Timeout   time.Duration // 失效时间
+	DbName    string
+	CacheKey  string
+	DeleteKey string // kv 记录 cachekey 的key，用于更新删除
 
 	OnlyToday bool // 凌晨刷新
 	Debug     bool
