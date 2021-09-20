@@ -33,6 +33,7 @@ require (
 	github.com/sony/sonyflake v1.0.0
 	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.7.0
+	github.com/tal-tech/go-zero v1.2.1
 	github.com/tidwall/buntdb v1.2.6
 	github.com/xujiajun/nutsdb v0.6.0
 	golang.org/x/crypto v0.0.0-20210813211128-0a44fdfbc16e
