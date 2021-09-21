@@ -1,8 +1,10 @@
 package apicache
 
 import (
+	"github.com/cute-angelia/go-utils/utils/encrypt/hash"
 	"github.com/gotomicro/ego/core/econf"
 	"github.com/gotomicro/ego/core/elog"
+	jsoniter "github.com/json-iterator/go"
 	"time"
 )
 
@@ -49,6 +51,25 @@ func WithCacheKey(cacheKey string) Option {
 		c.config.CacheKey = cacheKey
 	}
 }
+
+func WithGenerateCacheKey(params interface{}, filtes []string) Option {
+	json := jsoniter.ConfigCompatibleWithStandardLibrary
+	bparms, _ := json.Marshal(params)
+	m := make(map[string]interface{})
+	json.Unmarshal(bparms, &m)
+
+	for _, filte := range filtes {
+		delete(m, filte)
+	}
+
+	cacheKey, _ := json.Marshal(m)
+	cacheKeyMd5 := hash.NewEncodeMD5(string(cacheKey))
+
+	return func(c *Container) {
+		c.config.CacheKey = cacheKeyMd5
+	}
+}
+
 func WithDbName(dbName string) Option {
 	return func(c *Container) {
 		c.config.DbName = dbName
@@ -59,27 +80,37 @@ func WithDebug(debug bool) Option {
 		c.config.Debug = debug
 	}
 }
-func WithDeleteKey(deleteKey string) Option {
+func WithPrefix(prefix string) Option {
 	return func(c *Container) {
-		c.config.DeleteKey = deleteKey
+		c.config.Prefix = prefix
+	}
+}
+
+func WithPrefixMaxNum(prefixMaxNum int) Option {
+	return func(c *Container) {
+		c.config.PrefixMaxNum = prefixMaxNum
 	}
 }
 
 // Build ...
-func (c *Container) MustBuild(dbName string, cacheKey string, options ...Option) *Component {
+func (c *Container) MustBuild(dbName string, prefix string, options ...Option) *Component {
 
 	// Must
 	c.config.DbName = dbName
-	c.config.CacheKey = cacheKey
+	c.config.Prefix = prefix
 
 	for _, option := range options {
 		option(c)
 	}
 	// log.Println(PackageName, fmt.Sprintf("%+v", c.config))
 
+	if len(c.config.Prefix) == 0 {
+		c.logger.Error("cachekey prefix is empty")
+		panic("cachekey prefix is empty")
+	}
 	if len(c.config.CacheKey) == 0 {
 		c.logger.Error("cachekey is empty")
-		panic("cachekey is empty")
+		// panic("cachekey is empty")
 	}
 	if len(c.config.DbName) == 0 {
 		c.logger.Error("DbName is empty")

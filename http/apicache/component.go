@@ -28,18 +28,19 @@ func newComponent(compName string, config *config, logger *elog.Component) *Comp
 	}
 }
 
-// 获取 缓存 key
-func (e *Component) getKey() string {
+// 生成缓存 KEY generateCacheKey
+func (e *Component) getSelfCacheKey() string {
+	gCacheKey := fmt.Sprintf("%s%s", e.config.Prefix, e.config.CacheKey)
 	if e.config.OnlyToday {
-		return fmt.Sprintf("%s-%s", e.config.CacheKey, time.Now().Format("20060102"))
-	} else {
-		return e.config.CacheKey
+		gCacheKey = fmt.Sprintf("%s%s-%s", e.config.Prefix, e.config.CacheKey, time.Now().Format("20060102"))
 	}
+	return gCacheKey
 }
 
+// DEBUG
 func (e *Component) debug(topic string, msg string) {
 	if e.config.Debug {
-		e.logger.Debug(msg, elog.FieldKey(topic))
+		e.logger.Info(msg, elog.FieldKey(topic))
 	}
 }
 
@@ -66,57 +67,71 @@ func (e Component) resp(w http.ResponseWriter, code int, msg string, cacheData s
 
 // get cache
 func (e *Component) GetCache() (string, error) {
-	e.debug(e.getKey()+"get cache", "start get cache")
-	data := bunt.Get(e.config.DbName, e.getKey())
+	e.debug("===Get Cache===", e.getSelfCacheKey())
+
+	data := bunt.Get(e.config.DbName, e.getSelfCacheKey())
 	if len(data) > 6 {
-		e.debug(e.getKey()+"get cache -> got", data)
+		e.debug("===Get Cache===", e.getSelfCacheKey()+" -> "+data)
+
 		return data, nil
 	} else {
-		e.debug(e.getKey()+"get cache -> gone", "数据不存在")
+		e.debug("===Get Cache===", e.getSelfCacheKey()+" -> "+"数据不存在")
+
 		return "", errors.New("数据不存在")
 	}
 }
 
 // get cache and write
 func (e *Component) GetCacheAndWriter(w http.ResponseWriter, msg string) (string, error) {
-	e.debug(e.getKey()+"get cache", "start get cache")
-	data := bunt.Get(e.config.DbName, e.getKey())
+	e.debug(e.getSelfCacheKey()+"get cache", "start get cache")
+	data := bunt.Get(e.config.DbName, e.getSelfCacheKey())
 	if len(data) > 6 {
-		e.debug(e.getKey()+"get cache -> got", data)
+		e.debug(e.getSelfCacheKey()+"get cache -> got", data)
 		e.resp(w, 0, msg, data)
 		return data, nil
 	} else {
-		e.debug(e.getKey()+"get cache -> gone", "数据不存在")
+		e.debug(e.getSelfCacheKey()+"get cache -> gone", "数据不存在")
 		return "", errors.New("数据不存在")
 	}
 }
 
 func (e *Component) SetCache(data interface{}) error {
+	// prefix cache
 	defer func() {
-		if len(e.config.DeleteKey) > 0 {
-			cacheKey := bunt.Get(e.config.DbName, e.config.DeleteKey)
-			if len(cacheKey) > 0 {
-				bunt.Set(e.config.DbName, e.config.DeleteKey, cacheKey+"|"+e.getKey(), e.config.Timeout)
+		if len(e.config.Prefix) > 0 {
+			cacheData := bunt.Get(e.config.DbName, e.config.Prefix)
+			if len(cacheData) > 0 {
+				cacheDatas := strings.Split(cacheData, "|")
+				if len(cacheDatas) >= e.config.PrefixMaxNum {
+					cacheDatas = cacheDatas[len(cacheDatas)-e.config.PrefixMaxNum : len(cacheDatas)]
+				}
+				cacheDatas = append(cacheDatas, e.getSelfCacheKey())
+				bunt.Set(e.config.DbName, e.config.Prefix, strings.Join(cacheDatas, "|"), e.config.Timeout)
 			} else {
-				bunt.Set(e.config.DbName, e.config.DeleteKey, e.getKey(), e.config.Timeout)
+				bunt.Set(e.config.DbName, e.config.Prefix, e.getSelfCacheKey(), e.config.Timeout)
 			}
 		}
 	}()
 
-	e.debug(e.getKey()+"set cache", "start set cache")
 	ds, _ := json.Marshal(data)
-	return bunt.Set(e.config.DbName, e.getKey(), string(ds), e.config.Timeout)
+	e.debug("===Set Cache===", e.getSelfCacheKey()+" -> "+string(ds))
+	return bunt.Set(e.config.DbName, e.getSelfCacheKey(), string(ds), e.config.Timeout)
 }
 
 func (e *Component) DeleteCache() error {
-	cacheKey := bunt.Get(e.config.DbName, e.config.DeleteKey)
-	if len(cacheKey) > 3 {
-		cas := strings.Split(cacheKey, "|")
-		for _, ca := range cas {
-			bunt.Delete(e.config.DbName, ca)
+	return bunt.Delete(e.config.DbName, e.getSelfCacheKey())
+}
+
+func (e *Component) DeleteCacheAll() error {
+	if len(e.config.Prefix) > 0 {
+		cacheData := bunt.Get(e.config.DbName, e.config.Prefix)
+		if len(cacheData) > 0 {
+			cacheDatas := strings.Split(cacheData, "|")
+			for _, i2 := range cacheDatas {
+				bunt.Delete(e.config.DbName, i2)
+			}
 		}
-		return nil
-	} else {
-		return errors.New("缓存不存在")
+		bunt.Delete(e.config.DbName, e.config.Prefix)
 	}
+	return nil
 }
