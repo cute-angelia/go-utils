@@ -59,8 +59,12 @@ func WithGenerateCacheKey(params interface{}, filtes []string) Option {
 	json.Unmarshal(bparms, &m)
 
 	for _, filte := range filtes {
-		delete(m, filte)
+		if _, ok := m[filte]; ok {
+			delete(m, filte)
+		}
 	}
+
+	// log.Printf("%#v", m)
 
 	cacheKey, _ := json.Marshal(m)
 	cacheKeyMd5 := hash.NewEncodeMD5(string(cacheKey))
