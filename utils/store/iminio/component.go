@@ -73,6 +73,7 @@ func (e *Component) SignCoverWithCache(cover string, t time.Duration) string {
 	}
 
 	if len(cover) > 0 {
+		cover = strings.TrimLeft(cover, "/")
 		temp := strings.Split(cover, "/")
 		objkey := temp[1:len(temp)]
 		icover, _ := e.SignUrlWithCache(temp[0], strings.Join(objkey, "/"), t)
@@ -238,6 +239,7 @@ func (e Component) DeleteObject(objectNameWithBucket string) error {
 // 根据路径获取bucket 和 object name
 func (e Component) GetBucketAndObjectName(objectNameWithBucket string) (string, string) {
 	if len(objectNameWithBucket) > 0 {
+		objectNameWithBucket = strings.TrimLeft(objectNameWithBucket, "/")
 		temp := strings.Split(objectNameWithBucket, "/")
 		if len(temp) > 1 {
 			objkey := temp[1:len(temp)]
