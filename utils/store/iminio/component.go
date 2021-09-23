@@ -161,6 +161,7 @@ func (e Component) CheckMode(objectName string) (newObjectName string, canupload
 // 上传文件
 func (e Component) PutObject(bucket string, objectNameIn string, reader io.Reader, objectSize int64, objopt minio.PutObjectOptions) minio.UploadInfo {
 	if objectName, ok := e.CheckMode(objectNameIn); ok {
+		objectName = strings.Replace(objectName, "//", "/", -1)
 		uploadInfo, err := e.Client.PutObject(context.Background(), bucket, objectName, reader, objectSize, objopt)
 		if err != nil {
 			fmt.Println(bucket, objectNameIn, err)
@@ -209,6 +210,8 @@ func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string
 		if e.config.Debug {
 			log.Printf(PackageName, "获取图片: %s, 代理：%s", uri, e.config.ProxySocks5)
 		}
+
+		objectName = strings.Replace(objectName, "//", "/", -1)
 
 		if info, err := e.Client.PutObject(context.TODO(), bucket, objectName, bytes.NewReader(filebyte), int64(len(filebyte)), objopt); err != nil {
 			log.Println(PackageName, "上传失败：❌", err, bucket, objectName, uri)
