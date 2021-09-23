@@ -163,7 +163,7 @@ func (e Component) PutObject(bucket string, objectNameIn string, reader io.Reade
 	if objectName, ok := e.CheckMode(objectNameIn); ok {
 		uploadInfo, err := e.Client.PutObject(context.Background(), bucket, objectName, reader, objectSize, objopt)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println(bucket, objectNameIn, err)
 			return uploadInfo
 		}
 		fmt.Println("Successfully uploaded bytes: ", uploadInfo)
@@ -202,7 +202,7 @@ func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string
 		idownload.WithTimeout(e.config.Timeout),
 	)
 	if filebyte, sha1, err := idown.RequestFile(uri); err != nil {
-		log.Println(PackageName, "获取图片失败：❌", err)
+		log.Println(PackageName, "获取图片失败：❌", uri, err)
 		return "", ""
 	} else {
 		// 打印日志
@@ -211,10 +211,10 @@ func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string
 		}
 
 		if info, err := e.Client.PutObject(context.TODO(), bucket, objectName, bytes.NewReader(filebyte), int64(len(filebyte)), objopt); err != nil {
-			log.Println(PackageName, "上传失败：❌", err, uri)
+			log.Println(PackageName, "上传失败：❌", err, bucket, objectName, uri)
 		} else {
 			uri = bucket + "/" + info.Key
-			log.Println(PackageName, "上传成功：✅", uri)
+			log.Println(PackageName, "上传成功：✅", bucket, objectName, uri)
 		}
 		return uri, sha1
 	}
