@@ -3,6 +3,7 @@ package iminio
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/cute-angelia/go-utils/cache/bunt"
 	"github.com/cute-angelia/go-utils/utils/encrypt/hash"
@@ -89,11 +90,9 @@ func (e *Component) GenerateHashKey(bucketType int32, bucket string, prefix stri
 }
 
 // Objects 获取
-func (e *Component) GetObjectsByPage(bucket string, prefix string, page int32, perpage int32) ([]string, bool) {
-	var objs []string
+func (e *Component) GetObjectsByPage(bucket string, prefix string, page int32, perpage int32) (objs []string, notall bool) {
 	// 控制流程
 	count := int32(0)
-	notall := false
 	offset := (page - 1) * perpage
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -159,42 +158,42 @@ func (e Component) CheckMode(objectName string) (newObjectName string, canupload
 }
 
 // 上传文件
-func (e Component) PutObject(bucket string, objectNameIn string, reader io.Reader, objectSize int64, objopt minio.PutObjectOptions) minio.UploadInfo {
+func (e Component) PutObject(bucket string, objectNameIn string, reader io.Reader, objectSize int64, objopt minio.PutObjectOptions) (minio.UploadInfo, error) {
 	if objectName, ok := e.CheckMode(objectNameIn); ok {
 		objectName = strings.Replace(objectName, "//", "/", -1)
 		uploadInfo, err := e.Client.PutObject(context.Background(), bucket, objectName, reader, objectSize, objopt)
 		if err != nil {
 			fmt.Println(bucket, objectNameIn, err)
-			return uploadInfo
+			return uploadInfo, err
 		}
 		fmt.Println("Successfully uploaded bytes: ", uploadInfo)
-		return uploadInfo
+		return uploadInfo, err
 	} else {
-		return minio.UploadInfo{}
+		return minio.UploadInfo{}, fmt.Errorf("模式未设置 %s", objectNameIn)
 	}
 }
 
 // 按文件上传
-func (e Component) FPutObject(bucket string, objectNameIn string, filePath string, objopt minio.PutObjectOptions) minio.UploadInfo {
+func (e Component) FPutObject(bucket string, objectNameIn string, filePath string, objopt minio.PutObjectOptions) (minio.UploadInfo, error) {
 	if objectName, ok := e.CheckMode(objectNameIn); ok {
 		uploadInfo, err := e.Client.FPutObject(context.Background(), bucket, objectName, filePath, objopt)
 		if err != nil {
 			fmt.Println(err)
-			return uploadInfo
+			return uploadInfo, err
 		}
 		fmt.Println("Successfully uploaded bytes: ", uploadInfo)
-		return uploadInfo
+		return uploadInfo, err
 	} else {
-		return minio.UploadInfo{}
+		return minio.UploadInfo{}, fmt.Errorf("模式未设置 %s", objectNameIn)
 	}
 }
 
 // 提供链接，上传到 minio
-// return key & hash sha1
-func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string, objopt minio.PutObjectOptions) (string, string) {
+// return key & hash sha1 & error
+func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string, objopt minio.PutObjectOptions) (string, string, error) {
 	// http 不处理
 	if !strings.Contains(uri, "http") {
-		return uri, ""
+		return uri, "", errors.New("非链接地址:" + uri)
 	}
 	// 更换图片到本地
 	idown := idownload.Load("").Build(
@@ -204,7 +203,7 @@ func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string
 	)
 	if filebyte, sha1, err := idown.RequestFile(uri); err != nil {
 		log.Println(PackageName, "获取图片失败：❌", uri, err)
-		return "", ""
+		return "", "", errors.New("获取图片失败：❌" + uri + "  " + err.Error())
 	} else {
 		// 打印日志
 		if e.config.Debug {
@@ -215,11 +214,12 @@ func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string
 
 		if info, err := e.Client.PutObject(context.TODO(), bucket, objectName, bytes.NewReader(filebyte), int64(len(filebyte)), objopt); err != nil {
 			log.Println(PackageName, "上传失败：❌", err, bucket, objectName, uri)
+			return "", "", fmt.Errorf("上传失败：❌ %v, %s %s %s", err, bucket, objectName, uri)
 		} else {
 			uri = bucket + "/" + info.Key
 			log.Println(PackageName, "上传成功：✅", bucket, objectName, uri)
+			return uri, sha1, nil
 		}
-		return uri, sha1
 	}
 }
 
