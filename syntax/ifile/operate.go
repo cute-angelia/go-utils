@@ -7,55 +7,64 @@ import (
 	"github.com/guonaihong/gout/dataflow"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"time"
 )
 
-// 打开已经存在的文件， 不存在会新建一个， 返回 *os.File
-// open an existed file or create a file if not exists
-// 读写覆盖、0644 其他用户只读
-func OpenLocalFile(path string) *os.File {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		f, err := os.Create(path)
-		if err != nil {
-			panic(err)
-		}
-		return f
-	}
-	// open file in read-write mode
-	// path, os.O_RDWR, 0666) || 0644
-	f, err := os.OpenFile(path, os.O_RDWR, 0644)
-	if err != nil {
-		panic(err)
-	}
-	return f
-}
-// 打开已经存在的文件， 不存在会新建一个， 返回 *os.File
-// open an existed file or create a file if not exists
-// 读写覆盖 || 读写追加、0666 全读写， 0644 其他用户只读
-func OpenLocalFileWithFlagPerm(path string, flag int, perm os.FileMode) *os.File {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		f, err := os.Create(path)
-		if err != nil {
-			panic(err)
-		}
-		return f
-	}
-	// open file in read-write mode
-	// path, os.O_RDWR|os.O_APPEND, 0666) || 0644
-	f, err := os.OpenFile(path, flag, perm)
-	if err != nil {
-		panic(err)
-	}
-	return f
+/*
+0755->即用户具有读/写/执行权限，组用户和其它用户具有读写权限；
+0644->即用户具有读写权限，组用户和其它用户具有只读权限；
+
+一般赋予目录0755权限，文件0644权限。
+*/
+
+// Mkdir alias of os.MkdirAll()
+func Mkdir(dirPath string, perm os.FileMode) error {
+	return os.MkdirAll(dirPath, perm)
 }
 
-func IsExist(path string) bool {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return false
+// MkParentDir quick create parent dir
+func MkParentDir(fpath string) error {
+	dirPath := filepath.Dir(fpath)
+	if !IsDir(dirPath) {
+		return os.MkdirAll(dirPath, 0775)
+	}
+	return nil
+}
+
+// ************************************************************
+//	open files
+// ************************************************************
+
+// OpenFile like os.OpenFile, but will auto create dir.
+func OpenFile(filepath string, flag int, perm os.FileMode) (*os.File, error) {
+	fileDir := path.Dir(filepath)
+
+	// if err := os.Mkdir(dir, 0775); err != nil {
+	if err := os.MkdirAll(fileDir, DefaultDirPerm); err != nil {
+		return nil, err
+	}
+
+	file, err := os.OpenFile(filepath, flag, perm)
+	if err != nil {
+		return nil, err
+	}
+
+	return file, nil
+}
+
+// 打开已经存在的文件， 不存在会新建一个， 返回 *os.File
+// open file in read-write mode
+// path, os.O_RDWR, 0666) || 0644
+func OpenLocalFile(filepath string) *os.File {
+	if f, err := OpenFile(filepath, os.O_RDWR, DefaultFilePerm); err != nil {
+		log.Println("error:", err)
+		return nil
 	} else {
-		return true
+		return f
 	}
 }
 
@@ -97,7 +106,7 @@ func GetFileWithSrcWithGout(src string) ([]byte, error) {
 		default:
 			return fmt.Errorf(src+" error: %d", c.Code)
 		}
-	}).F().Retry().Attempt(3).WaitTime(time.Second).MaxWaitTime(time.Second*30).Do()
+	}).F().Retry().Attempt(3).WaitTime(time.Second).MaxWaitTime(time.Second * 30).Do()
 
 	if err != nil {
 		return nil, err
@@ -107,6 +116,7 @@ func GetFileWithSrcWithGout(src string) ([]byte, error) {
 
 // 下载文件到磁盘
 // dir like /tmp
+// Deprecated: utils/idownload 组件 进行下载
 func DownloadFileWithSrc(src string, dir string, filenamewithext string) (string, error) {
 	if body, err := GetFileWithSrcWithGout(src); err != nil {
 		return "", err
@@ -136,14 +146,32 @@ func DownloadFileWithSrc(src string, dir string, filenamewithext string) (string
 	}
 }
 
+// ************************************************************
+//	remove files
+// ************************************************************
+
+// alias methods
+var (
+	// MustRm  = MustRemove
+	QuietRm = DeleteFile
+)
+
 func DeleteFile(path string) {
 	// delete file
 	var err = os.Remove(path)
 	if isError(err) {
 		return
 	}
-
 	fmt.Println("==> done deleting file")
+}
+
+// ************************************************************
+//	move files
+// ************************************************************
+
+// 移动文件
+func Mv(srcPath, destPat string) error {
+	return os.Rename(srcPath, destPat)
 }
 
 func isError(err error) bool {
@@ -152,4 +180,3 @@ func isError(err error) bool {
 	}
 	return (err != nil)
 }
-

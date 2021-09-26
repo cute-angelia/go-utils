@@ -55,20 +55,3 @@ func HowLongAgo(sec int64) string {
 	return "unknown" // He should never happen
 }
 
-// 100s => []string{00,01,40}
-func SecToStr(sec int64) []string {
-	if sec <= 0 {
-		return []string{}
-	}
-	lastsec := sec
-	h := sec / 3600
-	if h > 0 {
-		lastsec = lastsec - h*3600
-	}
-	m := lastsec / 60
-	if m > 0 {
-		lastsec = lastsec - m*60
-	}
-	s := lastsec
-	return []string{fmt.Sprintf("%02d", h), fmt.Sprintf("%02d", m), fmt.Sprintf("%02d", s)}
-}
