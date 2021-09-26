@@ -54,7 +54,7 @@ func (f *fileData) InitIPData() (rs interface{}) {
 	if err != nil && os.IsNotExist(err) {
 		log.Println("文件不存在，尝试从网络获取最新纯真 IP 库")
 
-		filename := file.MakeNameByUrl(false, f.OnlineUrl, "")
+		filename := file.NewFileName(f.OnlineUrl).GetNameOrigin("")
 		if _, err := file.DownloadFileWithSrc(f.OnlineUrl, "/tmp", filename); err == nil {
 			log.Printf("已将最新的纯真 IP 库保存到本地 %s ", f.FilePath)
 		} else {
