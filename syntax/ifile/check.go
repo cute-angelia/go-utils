@@ -35,7 +35,7 @@ func PathExists(path string) bool {
 	return true
 }
 
-// IsDir reports whether the named directory exists.
+// IsDir reports whether the named file or directory exists.
 func IsDir(path string) bool {
 	if path == "" {
 		return false
@@ -47,7 +47,7 @@ func IsDir(path string) bool {
 	return false
 }
 
-// path exist
+// IsExistPath reports whether the named file or directory exists.
 func IsExistPath(path string) bool {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return false
@@ -56,12 +56,12 @@ func IsExistPath(path string) bool {
 	}
 }
 
-// FileExists reports whether the named file or directory exists.
+// IsExistFile reports whether the named file  exists.
 func IsExistFile(path string) bool {
 	return IsFile(path)
 }
 
-// IsFile reports whether the named file or directory exists.
+// IsFile reports whether the named file exists.
 func IsFile(path string) bool {
 	if path == "" {
 		return false
