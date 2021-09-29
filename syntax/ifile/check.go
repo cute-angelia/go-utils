@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"os"
 	"path"
-	"path/filepath"
 )
 
 var (
@@ -21,27 +20,6 @@ var (
 	FileExist = IsFile
 	PathExist = PathExists
 )
-
-// Dir get dir path, without last name.
-func Dir(fpath string) string {
-	return filepath.Dir(fpath)
-}
-
-// Name get file/dir name
-func Name(fpath string) string {
-	// return path.Base(fpath)
-	return filepath.Base(fpath)
-}
-
-// FileExt get filename ext. alias of path.Ext()
-func FileExt(fpath string) string {
-	return path.Ext(fpath)
-}
-
-// Suffix get filename ext. alias of path.Ext()
-func Suffix(fpath string) string {
-	return path.Ext(fpath)
-}
 
 // PathExists reports whether the named file or directory exists.
 func PathExists(path string) bool {
@@ -70,7 +48,7 @@ func IsDir(path string) bool {
 }
 
 // path exist
-func IsExist(path string) bool {
+func IsExistPath(path string) bool {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return false
 	} else {
@@ -79,7 +57,7 @@ func IsExist(path string) bool {
 }
 
 // FileExists reports whether the named file or directory exists.
-func FileExists(path string) bool {
+func IsExistFile(path string) bool {
 	return IsFile(path)
 }
 

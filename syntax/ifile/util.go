@@ -1,5 +1,16 @@
 package ifile
 
+import (
+	"io"
+	"net/http"
+	"os"
+)
+
+const (
+	// MimeSniffLen sniff Length, use for detect file mime type
+	MimeSniffLen = 512
+)
+
 // MimeType get File Mime Type name. eg "image/png"
 func MimeType(path string) (mime string) {
 	if path == "" {
