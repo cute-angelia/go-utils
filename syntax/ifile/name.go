@@ -2,6 +2,7 @@ package ifile
 
 import (
 	"fmt"
+	"github.com/cute-angelia/go-utils/syntax/istrings"
 	"github.com/cute-angelia/go-utils/utils/generator/snowflake"
 	"net/url"
 	"path"
@@ -41,6 +42,21 @@ func (f fileName) GetNameTimeline(prefix string) string {
 		return fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
 	} else {
 		return fmt.Sprintf("%s%d%s", prefix, time.Now().UnixNano(), ext)
+	}
+}
+
+// name 按时间格式
+func (f fileName) GetNameTimeDate(prefix string) string {
+	newName := f.uri
+	if strings.Contains(newName, "?") {
+		newName = strings.Split(newName, "?")[0]
+	}
+	ext := path.Ext(newName)
+	dname := time.Now().Format("20060102-150405") + "-" + istrings.RandomChars(10)
+	if len(prefix) == 0 {
+		return fmt.Sprintf("%s%s", dname, ext)
+	} else {
+		return fmt.Sprintf("%s%s%s", prefix, dname, ext)
 	}
 }
 

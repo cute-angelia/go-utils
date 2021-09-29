@@ -1,14 +1,17 @@
 package itime
 
 import (
-	"fmt"
 	"strings"
 	"time"
 )
 
 // 时间相关
-const TIME_FORMAT_DATE = "2006-01-02"
-const TIME_FORMAT = "2006-01-02 15:04:05"
+const (
+	TIME_FORMAT       = "2006-01-02 15:04:05"
+	TIME_FORMAT_DATE  = "2006-01-02"
+	TIME_FORMAT_TIME  = "15:04:05"
+	TIME_FORMAT_MONTH = "2006-01"
+)
 
 func TimeZero() time.Time {
 	timeStr := time.Now().Format("2006-01-02")
