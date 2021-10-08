@@ -40,6 +40,12 @@ func ReadFile(filePath string, v interface{}) error {
 	return Decode(content, v)
 }
 
+// alias methods
+var (
+	Marshal   = Encode
+	Unmarshal = Decode
+)
+
 // Encode encode data to json bytes. use it instead of json.Marshal
 func Encode(v interface{}) ([]byte, error) {
 	return parser.Marshal(v)
@@ -90,3 +96,4 @@ func StripComments(src string) string {
 
 	return buf.String()
 }
+
