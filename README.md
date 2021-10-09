@@ -72,3 +72,4 @@ and more ...
 3. [golang-examples](https://github.com/SimonWaldherr/golang-examples)
 4. [kit](https://github.com/ardanlabs/kit)
 5. [time](https://github.com/jinzhu/now)
+6. [go-extend](https://github.com/cute-angelia/go-extend)
