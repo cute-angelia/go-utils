@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestFFmpeg(t *testing.T) {
+func TestFFmpegCutPicture(t *testing.T) {
 
 	mp4 := "/Users/vanilla/Downloads/沙丘1.mp4"
 
@@ -20,4 +20,11 @@ func TestFFmpeg(t *testing.T) {
 	//
 	//err3 := iffmpeg.GetCutPictures(mp4, 60, "/Users/vanilla/Downloads")
 	//t.Log(err3)
+}
+
+// go test -v -test.run TestFFmpegConcat
+func TestFFmpegConcat(t *testing.T) {
+	iffmpeg := Load().Build(WithFfmpegPath("/usr/local/bin/ffmpeg"))
+	err2 := iffmpeg.ConcatMovFiles(`/Users/vanilla/Documents/AnyTrans-Export-2021-10-10/PhotoVideos/1`, []string{},"/Users/vanilla/Documents/AnyTrans-Export-2021-10-10/PhotoVideos/1/ok.mov")
+	t.Log(err2)
 }

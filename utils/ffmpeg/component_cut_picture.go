@@ -1,5 +1,17 @@
 package ffmpeg
 
+import (
+	"errors"
+	"fmt"
+	"github.com/cute-angelia/go-utils/syntax/icmd"
+	"github.com/cute-angelia/go-utils/syntax/itime"
+	"math/rand"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
+)
+
 func (c Component) cutOne(sec string, mp4path string, savePic string) error {
 	status := icmd.Exec(c.config.FfmpegPath, []string{
 		"-loglevel", "error",
