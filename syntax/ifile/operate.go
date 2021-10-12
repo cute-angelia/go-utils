@@ -60,25 +60,12 @@ func OpenFile(filepath string, flag int, perm os.FileMode) (*os.File, error) {
 // open file in read-write mode
 // path, os.O_RDWR, 0666) || 0644
 func OpenLocalFile(filepath string) *os.File {
-	if f, err := OpenFile(filepath, os.O_RDWR, DefaultFilePerm); err != nil {
+	if f, err := OpenFile(filepath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, DefaultFilePerm); err != nil {
 		log.Println("error:", err)
 		return nil
 	} else {
 		return f
 	}
-}
-
-// 遍历文件夹
-func GetFilelist(searchDir string) []string {
-	fileList := []string{}
-	filepath.Walk(searchDir, func(path string, f os.FileInfo, err error) error {
-		if !f.IsDir() && f.Name() != ".DS_Store" {
-			fileList = append(fileList, path)
-		}
-		return nil
-	})
-
-	return fileList
 }
 
 // 文件文件-读取本地文件 Local read local file

@@ -3,6 +3,7 @@ package ifile
 import (
 	"errors"
 	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
 )
@@ -58,4 +59,17 @@ func GetAllPaths(dirPath string, exts ...string) (dirPaths []string, filePaths [
 		filePaths = append(filePaths, filePaths2...)
 	}
 	return
+}
+
+// 遍历文件夹
+func GetFilelist(searchDir string) []string {
+	fileList := []string{}
+	filepath.Walk(searchDir, func(path string, f os.FileInfo, err error) error {
+		if !f.IsDir() && f.Name() != ".DS_Store" {
+			fileList = append(fileList, path)
+		}
+		return nil
+	})
+
+	return fileList
 }
