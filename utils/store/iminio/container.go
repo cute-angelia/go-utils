@@ -84,6 +84,11 @@ func (c *Container) Build(options ...Option) *Component {
 	for _, option := range options {
 		option(c)
 	}
+
+	if len(c.config.Endpoint) == 0 {
+		c.logger.Error("请初始化配置， 未能获取到配置信息")
+	}
+
 	// log.Println(PackageName, fmt.Sprintf("%+v", c.config))
 	return newComponent(c.name, c.config, c.logger)
 }

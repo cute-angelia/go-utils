@@ -149,7 +149,7 @@ func DeleteFile(path string) {
 	if isError(err) {
 		return
 	}
-	fmt.Println("==> done deleting file")
+	fmt.Println("==> done deleting file :" +  path)
 }
 
 // ************************************************************

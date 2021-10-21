@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible
+	github.com/anthonynsimon/bild v0.13.0
 	github.com/astaxie/beego v1.12.3
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/garyburd/redigo v1.6.2
