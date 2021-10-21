@@ -104,7 +104,7 @@ func Crop(srcFile, newFile string, x, y, w, h int) error {
 			log.Println(err)
 			return err
 		} else {
-			log.Println("th---->")
+			// log.Println("th---->")
 			return nil
 		}
 	}

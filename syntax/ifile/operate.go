@@ -40,6 +40,8 @@ func MkParentDir(fpath string) error {
 // ************************************************************
 
 // OpenFile like os.OpenFile, but will auto create dir.
+// flag:
+//
 func OpenFile(filepath string, flag int, perm os.FileMode) (*os.File, error) {
 	fileDir := path.Dir(filepath)
 
@@ -60,7 +62,7 @@ func OpenFile(filepath string, flag int, perm os.FileMode) (*os.File, error) {
 // open file in read-write mode
 // path, os.O_RDWR, 0666) || 0644
 func OpenLocalFile(filepath string) *os.File {
-	if f, err := OpenFile(filepath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, DefaultFilePerm); err != nil {
+	if f, err := OpenFile(filepath, os.O_RDWR|os.O_CREATE, DefaultFilePerm); err != nil {
 		log.Println("error:", err)
 		return nil
 	} else {
