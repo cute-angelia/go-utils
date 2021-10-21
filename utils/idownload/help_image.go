@@ -96,17 +96,20 @@ func Crop(srcFile, newFile string, x, y, w, h int) error {
 	}
 
 	// crop 图片
-	resized := transform.Crop(img, image.Rect(x, y, b.Max.X, b.Max.Y))
+	resized := transform.Crop(img, image.Rect(x, y, w, h))
 
 	// log.Println(resized)
-	if strings.EqualFold(srcFile, ".jpg") || strings.EqualFold(srcFile, ".jpeg") {
+	if strings.Contains(srcFile, ".jpg") || strings.Contains(srcFile, ".jpeg") {
 		if err := imgio.Save(newFile, resized, imgio.JPEGEncoder(100)); err != nil {
 			log.Println(err)
 			return err
+		} else {
+			log.Println("th---->")
+			return nil
 		}
 	}
 
-	if strings.EqualFold(srcFile, ".png") {
+	if strings.Contains(srcFile, ".png") {
 		if err := imgio.Save(newFile, resized, imgio.PNGEncoder()); err != nil {
 			log.Println(err)
 			return err
