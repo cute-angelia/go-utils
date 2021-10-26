@@ -89,7 +89,7 @@ func (e *Component) GenerateHashKey(bucketType int32, bucket string, prefix stri
 	return hash.NewEncodeMD5(fmt.Sprintf("%d%s%s", bucketType, bucket, prefix))
 }
 
-// Objects 获取
+// Objects 获取 分页
 func (e *Component) GetObjectsByPage(bucket string, prefix string, page int32, perpage int32) (objs []string, notall bool) {
 	// 控制流程
 	count := int32(0)
@@ -100,9 +100,13 @@ func (e *Component) GetObjectsByPage(bucket string, prefix string, page int32, p
 
 	opt := minio.ListObjectsOptions{
 		Prefix:    prefix,
-		Recursive: false,
+		Recursive: true,
 	}
 	objectCh := e.Client.ListObjects(ctx, bucket, opt)
+
+	//maxSize := perpage * page
+	//for i := int32(0); i < maxSize; i++ {
+	//}
 
 	for object := range objectCh {
 		if object.Err == nil {
