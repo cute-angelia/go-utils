@@ -3,12 +3,20 @@ package ifile
 import (
 	"errors"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
 )
 
-
+// 检查是否为空文件夹
+func CheckIsEmptyDir(dirpath string) bool {
+	s, _ := ioutil.ReadDir(dirpath)
+	if len(s) == 0 {
+		return true
+	}
+	return false
+}
 
 //获取所有文件和文件夹的路径
 // @param ext 过滤文件，只获取匹配后缀名的文件，示例：.go
@@ -72,4 +80,26 @@ func GetFilelist(searchDir string) []string {
 	})
 
 	return fileList
+}
+
+// 遍历文件夹获取文件夹列表Map （不包括空文件夹）
+func GetFileMapList(searchDir string, data map[string][]string) map[string][]string {
+	log.SetFlags(log.Lshortfile)
+	// log.Println("dir:",searchDir,path.Base(searchDir))
+	files, err := ioutil.ReadDir(searchDir)
+	if err != nil {
+		log.Println("GetFileMapList error:", err.Error())
+		return nil
+	}
+	for _, putFile := range files {
+		if putFile.IsDir() {
+			data = GetFileMapList(searchDir+"/"+putFile.Name(), data)
+		} else {
+			if putFile.Name() == ".DS_Store" {
+				continue
+			}
+			data[searchDir] = append(data[searchDir], searchDir+"/"+putFile.Name())
+		}
+	}
+	return data
 }

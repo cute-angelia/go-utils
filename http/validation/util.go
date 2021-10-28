@@ -252,7 +252,7 @@ func parseParam(t reflect.Type, s string) (i interface{}, err error) {
 	case reflect.String:
 		i = s
 	case reflect.Ptr:
-		if t.Elem().String() != "regexp.Regexp" {
+		if t.Elem().String() != "iregexp.Regexp" {
 			err = fmt.Errorf("does not support %s", t.Elem().String())
 			return
 		}

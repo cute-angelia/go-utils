@@ -216,12 +216,12 @@ func (v *Validation) AlphaNumeric(obj interface{}, key string) *Result {
 	return v.apply(AlphaNumeric{key}, obj)
 }
 
-// Match Test that the obj matches regexp if type is string
+// Match Test that the obj matches iregexp if type is string
 func (v *Validation) Match(obj interface{}, regex *regexp.Regexp, key string) *Result {
 	return v.apply(Match{regex, key}, obj)
 }
 
-// NoMatch Test that the obj doesn't match regexp if type is string
+// NoMatch Test that the obj doesn't match iregexp if type is string
 func (v *Validation) NoMatch(obj interface{}, regex *regexp.Regexp, key string) *Result {
 	return v.apply(NoMatch{Match{Regexp: regex}, key}, obj)
 }
