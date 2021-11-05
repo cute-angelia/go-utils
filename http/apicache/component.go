@@ -2,7 +2,6 @@ package apicache
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/cute-angelia/go-utils/cache/bunt"
 	"github.com/gotomicro/ego/core/elog"
@@ -66,33 +65,25 @@ func (e Component) resp(w http.ResponseWriter, code int, msg string, cacheData s
 }
 
 // get cache
-func (e *Component) GetCache() (string, error) {
+func (e *Component) GetCache() string {
 	e.debug("===Get Cache===", e.getSelfCacheKey())
-
 	data := bunt.Get(e.config.DbName, e.getSelfCacheKey())
 	if len(data) > 6 {
-		e.debug("===Get Cache===", e.getSelfCacheKey()+" -> "+data)
-
-		return data, nil
+		return data
 	} else {
-		e.debug("===Get Cache===", e.getSelfCacheKey()+" -> "+"数据不存在")
-
-		return "", errors.New("数据不存在")
+		return ""
 	}
 }
 
 // get cache and write
-func (e *Component) GetCacheAndWriter(w http.ResponseWriter, msg string) (string, error) {
+func (e *Component) GetCacheAndWriter(w http.ResponseWriter, msg string) string {
 	e.debug(e.getSelfCacheKey()+"get cache", "start get cache")
 	data := bunt.Get(e.config.DbName, e.getSelfCacheKey())
 	if len(data) > 6 {
 		e.debug(e.getSelfCacheKey()+"get cache -> got", data)
 		e.resp(w, 0, msg, data)
-		return data, nil
-	} else {
-		e.debug(e.getSelfCacheKey()+"get cache -> gone", "数据不存在")
-		return "", errors.New("数据不存在")
 	}
+	return data
 }
 
 func (e *Component) SetCache(data interface{}) error {
