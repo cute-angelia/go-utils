@@ -17,7 +17,9 @@ func Exec(exePath string, param []string, timeout time.Duration) cmd.Status {
 		for range ticker.C {
 			status := findCmd.Status()
 			n := len(status.Stdout)
-			log.Println(status.Stdout[n-1])
+			if n > 0 {
+				log.Println(status.Stdout[n-1])
+			}
 		}
 	}()
 
