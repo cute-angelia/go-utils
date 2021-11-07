@@ -43,8 +43,8 @@ func (c Component) generateText(dirPath string, ext []string) (tempText string, 
 ffmpeg -safe 0 -f concat -i files_to_combine -vcodec copy -acodec copy merged.MOV
 */
 func (c Component) ConcatMovFiles(dirPath string, ext []string, saveName string) error {
-	if len(saveName) == 0  {
-		if len(ext) > 0{
+	if len(saveName) == 0 {
+		if len(ext) > 0 {
 			saveName = time.Now().Format("20060102-150405") + ext[0]
 		} else {
 			saveName = time.Now().Format("20060102-150405")
