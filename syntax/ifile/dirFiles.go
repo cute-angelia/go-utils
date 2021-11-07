@@ -19,7 +19,7 @@ func CheckIsEmptyDir(dirpath string) bool {
 }
 
 //获取所有文件和文件夹的路径
-// @param ext 过滤文件，只获取匹配后缀名的文件，示例：.go
+// @param ext 过滤文件，只获取匹配后缀名的文件，示例：.go .jpg
 func GetPaths(dirPath string, exts ...string) (dirPaths []string, filePaths []string, err error) {
 	// 处理要过滤的后缀名
 	var ext string

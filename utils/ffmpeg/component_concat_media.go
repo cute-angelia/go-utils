@@ -31,7 +31,7 @@ func (c Component) generateText(dirPath string, ext []string) (tempText string, 
 		itempText := ifile.OpenLocalFile(c.getTempText())
 		defer itempText.Close()
 		for _, file := range files {
-			itempText.WriteString(fmt.Sprintf("file %s\n", file))
+			itempText.WriteString(fmt.Sprintf("file '%s'\n", file))
 		}
 		return c.getTempText(), nil
 	}
@@ -41,11 +41,18 @@ func (c Component) generateText(dirPath string, ext []string) (tempText string, 
 合并 MOV
 ffmpeg -safe 0 -f concat -i files_to_combine -vcodec copy -acodec copy merged.MOV
 */
-func (c Component) ConcatMovFiles(dirPath string, ext []string, savePath string) error {
+func (c Component) ConcatMovFiles(dirPath string, ext []string, saveName string) error {
+	if len(saveName) == 0 && len(ext) > 0 {
+		saveName = "success" + ext[0]
+	}
 	if temptext, err := c.generateText(dirPath, ext); err != nil {
 		log.Println(err)
 		return err
 	} else {
+		if !ifile.IsDir(dirPath + "/success/") {
+			ifile.Mkdir(dirPath+"/success/", 0755)
+		}
+
 		status := icmd.Exec(c.config.FfmpegPath, []string{
 			"-loglevel", "error",
 			"-safe", "0",
@@ -53,7 +60,7 @@ func (c Component) ConcatMovFiles(dirPath string, ext []string, savePath string)
 			"-i", temptext,
 			"-vcodec", "copy",
 			"-acodec", "copy",
-			savePath,
+			dirPath + "/success/" + saveName,
 		}, c.config.Timeout)
 
 		//log.Println(ijson.Pretty(status))
