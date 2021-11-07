@@ -2,6 +2,7 @@ package apicache
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/cute-angelia/go-utils/cache/bunt"
 	"github.com/gotomicro/ego/core/elog"
@@ -76,14 +77,15 @@ func (e *Component) GetCache() string {
 }
 
 // get cache and write
-func (e *Component) GetCacheAndWriter(w http.ResponseWriter, msg string) string {
+func (e *Component) GetCacheAndWriter(w http.ResponseWriter, msg string) (string,error) {
 	e.debug(e.getSelfCacheKey()+"get cache", "start get cache")
 	data := bunt.Get(e.config.DbName, e.getSelfCacheKey())
 	if len(data) > 6 {
 		e.debug(e.getSelfCacheKey()+"get cache -> got", data)
 		e.resp(w, 0, msg, data)
+		return data, nil
 	}
-	return data
+	return data, errors.New("读取缓存数据，数据不存在")
 }
 
 func (e *Component) SetCache(data interface{}) error {
