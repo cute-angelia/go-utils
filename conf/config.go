@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/spf13/viper"
+	"io"
 	"log"
 )
 
@@ -52,6 +53,28 @@ func MustLoadConfigByte(data []byte, filetype string) {
 	if err := LoadConfigByte(data, filetype); err != nil {
 		panic(fmt.Errorf("Fatal error config file: %w \n", err))
 	}
+}
+
+// 合并配置 byte
+func MergeConfig(in io.Reader) error {
+	return viper.MergeConfig(in)
+}
+
+// 合并配置 文件路径
+func MergeConfigWithPath(configPath string) error {
+	// 追加一份配置
+	viper.AddConfigPath(configPath)
+	err := viper.MergeInConfig() // Find and read the config file
+	if err != nil {              // Handle errors reading the config file
+		return fmt.Errorf("Fatal error config file: %w \n", err)
+	} else {
+		return nil
+	}
+}
+
+// 合并配置 map
+func MergeConfigWithMap(config map[string]interface{}) error {
+	return viper.MergeConfigMap(config)
 }
 
 func GetEnv(key string) interface{} {
