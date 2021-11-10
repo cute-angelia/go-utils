@@ -48,3 +48,5 @@ require (
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )
+
+require github.com/tidwall/gjson v1.9.3 // indirect
