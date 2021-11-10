@@ -65,7 +65,7 @@ func (e Component) PutObjectWithSrc(uri string, objectName string) (string, stri
 		idownload.WithDebug(e.config.Debug),
 		idownload.WithTimeout(time.Second*20),
 	)
-	if filebyte, err := idown.RequestFile(uri); err != nil {
+	if filebyte, _, err := idown.RequestFile(uri); err != nil {
 		log.Println(PackageName, "获取图片失败：❌", err)
 		return "", "", errors.New("获取图片失败：❌：" + uri)
 	} else {
