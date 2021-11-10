@@ -49,4 +49,4 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )
 
-require github.com/tidwall/gjson v1.9.3 // indirect
+replace github.com/tidwall/gjson => github.com/tidwall/gjson v1.9.3
