@@ -45,6 +45,7 @@ func (c *Component) RequestFile(src string) ([]byte, string, error) {
 	igout := gout.GET(src).SetTimeout(c.config.Timeout)
 
 	if c.config.Debug {
+		// igout.Debug(true)
 		log.Println(PackageName, "配置信息：", fmt.Sprintf("%+v", c.config))
 	}
 
