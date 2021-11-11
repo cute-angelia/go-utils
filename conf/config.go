@@ -8,8 +8,8 @@ import (
 	"log"
 )
 
-func LoadConfigFile(filepath string) error {
-	viper.SetConfigFile(filepath)
+func LoadConfigFile(cfgFile string) error {
+	viper.SetConfigFile(cfgFile)
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {             // Handle errors reading the config file
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
@@ -21,8 +21,8 @@ func LoadConfigFile(filepath string) error {
 	return err
 }
 
-func MustLoadConfigFile(filepath string) {
-	if err := LoadConfigFile(filepath); err != nil {
+func MustLoadConfigFile(cfgFile string) {
+	if err := LoadConfigFile(cfgFile); err != nil {
 		panic(fmt.Errorf("Fatal error config file: %w \n", err))
 	}
 }
@@ -56,14 +56,14 @@ func MustLoadConfigByte(data []byte, filetype string) {
 }
 
 // 合并配置 byte
-func MergeConfig(in io.Reader) error {
-	return viper.MergeConfig(in)
+func MergeConfig(byteCfg io.Reader) error {
+	return viper.MergeConfig(byteCfg)
 }
 
-// 合并配置 文件路径
-func MergeConfigWithPath(configPath string) error {
+// 合并配置 文件路径 cfgPath 文件夹路径
+func MergeConfigWithPath(cfgPath string) error {
 	// 追加一份配置
-	viper.AddConfigPath(configPath)
+	viper.AddConfigPath(cfgPath)
 	err := viper.MergeInConfig() // Find and read the config file
 	if err != nil {              // Handle errors reading the config file
 		return fmt.Errorf("Fatal error config file: %w \n", err)
@@ -73,10 +73,11 @@ func MergeConfigWithPath(configPath string) error {
 }
 
 // 合并配置 map
-func MergeConfigWithMap(config map[string]interface{}) error {
-	return viper.MergeConfigMap(config)
+func MergeConfigWithMap(cfg map[string]interface{}) error {
+	return viper.MergeConfigMap(cfg)
 }
 
+// 获取 系统环境变量
 func GetEnv(key string) interface{} {
 	viper.AutomaticEnv()
 	return viper.Get(key)
