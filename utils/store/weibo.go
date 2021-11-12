@@ -113,7 +113,7 @@ func (s *Weibo) Upload(image *ImageParam) (ImageReturn, error) {
 	}
 	request, err := http.NewRequest("POST", durl, strings.NewReader(postData.Encode()))
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	//设置 cookie

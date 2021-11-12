@@ -1,11 +1,10 @@
 package umysql
 
 import (
-	"fmt"
 	"github.com/jinzhu/gorm"
+	"github.com/smacker/opentracing-gorm"
 	"log"
 	"time"
-	"github.com/smacker/opentracing-gorm"
 )
 
 // gorm 连接池, gorm 本身也提供了pool, 提供全局对象, 这里初始化全局对象
@@ -57,7 +56,6 @@ func initPgDB(opts GormOptions) *gorm.DB {
 	//defer db.Close()
 
 	for db, err = gorm.Open(dbType, connectString); err != nil; {
-		fmt.Println("数据库连接异常! 5秒重试")
 		log.Println("数据库连接异常", err)
 		time.Sleep(5 * time.Second)
 		db, err = gorm.Open(dbType, connectString)

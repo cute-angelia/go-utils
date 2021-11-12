@@ -121,7 +121,7 @@ func (self *RedisCmd) Hmset(key string, some interface{}) error {
 	defer conn.Close()
 
 	if _, err := conn.Do("HMSET", redigo.Args{}.Add(key).AddFlat(&some)...); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return fmt.Errorf("error setting key %s to %v", key, err)
 	}
 

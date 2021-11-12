@@ -176,7 +176,7 @@ func Upload(client *http.Client, url string, params map[string]string, paramName
 			} else {
 				resp.Body.Close()
 				if resp.StatusCode == 200 {
-					fmt.Println(body)
+					log.Println(body)
 					return content, nil
 				} else {
 					return nil, fmt.Errorf("错误:%d", resp.Status)

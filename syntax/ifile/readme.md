@@ -74,10 +74,10 @@ func main() {
    var err1 error
    if checkFileIsExist(filename) { //如果文件存在
       f, err1 = os.OpenFile(filename, os.O_APPEND, 0666) //打开文件
-      fmt.Println("文件存在")
+      log.Println("文件存在")
    } else {
       f, err1 = os.Create(filename) //创建文件
-      fmt.Println("文件不存在")
+      log.Println("文件不存在")
    }
    defer f.Close()
    n, err1 := io.WriteString(f, wireteString) //写入文件(字符串)
@@ -111,10 +111,10 @@ func main() {
    var err1 error
    if checkFileIsExist(filename) { //如果文件存在
       f, err1 = os.OpenFile(filename, os.O_APPEND, 0666) //打开文件
-      fmt.Println("文件存在")
+      log.Println("文件存在")
    } else {
       f, err1 = os.Create(filename) //创建文件
-      fmt.Println("文件不存在")
+      log.Println("文件不存在")
    }
    defer f.Close()
    n, err1 := f.Write([]byte(str)) //写入文件(字节数组)
@@ -153,10 +153,10 @@ func main() {
    var err1 error
    if checkFileIsExist(filename) { //如果文件存在
       f, err1 = os.OpenFile(filename, os.O_APPEND, 0666) //打开文件
-      fmt.Println("文件存在")
+      log.Println("文件存在")
    } else {
       f, err1 = os.Create(filename) //创建文件
-      fmt.Println("文件不存在")
+      log.Println("文件不存在")
    }
    defer f.Close()
    if err1 != nil {

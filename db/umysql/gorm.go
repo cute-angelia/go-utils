@@ -2,7 +2,6 @@ package umysql
 
 import (
 	"context"
-	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/smacker/opentracing-gorm"
 	"log"
@@ -71,7 +70,6 @@ func initDB(opts GormOptions) *gorm.DB {
 	}
 
 	for db, err = gorm.Open(dbType, connectString); err != nil; {
-		fmt.Println("数据库连接异常! 5秒重试", dbName)
 		log.Println("数据库连接异常", dbName, err)
 		time.Sleep(5 * time.Second)
 		db, err = gorm.Open(dbType, connectString)

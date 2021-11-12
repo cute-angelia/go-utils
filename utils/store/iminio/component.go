@@ -138,7 +138,7 @@ func (e *Component) GetObjectsByPage(bucket string, prefix string, page int32, p
 func (e Component) GetObjectStat(bucket string, objectName string) (minio.ObjectInfo, error) {
 	objInfo, err := e.Client.StatObject(context.Background(), bucket, objectName, minio.StatObjectOptions{})
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	return objInfo, err
 }
@@ -167,10 +167,10 @@ func (e Component) PutObject(bucket string, objectNameIn string, reader io.Reade
 		objectName = strings.Replace(objectName, "//", "/", -1)
 		uploadInfo, err := e.Client.PutObject(context.Background(), bucket, objectName, reader, objectSize, objopt)
 		if err != nil {
-			fmt.Println(bucket, objectNameIn, err)
+			log.Println(bucket, objectNameIn, err)
 			return uploadInfo, err
 		}
-		fmt.Println("Successfully uploaded bytes: ", uploadInfo)
+		log.Println("Successfully uploaded bytes: ", uploadInfo)
 		return uploadInfo, err
 	} else {
 		return minio.UploadInfo{}, fmt.Errorf("模式未设置 %s", objectNameIn)
@@ -182,10 +182,10 @@ func (e Component) FPutObject(bucket string, objectNameIn string, filePath strin
 	if objectName, ok := e.CheckMode(objectNameIn); ok {
 		uploadInfo, err := e.Client.FPutObject(context.Background(), bucket, objectName, filePath, objopt)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			return uploadInfo, err
 		}
-		fmt.Println("Successfully uploaded bytes: ", uploadInfo)
+		log.Println("Successfully uploaded bytes: ", uploadInfo)
 		return uploadInfo, err
 	} else {
 		return minio.UploadInfo{}, fmt.Errorf("模式未设置 %s", objectNameIn)
