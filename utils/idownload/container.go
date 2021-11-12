@@ -113,6 +113,18 @@ func WithUserAgent(UserAgent string) Option {
 	}
 }
 
+func WithUserAgentRandon(random bool) Option {
+	return func(c *Container) {
+		c.config.UseRandomUserAgent = random
+	}
+}
+
+func WithUserAgentRandonMobile(random bool) Option {
+	return func(c *Container) {
+		c.config.UseRandomUserAgentMobile = random
+	}
+}
+
 func WithReferer(Referer string) Option {
 	return func(c *Container) {
 		c.config.Referer = Referer
@@ -138,5 +150,13 @@ func (c *Container) Build(options ...Option) *Component {
 	for _, option := range options {
 		option(c)
 	}
+
+	if c.config.UseRandomUserAgent {
+		c.config.UserAgent = RandomUserAgent()
+	}
+	if c.config.UseRandomUserAgentMobile {
+		c.config.UserAgent = RandomMobileUserAgent()
+	}
+
 	return newComponent(c.name, c.config, c.logger)
 }

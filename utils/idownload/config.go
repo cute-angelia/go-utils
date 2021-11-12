@@ -12,30 +12,35 @@ type config struct {
 	NamePrefix string // 文件-命名前缀
 	DefaultExt string // 文件-后缀属性，有些文件没有后缀
 
-	ProxyHttp   string // 代理 http://ip:port
-	ProxySocks5 string // 代理 ip:port
-	Cookie      string // cookie
-	Referer      string // Referer
-	UserAgent   string // user-agent
+	ProxyHttp                string // 代理 http://ip:port
+	ProxySocks5              string // 代理 ip:port
+	Cookie                   string // cookie
+	Referer                  string // Referer
+	UserAgent                string // user-agent
+	UseRandomUserAgent       bool
+	UseRandomUserAgentMobile bool
 
 	Timeout time.Duration // 超时时间
-	Debug bool //  debug 日志
+	Debug   bool          //  debug 日志
 }
 
 // DefaultConfig 返回默认配置
 func DefaultConfig() *config {
 	return &config{
-		Dest:        "./",
-		Width:       0,
-		Height:      0,
-		Rename:      false,
-		NamePrefix:  "",
-		ProxyHttp:   "",
-		ProxySocks5: "",
-		Cookie:      "",
-		UserAgent:   "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
-		DefaultExt:  "",
-		Timeout:     time.Second * 6,
-		Debug:       false,
+		Dest:                     "./",
+		Width:                    0,
+		Height:                   0,
+		Rename:                   false,
+		NamePrefix:               "",
+		ProxyHttp:                "",
+		ProxySocks5:              "",
+		Cookie:                   "",
+		UserAgent:                "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
+		UseRandomUserAgent:       false,
+		UseRandomUserAgentMobile: false,
+		Referer:                  "",
+		DefaultExt:               "",
+		Timeout:                  time.Second * 6,
+		Debug:                    false,
 	}
 }
