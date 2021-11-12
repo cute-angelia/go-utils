@@ -170,7 +170,9 @@ func (e Component) PutObject(bucket string, objectNameIn string, reader io.Reade
 			log.Println(bucket, objectNameIn, err)
 			return uploadInfo, err
 		}
-		log.Println("Successfully uploaded bytes: ", uploadInfo)
+		if e.config.Debug {
+			log.Println("Successfully uploaded bytes: ", uploadInfo)
+		}
 		return uploadInfo, err
 	} else {
 		return minio.UploadInfo{}, fmt.Errorf("模式未设置 %s", objectNameIn)
@@ -185,7 +187,9 @@ func (e Component) FPutObject(bucket string, objectNameIn string, filePath strin
 			log.Println(err)
 			return uploadInfo, err
 		}
-		log.Println("Successfully uploaded bytes: ", uploadInfo)
+		if e.config.Debug {
+			log.Println("Successfully uploaded bytes: ", uploadInfo)
+		}
 		return uploadInfo, err
 	} else {
 		return minio.UploadInfo{}, fmt.Errorf("模式未设置 %s", objectNameIn)
@@ -206,18 +210,21 @@ func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string
 		idownload.WithTimeout(e.config.Timeout),
 	)
 	if filebyte, sha1, err := idown.RequestFile(uri); err != nil {
-		log.Println(PackageName, "获取图片失败：❌", uri, err)
+		if e.config.Debug {
+			log.Println(PackageName, "获取图片失败：❌", uri, err)
+		}
 		return "", "", errors.New("获取图片失败：❌" + uri + "  " + err.Error())
 	} else {
 		// 打印日志
 		if e.config.Debug {
 			log.Printf(PackageName, "获取图片: %s, 代理：%s", uri, e.config.ProxySocks5)
 		}
-
 		objectName = strings.Replace(objectName, "//", "/", -1)
 
 		if info, err := e.Client.PutObject(context.TODO(), bucket, objectName, bytes.NewReader(filebyte), int64(len(filebyte)), objopt); err != nil {
-			log.Println(PackageName, "上传失败：❌", err, bucket, objectName, uri)
+			if e.config.Debug {
+				log.Println(PackageName, "上传失败：❌", err, bucket, objectName, uri)
+			}
 			return "", "", fmt.Errorf("上传失败：❌ %v, %s %s %s", err, bucket, objectName, uri)
 		} else {
 			uri = bucket + "/" + info.Key
