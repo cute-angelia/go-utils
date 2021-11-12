@@ -40,6 +40,7 @@ func newComponent(compName string, config *config, logger *elog.Component) *Comp
 }
 
 // 请求文件
+// return file body & file sha1 & error
 func (c *Component) RequestFile(src string) ([]byte, string, error) {
 	var body []byte
 	igout := gout.GET(src).SetTimeout(c.config.Timeout)
@@ -59,6 +60,7 @@ func (c *Component) RequestFile(src string) ([]byte, string, error) {
 	err := igout.SetHeader(gout.H{
 		"cookie":     c.config.Cookie,
 		"user-agent": c.config.UserAgent,
+		"referer":    c.config.Referer,
 	}).Callback(func(c *dataflow.Context) error {
 		switch c.Code {
 		case 200:
@@ -74,6 +76,7 @@ func (c *Component) RequestFile(src string) ([]byte, string, error) {
 	if err != nil {
 		log.Println(PackageName, "request file error -> ", src, err)
 	}
+
 	return body, ifile.FileHashSHA1(bytes.NewReader(body)), err
 }
 
@@ -85,7 +88,7 @@ func (c *Component) Download(imgurl string) (FileInfo, error) {
 		name = ifile.NewFileName(imgurl).GetNameTimeline(c.config.NamePrefix)
 	}
 
-	if body,sha1, err := c.RequestFile(imgurl); err != nil {
+	if body, sha1, err := c.RequestFile(imgurl); err != nil {
 		log.Println("error:", err)
 		return fi, err
 	} else {

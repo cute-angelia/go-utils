@@ -15,6 +15,7 @@ type config struct {
 	ProxyHttp   string // 代理 http://ip:port
 	ProxySocks5 string // 代理 ip:port
 	Cookie      string // cookie
+	Referer      string // Referer
 	UserAgent   string // user-agent
 
 	Timeout time.Duration // 超时时间

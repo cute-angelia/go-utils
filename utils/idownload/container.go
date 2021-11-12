@@ -113,6 +113,12 @@ func WithUserAgent(UserAgent string) Option {
 	}
 }
 
+func WithReferer(Referer string) Option {
+	return func(c *Container) {
+		c.config.Referer = Referer
+	}
+}
+
 // timeout
 func WithTimeout(timeout time.Duration) Option {
 	return func(c *Container) {
