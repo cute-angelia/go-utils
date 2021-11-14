@@ -39,7 +39,7 @@ func MkParentDir(fpath string) error {
 //	open files
 // ************************************************************
 
-// !!!!! notice: don't forget close file !!!!! 
+// !!!!! notice: don't forget close file !!!!!
 
 // OpenFile like os.OpenFile, but will auto create dir.
 // flag:
