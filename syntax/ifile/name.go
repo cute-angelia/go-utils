@@ -30,7 +30,7 @@ func (f fileName) GetNameOrigin(prefix string) string {
 	}
 }
 
-// name 按时间错
+// name 按时间戳
 func (f fileName) GetNameTimeline(prefix string) string {
 	newName := f.uri
 	if strings.Contains(newName, "?") {
@@ -43,6 +43,34 @@ func (f fileName) GetNameTimeline(prefix string) string {
 	} else {
 		return fmt.Sprintf("%s%d%s", prefix, time.Now().UnixNano(), ext)
 	}
+}
+
+// name 按时间戳 反序：minio 文件获取按文件名排序，需要反序时间戳
+// 算法：未来时间减去当前时间， 为了防止串号，增加 nano 长度
+func (f fileName) GetNameTimelineReverse(prefix string, withDate bool) string {
+	newName := f.uri
+	if strings.Contains(newName, "?") {
+		newName = strings.Split(newName, "?")[0]
+	}
+	ext := path.Ext(newName)
+
+	// 3021-01-01 01:01:01
+	etime := int64(31529441953)
+
+	randomstr := fmt.Sprintf("%d", time.Now().UnixNano())
+
+	respName := ""
+	if len(prefix) == 0 {
+		respName = fmt.Sprintf("%d%s", etime-time.Now().Unix(), randomstr[10:len(randomstr)])
+	} else {
+		respName = fmt.Sprintf("%s%d%s", prefix, etime-time.Now().Unix(), randomstr[10:len(randomstr)])
+	}
+
+	if withDate {
+		respName = fmt.Sprintf("%s%s", respName, time.Now().Format("20060102150405"))
+	}
+
+	return fmt.Sprintf("%s%s", respName, ext)
 }
 
 // name 按时间格式
