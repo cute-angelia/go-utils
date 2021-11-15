@@ -15,6 +15,7 @@ func CheckErr(msg interface{}) {
 }
 
 // WriteStringAndCheck writes a string into a buffer, and checks if the error is not nil.
+// buf := new(bytes.Buffer)
 func WriteStringAndCheck(b io.StringWriter, s string) {
 	_, err := b.WriteString(s)
 	CheckErr(err)
