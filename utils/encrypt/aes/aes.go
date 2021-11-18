@@ -11,31 +11,49 @@ package aes
 （2）AES是对称分组加密算法，每组长度为128bits，即16字节。
 （3）AES秘钥的长度只能是16、24或32字节，分别对应三种AES，即AES-128, AES-192和AES-256，三者的区别是加密的轮数不同；
 
-块密码只能对确定长度的数据块进行处理，而消息的长度通常是可变的。因此部分模式（即ECB和CBC）需要最后一块在加密前进行填充。
+数据填充：
+ECB，CBC：块密码只能对确定长度的数据块进行处理，而消息的长度通常是可变的。因此部分模式（即ECB和CBC）需要最后一块在加密前进行填充。
+CFB，OFB和CTR：不需要对长度不为密码块大小整数倍的消息进行特别的处理。因为这些模式是通过对块密码的输出与明文进行异或工作的。
 
-CFB，OFB和CTR模式不需要对长度不为密码块大小整数倍的消息进行特别的处理。因为这些模式是通过对块密码的输出与明文进行异或工作的。
+PKCS Pkcs7    #5/7 padding strategy.
+ANSI AnsiX923 X.923 padding strategy.
+ISO Iso10126 padding strategy.
+ISO/IEC Iso97971 9797-1 Padding Method 2.
+ZeroPadding Zero padding strategy.
+NoPadding: Padding;
 */
 
 import (
-	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"encoding/base64"
 	"errors"
+	"github.com/cute-angelia/go-utils/utils/encrypt/base"
 	"io"
+)
+
+type Mode int
+
+const (
+	PaddingPkcs7 Mode = iota
+	PaddingAnsiX923
+	PaddingIso10126
+	PaddingIso97971
+	PaddingZeroPadding
+	PaddingNoPadding
 )
 
 func GetAesKey() []byte {
 	return []byte("passphrasewhichneedstobe32bytes.")
 }
 
-func EncryptCFB(key []byte, message string) (encmess string, err error) {
-	plainText := []byte(message)
+// return base64 string
+func EncryptCFB(message []byte, key []byte) (string, error) {
+	plainText := message
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return
+		return "", err
 	}
 
 	//IV needs to be unique, but doesn't have to be secure.
@@ -43,31 +61,31 @@ func EncryptCFB(key []byte, message string) (encmess string, err error) {
 	cipherText := make([]byte, aes.BlockSize+len(plainText))
 	iv := cipherText[:aes.BlockSize]
 	if _, err = io.ReadFull(rand.Reader, iv); err != nil {
-		return
+		return "", err
 	}
 
 	stream := cipher.NewCFBEncrypter(block, iv)
 	stream.XORKeyStream(cipherText[aes.BlockSize:], plainText)
 
 	//returns to base64 encoded string
-	encmess = base64.URLEncoding.EncodeToString(cipherText)
-	return
+	// encmess = base64.URLEncoding.EncodeToString(cipherText)
+	return base.Base64Encode(cipherText), nil
 }
 
-func DecryptCFB(key []byte, securemess string) (decodedmess string, err error) {
-	cipherText, err := base64.URLEncoding.DecodeString(securemess)
+func DecryptCFB(crypted string, key []byte) ([]byte, error) {
+	cipherText, err := base.Base64Decode(crypted)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	if len(cipherText) < aes.BlockSize {
 		err = errors.New("Ciphertext block size is too short!")
-		return
+		return nil, err
 	}
 
 	//IV needs to be unique, but doesn't have to be secure.
@@ -79,28 +97,41 @@ func DecryptCFB(key []byte, securemess string) (decodedmess string, err error) {
 	// XORKeyStream can work in-place if the two arguments are the same.
 	stream.XORKeyStream(cipherText, cipherText)
 
-	decodedmess = string(cipherText)
-	return
+	return cipherText, nil
 }
 
-//@brief:AES加密 CBC
-func EncryptCBC(origData, key []byte) ([]byte, error) {
+// 加密 CBC 数据填充
+func EncryptCBC(message, key []byte, mode Mode) (string, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	//AES分组长度为128位，所以blockSize=16，单位字节
 	blockSize := block.BlockSize()
-	origData = PKCS5Padding(origData, blockSize)
+
+	switch mode {
+	case PaddingPkcs7:
+		message = PKCSPadding(message, blockSize)
+	case PaddingZeroPadding:
+		message = ZeroPadding(message, blockSize)
+	default:
+		return "", errors.New("mode类型不匹配")
+	}
+
 	blockMode := cipher.NewCBCEncrypter(block, key[:blockSize]) //初始向量的长度必须等于块block的长度16字节
-	crypted := make([]byte, len(origData))
-	blockMode.CryptBlocks(crypted, origData)
-	return crypted, nil
+	crypted := make([]byte, len(message))
+	blockMode.CryptBlocks(crypted, message)
+	return base.Base64Encode(crypted), nil
 }
 
-//@brief:AES解密 CBC
-func DecryptCBC(crypted, key []byte) ([]byte, error) {
+// 解密 CBC
+func DecryptCBC(crypted string, key []byte, mode Mode) ([]byte, error) {
+	cipherText, err := base.Base64Decode(crypted)
+	if err != nil {
+		return nil, err
+	}
+
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -108,23 +139,19 @@ func DecryptCBC(crypted, key []byte) ([]byte, error) {
 
 	//AES分组长度为128位，所以blockSize=16，单位字节
 	blockSize := block.BlockSize()
-	blockMode := cipher.NewCBCDecrypter(block, key[:blockSize]) //初始向量的长度必须等于块block的长度16字节
+	iv := key[:blockSize]
+	//blockMode := cipher.NewCBCDecrypter(block, key[:blockSize]) //初始向量的长度必须等于块block的长度16字节
+	blockMode := cipher.NewCBCDecrypter(block, iv) //初始向量的长度必须等于块block的长度16字节
 	origData := make([]byte, len(crypted))
-	blockMode.CryptBlocks(origData, crypted)
-	origData = PKCS5UnPadding(origData)
+	blockMode.CryptBlocks(origData, cipherText)
+
+	switch mode {
+	case PaddingPkcs7:
+		origData = PKCSUnPadding(origData)
+	case PaddingZeroPadding:
+		origData = ZeroUnPadding(origData)
+	default:
+		return origData, errors.New("mode类型不匹配")
+	}
 	return origData, nil
-}
-
-//@brief:填充明文
-func PKCS5Padding(plaintext []byte, blockSize int) []byte {
-	padding := blockSize - len(plaintext)%blockSize
-	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(plaintext, padtext...)
-}
-
-//@brief:去除填充数据
-func PKCS5UnPadding(origData []byte) []byte {
-	length := len(origData)
-	unpadding := int(origData[length-1])
-	return origData[:(length - unpadding)]
 }
