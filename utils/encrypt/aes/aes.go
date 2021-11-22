@@ -27,10 +27,31 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"errors"
+	"fmt"
 	"github.com/cute-angelia/go-utils/utils/encrypt/base"
 	"io"
+	"log"
 )
+
+type aesPackage struct {
+	Secret        []byte
+	Block         cipher.Block
+	CurrentCipher []byte
+}
+
+func NewAesPackage(secretKey []byte) (*aesPackage, error) {
+	if len(secretKey) == 0 {
+		secretKey = []byte("passphrasewhichneedstobe32bytes.")
+	}
+	block, err := aes.NewCipher(secretKey)
+	if err != nil {
+		return nil, err
+	}
+	return &aesPackage{
+		Secret: secretKey,
+		Block:  block,
+	}, nil
+}
 
 type Mode int
 
@@ -43,49 +64,42 @@ const (
 	PaddingNoPadding
 )
 
-func GetAesKey() []byte {
-	return []byte("passphrasewhichneedstobe32bytes.")
+func (a *aesPackage) ToStringBase64() string {
+	return base.Base64Encode(a.CurrentCipher)
 }
 
-// return base64 string
-func EncryptCFB(message []byte, key []byte) (string, error) {
-	plainText := message
+func (a *aesPackage) ToStringHex() string {
+	return fmt.Sprintf("%x", a.CurrentCipher)
+}
 
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return "", err
-	}
+func (a *aesPackage) ToString() string {
+	return string(a.CurrentCipher)
+}
+
+func (a *aesPackage) EncryptCFB(message []byte) *aesPackage {
+	plainText := message
 
 	//IV needs to be unique, but doesn't have to be secure.
 	//It's common to put it at the beginning of the ciphertext.
 	cipherText := make([]byte, aes.BlockSize+len(plainText))
 	iv := cipherText[:aes.BlockSize]
-	if _, err = io.ReadFull(rand.Reader, iv); err != nil {
-		return "", err
+
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+		log.Println("EncryptCFB error => ", err)
+		return a
 	}
 
-	stream := cipher.NewCFBEncrypter(block, iv)
+	stream := cipher.NewCFBEncrypter(a.Block, iv)
 	stream.XORKeyStream(cipherText[aes.BlockSize:], plainText)
 
-	//returns to base64 encoded string
-	// encmess = base64.URLEncoding.EncodeToString(cipherText)
-	return base.Base64Encode(cipherText), nil
+	a.CurrentCipher = cipherText
+	return a
 }
 
-func DecryptCFB(crypted string, key []byte) ([]byte, error) {
-	cipherText, err := base.Base64Decode(crypted)
-	if err != nil {
-		return nil, err
-	}
-
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return nil, err
-	}
-
+func (a *aesPackage) DecryptCFB(cipherText []byte) *aesPackage {
 	if len(cipherText) < aes.BlockSize {
-		err = errors.New("Ciphertext block size is too short!")
-		return nil, err
+		log.Println("DecryptCFB error => ", "Ciphertext block size is too short!")
+		return a
 	}
 
 	//IV needs to be unique, but doesn't have to be secure.
@@ -93,22 +107,21 @@ func DecryptCFB(crypted string, key []byte) ([]byte, error) {
 	iv := cipherText[:aes.BlockSize]
 	cipherText = cipherText[aes.BlockSize:]
 
-	stream := cipher.NewCFBDecrypter(block, iv)
+	stream := cipher.NewCFBDecrypter(a.Block, iv)
 	// XORKeyStream can work in-place if the two arguments are the same.
 	stream.XORKeyStream(cipherText, cipherText)
 
-	return cipherText, nil
+	// return a
+	a.CurrentCipher = cipherText
+
+	return a
 }
 
 // 加密 CBC 数据填充
-func EncryptCBC(message, key []byte, mode Mode) (string, error) {
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return "", err
-	}
-
+// iv 如果跟前端配合，一、固定算法， 二、返回 iv 值给前端
+func (a *aesPackage) EncryptCBC(message []byte, mode Mode) *aesPackage {
 	//AES分组长度为128位，所以blockSize=16，单位字节
-	blockSize := block.BlockSize()
+	blockSize := a.Block.BlockSize()
 
 	switch mode {
 	case PaddingPkcs7:
@@ -116,33 +129,29 @@ func EncryptCBC(message, key []byte, mode Mode) (string, error) {
 	case PaddingZeroPadding:
 		message = ZeroPadding(message, blockSize)
 	default:
-		return "", errors.New("mode类型不匹配")
+		log.Println("EncryptCBC error:", "mode类型不匹配")
+		return a
 	}
 
-	blockMode := cipher.NewCBCEncrypter(block, key[:blockSize]) //初始向量的长度必须等于块block的长度16字节
+	iv := a.Secret[:blockSize] //初始向量的长度必须等于块block的长度16字节
+
+	//log.Println("iv:", string(iv))
+
+	blockMode := cipher.NewCBCEncrypter(a.Block, iv)
 	crypted := make([]byte, len(message))
 	blockMode.CryptBlocks(crypted, message)
-	return base.Base64Encode(crypted), nil
+
+	a.CurrentCipher = crypted
+	return a
 }
 
 // 解密 CBC
-func DecryptCBC(crypted string, key []byte, mode Mode) ([]byte, error) {
-	cipherText, err := base.Base64Decode(crypted)
-	if err != nil {
-		return nil, err
-	}
-
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return nil, err
-	}
-
+func (a *aesPackage) DecryptCBC(cipherText []byte, mode Mode) *aesPackage {
 	//AES分组长度为128位，所以blockSize=16，单位字节
-	blockSize := block.BlockSize()
-	iv := key[:blockSize]
-	//blockMode := cipher.NewCBCDecrypter(block, key[:blockSize]) //初始向量的长度必须等于块block的长度16字节
-	blockMode := cipher.NewCBCDecrypter(block, iv) //初始向量的长度必须等于块block的长度16字节
-	origData := make([]byte, len(crypted))
+	blockSize := a.Block.BlockSize()
+	iv := a.Secret[:blockSize] // /初始向量的长度必须等于块block的长度16字节
+	blockMode := cipher.NewCBCDecrypter(a.Block, iv)
+	origData := make([]byte, len(cipherText))
 	blockMode.CryptBlocks(origData, cipherText)
 
 	switch mode {
@@ -151,7 +160,11 @@ func DecryptCBC(crypted string, key []byte, mode Mode) ([]byte, error) {
 	case PaddingZeroPadding:
 		origData = ZeroUnPadding(origData)
 	default:
-		return origData, errors.New("mode类型不匹配")
+		log.Println("DecryptCBC error:", "mode类型不匹配")
+		return a
 	}
-	return origData, nil
+
+	a.CurrentCipher = origData
+
+	return a
 }
