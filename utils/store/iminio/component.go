@@ -198,19 +198,19 @@ func (e Component) FPutObject(bucket string, objectNameIn string, filePath strin
 
 // 提供链接，上传到 minio
 // return key & hash sha1 & error
-func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string, objopt minio.PutObjectOptions) (string, string, error) {
+func (e Component) PutObjectWithSrc(dnComponent *idownload.Component, uri string, bucket string, objectName string, objopt minio.PutObjectOptions) (string, string, error) {
 	// http 不处理
 	if !strings.Contains(uri, "http") {
 		return uri, "", errors.New("非链接地址:" + uri)
 	}
 	// 更换图片到本地
-	idown := idownload.Load("").Build(
-		idownload.WithProxySocks5(e.config.ProxySocks5),
-		idownload.WithDebug(e.config.Debug),
-		idownload.WithTimeout(e.config.Timeout),
-		idownload.WithReferer(e.config.Referer),
-	)
-	if filebyte, sha1, err := idown.RequestFile(uri); err != nil {
+	//idown := idownload.Load("").Build(
+	//	idownload.WithProxySocks5(e.config.ProxySocks5),
+	//	idownload.WithDebug(e.config.Debug),
+	//	idownload.WithTimeout(e.config.Timeout),
+	//	idownload.WithReferer(e.config.Referer),
+	//)
+	if filebyte, sha1, err := dnComponent.RequestFile(uri); err != nil {
 		if e.config.Debug {
 			log.Println(PackageName, "获取图片失败：❌", uri, err)
 		}
