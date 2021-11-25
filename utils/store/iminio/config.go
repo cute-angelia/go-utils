@@ -15,6 +15,8 @@ type config struct {
 	Timeout time.Duration // 超时时间
 
 	ReplaceMode int // 替换模式， 1跳过， 2覆盖  3保留两者
+
+	Referer                  string // Referer
 }
 
 const (

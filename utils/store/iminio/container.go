@@ -79,6 +79,12 @@ func WithReplaceMode(ReplaceMode int) Option {
 	}
 }
 
+func WithReferer(Referer string) Option {
+	return func(c *Container) {
+		c.config.Referer = Referer
+	}
+}
+
 // Build ...
 func (c *Container) Build(options ...Option) *Component {
 	for _, option := range options {

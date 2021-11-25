@@ -208,6 +208,7 @@ func (e Component) PutObjectWithSrc(uri string, bucket string, objectName string
 		idownload.WithProxySocks5(e.config.ProxySocks5),
 		idownload.WithDebug(e.config.Debug),
 		idownload.WithTimeout(e.config.Timeout),
+		idownload.WithReferer(e.config.Referer),
 	)
 	if filebyte, sha1, err := idown.RequestFile(uri); err != nil {
 		if e.config.Debug {
