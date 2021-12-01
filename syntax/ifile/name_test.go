@@ -18,18 +18,18 @@ import (
 func TestName(t *testing.T) {
 	uri := "https://www.baidu.com/a.jpg?z=23"
 
-	t.Log(NewFileName(uri).GetNameOrigin(""))
-	t.Log(NewFileName(uri).GetNameTimeline(""))
-	t.Log(NewFileName(uri).GetNameSnowFlow(""))
+	t.Log(NewFileName(uri).SetPrefix("good").SetSuffix("world").GetNameOrigin())
+	t.Log(NewFileName(uri).GetNameTimeline())
+	t.Log(NewFileName(uri).GetNameSnowFlow())
 
 	prefix := "test_"
-	t.Log(NewFileName(uri).GetNameOrigin(prefix))
-	t.Log(NewFileName(uri).GetNameTimeline(prefix))
-	t.Log(NewFileName(uri).GetNameSnowFlow(prefix))
+	t.Log(NewFileName(uri).SetPrefix(prefix).GetNameOrigin())
+	t.Log(NewFileName(uri).SetPrefix(prefix).GetNameTimeline())
+	t.Log(NewFileName(uri).SetPrefix(prefix).GetNameSnowFlow())
 
 	// test 3
 	iurl := "https://pbs.twimg.com/media/Eq3Ilp6XYAItcSw.jpg?format=jpg&name=orig"
-	name := NewFileName(iurl).GetNameTimeline(prefix)
+	name := NewFileName(iurl).SetPrefix(prefix).GetNameTimeline()
 	t.Log(name)
 
 	ext := path.Ext(iurl)
