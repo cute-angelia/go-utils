@@ -83,9 +83,9 @@ func (c *Component) RequestFile(src string) ([]byte, string, error) {
 // 下载文件
 func (c *Component) Download(imgurl string) (FileInfo, error) {
 	var fi FileInfo
-	name := ifile.NewFileName(imgurl).GetNameOrigin(c.config.NamePrefix)
+	name := ifile.NewFileName(imgurl).SetPrefix(c.config.NamePrefix).GetNameOrigin()
 	if c.config.Rename {
-		name = ifile.NewFileName(imgurl).GetNameTimeline(c.config.NamePrefix)
+		name = ifile.NewFileName(imgurl).SetPrefix(c.config.NamePrefix).GetNameTimeline()
 	}
 
 	if body, sha1, err := c.RequestFile(imgurl); err != nil {
