@@ -72,6 +72,11 @@ func OpenLocalFile(filepath string) *os.File {
 	}
 }
 
+// 打开已经存在的文件， 不新建， 返回 *os.File
+func OpenLocalFileNoCreate(filepath string) (*os.File, error) {
+	return OpenFile(filepath, os.O_RDWR, DefaultFilePerm)
+}
+
 // 文件文件-读取本地文件 Local read local file
 func GetFileWithLocal(path string) ([]byte, error) {
 	imageFile, err := os.Open(path)
@@ -153,7 +158,7 @@ func DeleteFile(path string) {
 	if isError(err) {
 		return
 	}
-	fmt.Println("==> done deleting file :" +  path)
+	fmt.Println("==> done deleting file :" + path)
 }
 
 // ************************************************************
