@@ -11,6 +11,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path"
 	"sync"
 	"time"
 )
@@ -33,6 +34,10 @@ type Component struct {
 
 // newComponent ...
 func newComponent(compName string, config *config, logger *elog.Component) *Component {
+	if config.Debug {
+		log.Println(PackageName, "配置信息：", fmt.Sprintf("%+v", config))
+	}
+
 	return &Component{
 		config: config,
 		logger: logger,
@@ -44,11 +49,6 @@ func newComponent(compName string, config *config, logger *elog.Component) *Comp
 func (c *Component) RequestFile(src string) ([]byte, string, error) {
 	var body []byte
 	igout := gout.GET(src).SetTimeout(c.config.Timeout)
-
-	if c.config.Debug {
-		// igout.Debug(true)
-		log.Println(PackageName, "配置信息：", fmt.Sprintf("%+v", c.config))
-	}
 
 	if len(c.config.ProxySocks5) > 0 {
 		igout = igout.SetSOCKS5(c.config.ProxySocks5)
@@ -71,7 +71,7 @@ func (c *Component) RequestFile(src string) ([]byte, string, error) {
 		default:
 			return fmt.Errorf(src+" error: %d", c.Code)
 		}
-	}).F().Retry().Attempt(3).WaitTime(time.Second * 2).MaxWaitTime(time.Second * 30).Do()
+	}).F().Retry().Attempt(5).WaitTime(time.Second * 3).MaxWaitTime(time.Second * 30).Do()
 
 	if err != nil {
 		log.Println(PackageName, "request file error -> ", src, err)
@@ -81,19 +81,26 @@ func (c *Component) RequestFile(src string) ([]byte, string, error) {
 }
 
 // 下载文件
-func (c *Component) Download(imgurl string) (FileInfo, error) {
+// saveName 为保存路径带后缀
+func (c *Component) Download(imgurl string, saveName string) (FileInfo, error) {
 	var fi FileInfo
-	name := ifile.NewFileName(imgurl).SetPrefix(c.config.NamePrefix).GetNameOrigin()
-	if c.config.Rename {
-		name = ifile.NewFileName(imgurl).SetPrefix(c.config.NamePrefix).GetNameTimeline()
-	}
+
+	name := saveName
+	//if len(saveName) > 0 {
+	//	name = saveName
+	//} else {
+	//	name = ifile.NewFileName(imgurl).SetPrefix(c.config.NamePrefix).GetNameTimeline()
+	//	if !c.config.Rename {
+	//		name = ifile.NewFileName(imgurl).SetPrefix(c.config.NamePrefix).GetNameOrigin()
+	//	}
+	//}
 
 	if body, sha1, err := c.RequestFile(imgurl); err != nil {
 		log.Println("error:", err)
 		return fi, err
 	} else {
 		if ifileDownload, err := c.saveFile(body, name); err != nil {
-			c.print("下载文件", err.Error(), "error")
+			log.Println("下载文件❌", imgurl, err.Error())
 			return fi, err
 		} else {
 			// 过滤图片
@@ -114,7 +121,7 @@ func (c *Component) Download(imgurl string) (FileInfo, error) {
 			fi.SourceUrl = imgurl
 			fi.Sha1 = sha1
 
-			c.print("下载文件", "成功"+ifileDownload, "")
+			log.Println("下载文件✅", imgurl, "成功:"+ifileDownload)
 			return fi, nil
 		}
 	}
@@ -151,15 +158,37 @@ func (c *Component) limitWidthHeightUseIsNot(localFile string) error {
 
 // 保存文件
 func (c *Component) saveFile(body []byte, filenamewithext string) (string, error) {
-	dir := c.config.Dest
+	dir := ""
+
+	// 空目标文件
+	if len(c.config.Dest) == 0 {
+		dir = path.Dir(filenamewithext) + "/"
+	} else {
+		if !path.IsAbs(filenamewithext) {
+			dir = c.config.Dest + "/" + path.Dir(filenamewithext) + "/"
+		} else {
+			dir = c.config.Dest + path.Dir(filenamewithext) + "/"
+		}
+	}
+
+	// 清理
+	dir = path.Clean(dir)
+	if dir == "." {
+		dir = dir + "/"
+	}
+
+	if _, err := os.Stat(dir); err != nil {
+		if os.IsNotExist(err) {
+			//dir
+			// saveDir := path.Dir(dir)
+			err := os.MkdirAll(dir, os.ModePerm)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
 
 	r := bytes.NewReader(body)
-	//dir
-	// saveDir := path.Dir(dir)
-	err := os.MkdirAll(dir, os.ModePerm)
-	if err != nil {
-		panic(err)
-	}
 
 	// 有些文件没有扩展名称
 	if len(c.config.DefaultExt) > 0 {
@@ -167,7 +196,7 @@ func (c *Component) saveFile(body []byte, filenamewithext string) (string, error
 	}
 
 	// Create the file
-	ifile := fmt.Sprintf("%s/%s", dir, filenamewithext)
+	ifile := fmt.Sprintf("%s%s", dir, filenamewithext)
 	out, err := os.Create(ifile)
 	if err != nil {
 		return "", err
