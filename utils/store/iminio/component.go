@@ -218,7 +218,7 @@ func (e Component) PutObjectWithSrc(dnComponent *idownload.Component, uri string
 	} else {
 		// 打印日志
 		if e.config.Debug {
-			log.Printf(PackageName, "获取图片: %s, 代理：%s", uri, e.config.ProxySocks5)
+			log.Printf( "获取图片: %s, 代理：%s", uri, e.config.ProxySocks5)
 		}
 		objectName = strings.Replace(objectName, "//", "/", -1)
 
@@ -274,6 +274,33 @@ func (e Component) GetPutObjectOptions(contentType string) minio.PutObjectOption
 		return minio.PutObjectOptions{ContentType: contentType}
 	}
 	return minio.PutObjectOptions{ContentType: "image/jpeg,image/png,image/jpeg"}
+}
+
+// 根据类型获取对象
+func (e Component) GetPutObjectOptionByExt(fileExt string) minio.PutObjectOptions {
+	contentType := ""
+	switch fileExt {
+	case ".png":
+	case ".jpg":
+	case ".svg":
+	case ".jpeg":
+		contentType = "image/jpeg,image/png"
+	case ".gif":
+		contentType = "image/gif"
+	case ".mp4":
+		contentType = "audio/mp4"
+	case ".avi":
+		contentType = "video/avi"
+	case ".mp3":
+		contentType = "audio/mp3"
+	case ".pdf":
+		contentType = "application/pdf"
+	case ".txt":
+		contentType = "text/plain"
+	default:
+		contentType = "application/octet-stream"
+	}
+	return minio.PutObjectOptions{ContentType: contentType}
 }
 
 func (e Component) GetConfig() {
