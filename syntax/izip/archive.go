@@ -5,6 +5,7 @@ import (
 	"github.com/cute-angelia/go-utils/syntax/ifile"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 )
 
@@ -52,7 +53,7 @@ func AddFileToZip(zipWriter *zip.Writer, filename string) error {
 
 	// Using FileInfoHeader() above only uses the basename of the file. If we want
 	// to preserve the folder structure we can overwrite this with the full path.
-	header.Name = filename
+	header.Name = path.Base(filename)
 
 	// Change to deflate to gain better compression
 	// see http://golang.org/pkg/archive/zip/#pkg-constants
