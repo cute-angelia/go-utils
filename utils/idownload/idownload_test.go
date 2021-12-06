@@ -5,6 +5,16 @@ import (
 	"testing"
 )
 
+func TestDownloadWeibo(t *testing.T) {
+	filrU := "https://wx1.sinaimg.cn/large/008oKRrcgy1gv7y8kragcj60u0140goh02.jpg"
+	idown := Load("").Build()
+	if filebyte, _, err := idown.RequestFile(filrU); err != nil {
+		log.Println("获取图片失败：❌", err)
+	} else {
+		log.Println(len(filebyte))
+	}
+}
+
 func TestDownload(t *testing.T) {
 	fileuri := "https://telegra.ph/file/956de9b5ca3c41703eb52.jpg"
 	idown := Load("").Build(WithDebug(true), WithProxySocks5("socks5://host-bwg-new.aaqq.in:8096"))
@@ -39,6 +49,6 @@ func TestDownload3(t *testing.T) {
 	if filebyte, key, err := idown.RequestFile(fileuri); err != nil {
 		log.Println("获取图片失败：❌", err)
 	} else {
-		log.Println("获取图片成功",len(filebyte), key)
+		log.Println("获取图片成功", len(filebyte), key)
 	}
 }

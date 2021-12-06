@@ -16,7 +16,7 @@ type config struct {
 
 	ReplaceMode int // 替换模式， 1跳过， 2覆盖  3保留两者
 
-	Referer                  string // Referer
+	Referer string // Referer
 }
 
 const (
