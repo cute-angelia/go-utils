@@ -92,8 +92,25 @@ var ImageMimeTypes = map[string]string{
 	"webp": "image/webp",
 }
 
+func IsImageExtFile(uri string) bool {
+	uri = NewFileName(uri).CleanUrl()
+	ext := path.Ext(uri)
+	if
+	ext == ".jpg" ||
+		ext == ".png" ||
+		ext == ".svg" ||
+		ext == ".gif" ||
+		ext == ".jpeg" ||
+		ext == ".webp" ||
+		ext == ".icon" {
+		return true
+	} else {
+		return false
+	}
+}
+
 // IsImageFile check file is image file.
-func IsImageFile(path string) bool {
+func IsImageLocalFile(path string) bool {
 	mime := MimeType(path)
 	if mime == "" {
 		return false
