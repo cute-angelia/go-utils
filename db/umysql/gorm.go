@@ -5,38 +5,44 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/smacker/opentracing-gorm"
 	"log"
+	"sync"
 	"time"
 )
 
 // gorm 连接池, gorm 本身也提供了pool, 提供全局对象, 这里初始化全局对象
-var Gorm = make(map[string]*gorm.DB)
+// make(map[string]*gorm.DB)
+var Gorm sync.Map
 
-// 配置, 为了断开重连
-var GormOpts = make(map[string]GormOptions)
+// 配置, 为了断开重连 // make(map[string]GormOptions)
+var GormOpts sync.Map
 
 // 初始化 GORM
 func InitGorm(opts GormOptions) {
-	orm, ok := Gorm[opts.Dbname]
+	_, ok := Gorm.Load(opts.Dbname)
 	if !ok {
-		orm = initDB(opts)
-		Gorm[opts.Dbname] = orm
-
-		GormOpts[opts.Dbname] = opts
+		Gorm.Store(opts.Dbname, initDB(opts))
+		GormOpts.Store(opts.Dbname, opts)
 	}
 }
 
 // 获取 Gorm
 func GetGorm(dbname string) *gorm.DB {
-	db, ok := Gorm[dbname]
+	v, ok := Gorm.Load(dbname)
 	if !ok {
-		log.Println("没有初始化" + dbname)
+		log.Println("buntdb没有初始化:" + dbname)
+		return nil
 	} else {
+		db := v.(*gorm.DB)
 		err := db.DB().Ping()
 		if err != nil {
-			Gorm[dbname] = initDB(GormOpts[dbname])
+			opts, _ := GormOpts.Load(dbname)
+			gormDb := initDB(opts.(GormOptions))
+			Gorm.Store(dbname, gormDb)
+			return gormDb
+		} else {
+			return v.(*gorm.DB)
 		}
 	}
-	return Gorm[dbname]
 }
 
 // 获取 Gorm Ctx

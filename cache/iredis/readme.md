@@ -1,3 +1,6 @@
+### 说明
+
+新版 redis
 
 ```
 	c := iredis2.NewRedisPool()

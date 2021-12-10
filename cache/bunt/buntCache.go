@@ -16,14 +16,15 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 	"time"
 )
 
-var BuntCaches map[string]*buntdb.DB
+var BuntCaches sync.Map
 
 // 初始化缓存  内部使用昵称：保存名称
 func InitBuntCache(nickname string, dbname string) error {
-	if BuntCaches[nickname] != nil {
+	if _, ok := BuntCaches.Load(nickname); ok {
 		return nil
 	} else {
 		// dbname
@@ -91,21 +92,17 @@ func SetConfig(db *buntdb.DB, conf buntdb.Config) {
 }
 
 func GetDb(name string) *buntdb.DB {
-	if BuntCaches[name] == nil {
+	if v, ok := BuntCaches.Load(name); ok {
+		return v.(*buntdb.DB)
+	} else {
 		log.Println("buntdb.未初始化:" + name)
 		return nil
-	} else {
-		return BuntCaches[name]
 	}
 }
 
 func SetDb(name string, db *buntdb.DB) {
-	if BuntCaches == nil {
-		BuntCaches = map[string]*buntdb.DB{}
-	}
-	BuntCaches[name] = db
-
 	SetConfig(db, buntdb.Config{})
+	BuntCaches.Store(name, db)
 }
 
 /**

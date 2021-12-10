@@ -9,11 +9,13 @@ import (
 	"time"
 )
 
-var componentPool map[string]*Component
+var componentPool sync.Map
 
-func init() {
-	componentPool = make(map[string]*Component)
-}
+// map[string]*Component
+
+//func init() {
+//	componentPool = make(map[string]*Component)
+//}
 
 type Component struct {
 	config *config
@@ -22,11 +24,11 @@ type Component struct {
 }
 
 func newComponent(cfg *config) *Component {
-	if comp, ok := componentPool[cfg.Key]; ok {
+	if comp, ok := componentPool.Load(cfg.Key); ok {
 		com := Component{
 			config: cfg,
 		}
-		com.db = comp.db
+		com.db = comp.(*Component).db
 		return &com
 	} else {
 		db, err := nutsdb.Open(cfg.Options)
@@ -175,7 +177,7 @@ func (self Component) PrefixScan(bucket string, prefix string, limit int) (nutsd
 		func(tx *nutsdb.Tx) error {
 			prefix := []byte(prefix)
 			// 从offset=0开始 ，限制 100 entries 返回
-			if entries, err := tx.PrefixScan(bucket, prefix, limit); err != nil {
+			if entries, _, err := tx.PrefixScan(bucket, prefix, 0, limit); err != nil {
 				return err
 			} else {
 				resentries = entries

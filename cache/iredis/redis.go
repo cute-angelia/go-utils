@@ -4,64 +4,41 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"log"
+	"sync"
 )
 
-var RedisPools *pool
+var RedisPools sync.Map
 
-type pool struct {
-	Pool map[string]*redis.Client
-}
+// 初始化 Redis
+func InitRedis(name string, server string, password string) *redis.Client {
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     server,
+		Password: password, // no password set
+		DB:       0,        // use default DB
+	})
+	_, loaded := RedisPools.LoadOrStore(name, redisClient)
 
-func NewRedisPool() *pool {
-	return &pool{}
-}
-
-func (self *pool) GetRedis(name string) (*redis.Client, error) {
-	if _, ok := self.Pool[name]; ok {
-		return self.Pool[name], nil
+	if loaded {
+		printRedisPool(name+"——命中池", redisClient.PoolStats())
 	} else {
-		return nil, fmt.Errorf("%s: reids不存在初始化配置", name)
+		printRedisPool(name+"——初始化", redisClient.PoolStats())
 	}
+	return redisClient
 }
 
-func GetRdb(name string) *redis.Client {
-	rdb, _ := RedisPools.GetRedis(name)
-	return rdb
-}
-
-func Init(name string, server string, password string) *pool {
-	if RedisPools == nil {
-		RedisPools = &pool{}
-	}
-
-	if RedisPools.Pool == nil {
-		RedisPools.Pool = make(map[string]*redis.Client)
-	}
-
-	if _, ok := RedisPools.Pool[name]; ok {
-
-		// 打印
-		printRedisPool(name, RedisPools.Pool[name].PoolStats())
-
-		// 赋值
-		return RedisPools
+func GetRedis(name string) (*redis.Client, error) {
+	if v, ok := RedisPools.Load(name); ok {
+		return v.(*redis.Client), nil
 	} else {
-		RedisPools.Pool[name] = redis.NewClient(&redis.Options{
-			Addr:     server,
-			Password: password, // no password set
-			DB:       0,        // use default DB
-		})
-
-		// 打印
-		printRedisPool(name, RedisPools.Pool[name].PoolStats())
-		return RedisPools
+		return nil, fmt.Errorf("%s: reids不存在,请初始化配置", name)
 	}
 }
 
 func Close() {
-	for _, i2 := range RedisPools.Pool {
-		i2.Close()
-	}
+	RedisPools.Range(func(key, value interface{}) bool {
+		value.(*redis.Client).Close()
+		return true
+	})
 }
 
 func printRedisPool(name string, stats *redis.PoolStats) {

@@ -19,9 +19,8 @@ func New(name string, opts ...Option) Pool {
 	options := newOption(opts...)
 
 	p := &pool{
-		opts:  options,
-		name:  name,
-		pools: make(map[string]*redigo.Pool),
+		opts: options,
+		name: name,
 	}
 
 	return p
@@ -32,7 +31,7 @@ type pool struct {
 	name string
 
 	mu    sync.RWMutex
-	pools map[string]*redigo.Pool
+	pools sync.Map // map[string]*redigo.Pool
 }
 
 // 获取 Get
@@ -58,13 +57,13 @@ func (r *pool) GetWithCtx(ctx context.Context, name string) redigo.Conn {
 func (r *pool) getConn(name string) (*conn, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	p, exist := r.pools[name]
-	if !exist {
-		p = newPool(&r.opts)
-		r.pools[name] = p
+	if p, exist := r.pools.Load(name); !exist {
+		p2 := newPool(&r.opts)
+		r.pools.Store(name, p2)
+		return &conn{Conn: p2.Get()}, nil
+	} else {
+		return &conn{Conn: p.(*redigo.Pool).Get()}, nil
 	}
-
-	return &conn{Conn: p.Get()}, nil
 }
 
 // new pool

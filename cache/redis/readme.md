@@ -1,4 +1,4 @@
-新库
+请使用 iredis 库
 
 ```apple js
 
