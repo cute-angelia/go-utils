@@ -157,11 +157,12 @@ func (ll *Logger) GetLevel() string {
 }
 
 // SetPrefix set the logger prefix. Default prefix is [D] for Debug, [I] for Info, [W] for Warn and [E] for Error.
-func (ll *Logger) SetPrefix(prefix string) {
+func (ll *Logger) SetPrefix(prefix string) *Logger {
 	ll.err.SetPrefix(prefix)
 	ll.warn.SetPrefix(prefix)
 	ll.info.SetPrefix(prefix)
 	ll.debug.SetPrefix(prefix)
+	return ll
 }
 
 func (ll *Logger) SetPreStr(uid int32, desc string) *Logger {
