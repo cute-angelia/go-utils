@@ -29,12 +29,15 @@ func (c Component) generateText(dirPath string, ext []string) (tempText string, 
 		// 生成一个文件用于合并： 格式
 		// file ./name.mov
 		// log.Println(c.getTempText())
-		itempText := ifile.OpenLocalFile(c.getTempText())
-		defer itempText.Close()
-		for _, file := range files {
-			itempText.WriteString(fmt.Sprintf("file '%s'\n", file))
+		if itempText, err := ifile.OpenLocalFile(c.getTempText()); err != nil {
+			return "", err
+		} else {
+			defer itempText.Close()
+			for _, file := range files {
+				itempText.WriteString(fmt.Sprintf("file '%s'\n", file))
+			}
+			return c.getTempText(), nil
 		}
-		return c.getTempText(), nil
 	}
 }
 

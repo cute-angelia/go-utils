@@ -22,7 +22,11 @@ func MimeType(path string) (mime string) {
 		return
 	}
 
-	return ReaderMimeType(file)
+	mime = ReaderMimeType(file)
+
+	defer file.Close()
+
+	return mime
 }
 
 // ReaderMimeType get the io.Reader mimeType

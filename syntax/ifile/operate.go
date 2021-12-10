@@ -7,7 +7,6 @@ import (
 	"github.com/guonaihong/gout/dataflow"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -63,13 +62,8 @@ func OpenFile(filepath string, flag int, perm os.FileMode) (*os.File, error) {
 // 打开已经存在的文件， 不存在会新建一个， 返回 *os.File
 // open file in read-write mode
 // path, os.O_RDWR, 0666) || 0644
-func OpenLocalFile(filepath string) *os.File {
-	if f, err := OpenFile(filepath, os.O_RDWR|os.O_CREATE, DefaultFilePerm); err != nil {
-		log.Println("error:", err)
-		return nil
-	} else {
-		return f
-	}
+func OpenLocalFile(filepath string)(*os.File, error) {
+	return  OpenFile(filepath, os.O_RDWR|os.O_CREATE, DefaultFilePerm)
 }
 
 // 打开已经存在的文件， 不新建， 返回 *os.File
@@ -83,7 +77,12 @@ func GetFileWithLocal(path string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer imageFile.Close()
 	return ioutil.ReadAll(imageFile)
+}
+
+func CloseFileHandler(f *os.File) {
+	f.Close()
 }
 
 // 获取文件内容，保存在内存

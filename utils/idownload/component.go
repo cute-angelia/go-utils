@@ -2,6 +2,7 @@ package idownload
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/cute-angelia/go-utils/syntax/ifile"
 	"github.com/gotomicro/ego/core/elog"
@@ -112,7 +113,12 @@ func (c *Component) Download(imgurl string, saveName string) (FileInfo, error) {
 			}
 
 			// 图片大小
-			f := ifile.OpenLocalFile(ifileDownload)
+			if f,err := ifile.OpenLocalFile(ifileDownload); err != nil {
+				return fi, errors.New("文件获取失败" + ifileDownload)
+			} else {
+
+
+			defer f.Close()
 			if imgconfig, _, err := image.DecodeConfig(f); err == nil {
 				fi.Width = imgconfig.Width
 				fi.Height = imgconfig.Height
@@ -123,6 +129,7 @@ func (c *Component) Download(imgurl string, saveName string) (FileInfo, error) {
 
 			log.Println("下载文件✅", imgurl, "成功:"+ifileDownload)
 			return fi, nil
+			}
 		}
 	}
 }
@@ -134,26 +141,30 @@ func (c *Component) RemoveFile(filepath string) error {
 
 // 限制图片大小
 func (c *Component) limitWidthHeightUseIsNot(localFile string) error {
-	f := ifile.OpenLocalFile(localFile)
-	if i, _, err := image.DecodeConfig(f); err != nil {
-		c.print("限制图片大小", fmt.Sprintf("图片不存在 %s", localFile), "error")
+	if f, err := ifile.OpenLocalFile(localFile); err != nil {
 		return err
 	} else {
-		if c.config.Width > 0 {
-			if i.Width < c.config.Width {
-				os.Remove(localFile)
-				return fmt.Errorf(fmt.Sprintf("限制图片大小:小于规定宽度:%d，移除图片", c.config.Width))
+		defer f.Close()
+		if i, _, err := image.DecodeConfig(f); err != nil {
+			c.print("限制图片大小", fmt.Sprintf("图片不存在 %s", localFile), "error")
+			return err
+		} else {
+			if c.config.Width > 0 {
+				if i.Width < c.config.Width {
+					os.Remove(localFile)
+					return fmt.Errorf(fmt.Sprintf("限制图片大小:小于规定宽度:%d，移除图片", c.config.Width))
+				}
+			}
+			if c.config.Height > 0 {
+				if i.Height < c.config.Height {
+					os.Remove(localFile)
+					return fmt.Errorf(fmt.Sprintf("限制图片大小:小于规定高度:%d，移除图片", c.config.Height))
+				}
 			}
 		}
-		if c.config.Height > 0 {
-			if i.Height < c.config.Height {
-				os.Remove(localFile)
-				return fmt.Errorf(fmt.Sprintf("限制图片大小:小于规定高度:%d，移除图片", c.config.Height))
-			}
-		}
-	}
 
-	return nil
+		return nil
+	}
 }
 
 // 保存文件
