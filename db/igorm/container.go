@@ -1,7 +1,10 @@
 package igorm
 
 import (
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm/logger"
+	"io"
+	"log"
+	"os"
 	"time"
 )
 
@@ -43,15 +46,21 @@ func WithMaxLifetime(maxLifetime time.Duration) Option {
 	}
 }
 
-func WithLogDebug(logDebug bool) Option {
+func WithDsn(dsn string) Option {
 	return func(c *Container) {
-		c.config.LogDebug = logDebug
+		c.config.Dsn = dsn
 	}
 }
 
-func WithLogger(logger gorm.Logger) Option {
+func WithLoggerWriter(loggerWriter io.Writer) Option {
 	return func(c *Container) {
-		c.config.Logger = logger
+		c.config.LoggerWriter = loggerWriter
+	}
+}
+
+func WithLogLevel(logLevel logger.LogLevel) Option {
+	return func(c *Container) {
+		c.config.LogLevel = logLevel
 	}
 }
 
@@ -59,6 +68,29 @@ func WithLogger(logger gorm.Logger) Option {
 func (c *Container) Build(options ...Option) *Component {
 	for _, option := range options {
 		option(c)
+	}
+
+	// 设置 Logger
+	if c.config.LoggerWriter != nil {
+		c.config.Logger = logger.New(
+			log.New(c.config.LoggerWriter, "\r\n", log.LstdFlags), // io writer（日志输出的目标，前缀和日志包含的内容——译者注）
+			logger.Config{
+				SlowThreshold:             time.Second,       // 慢 SQL 阈值
+				LogLevel:                  c.config.LogLevel, // 日志级别
+				IgnoreRecordNotFoundError: false,             // 忽略ErrRecordNotFound（记录未找到）错误
+				Colorful:                  true,              // 禁用彩色打印
+			},
+		)
+	} else {
+		c.config.Logger = logger.New(
+			log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer（日志输出的目标，前缀和日志包含的内容——译者注）
+			logger.Config{
+				SlowThreshold:             time.Second,       // 慢 SQL 阈值
+				LogLevel:                  c.config.LogLevel, // 日志级别
+				IgnoreRecordNotFoundError: false,             // 忽略ErrRecordNotFound（记录未找到）错误
+				Colorful:                  true,              // 禁用彩色打印
+			},
+		)
 	}
 
 	return newComponent(c.config)
