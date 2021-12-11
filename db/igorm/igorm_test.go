@@ -33,7 +33,7 @@ func (MinioPostModel) TableName() string {
 
 func TestConnect(t *testing.T) {
 	dbName := "dtwk_meter"
-	dsn := "root:Luck2018@@tcp(host-tx.aaqq.in:43306)/orange?charset=utf8mb4&parseTime=true&loc=Local"
+	dsn := "/orange?charset=utf8mb4&parseTime=true&loc=Local"
 	Load(dbName).Build(
 		//WithLogDebug(true),
 		WithMaxIdleConns(1),
