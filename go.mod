@@ -15,6 +15,7 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gotomicro/ego v0.6.2
 	github.com/guonaihong/gout v0.2.4
+	github.com/jinzhu/gorm v1.9.16
 	github.com/jinzhu/now v1.1.4 // indirect
 	github.com/jonboulle/clockwork v0.2.2 // indirect
 	github.com/json-iterator/go v1.1.11
