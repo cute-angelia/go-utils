@@ -1,16 +1,14 @@
-package umysql
+package igorm
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // ps: interface 全部传指针
 // 创建或者更新
-func CreateOrUpdate(ctx context.Context, dbName string, table string, data interface{}, id int32) (interface{}, error) {
-	orm := GetGormCtx(ctx, dbName)
+func CreateOrUpdate(orm *gorm.DB, table string, data map[string]interface{}, id int32) (interface{}, error) {
 	if id > 0 {
 		if orm.Table(table).Where("id= ?", id).Updates(data).RowsAffected == 0 {
 			return nil, fmt.Errorf("更新错误")
@@ -22,14 +20,14 @@ func CreateOrUpdate(ctx context.Context, dbName string, table string, data inter
 }
 
 // 查询分页数据
-func GetPageData(ctx context.Context, dbName string, table string, page int32, prepage int32, data interface{}, count *int32) {
-	orm := GetGormCtx(ctx, dbName)
+func GetPageData(orm *gorm.DB, table string, page int, prepage int, model interface{}, count int64) (interface{}, int64) {
 	offset := (page - 1) * prepage
-	orm.Table(table).Limit(prepage).Offset(offset).Find(data)
-	orm.Table(table).Count(count)
+	orm.Table(table).Limit(prepage).Offset(offset).Find(&model)
+	orm.Table(table).Count(&count)
+	return model, count
 }
 
-// 转化数据
+// 转化数据 dest => &dest
 func Convert(src interface{}, dest interface{}) {
 	temp, _ := json.Marshal(src)
 	json.Unmarshal(temp, dest)
