@@ -218,7 +218,7 @@ func (e Component) PutObjectWithSrc(dnComponent *idownload.Component, uri string
 	} else {
 		// 打印日志
 		if e.config.Debug {
-			log.Printf( "获取图片: %s, 代理：%s", uri, e.config.ProxySocks5)
+			log.Printf("获取图片: %s, 代理：%s", uri, e.config.ProxySocks5)
 		}
 		objectName = strings.Replace(objectName, "//", "/", -1)
 
@@ -228,9 +228,8 @@ func (e Component) PutObjectWithSrc(dnComponent *idownload.Component, uri string
 			}
 			return "", "", fmt.Errorf("上传失败：❌ %v, %s %s %s", err, bucket, objectName, uri)
 		} else {
-			uri = bucket + "/" + info.Key
-			log.Println(PackageName, "上传成功：✅", bucket, objectName, uri)
-			return uri, sha1, nil
+			log.Println(PackageName, "上传成功：✅", uri, bucket+"/"+info.Key)
+			return bucket + "/" + info.Key, sha1, nil
 		}
 	}
 }
