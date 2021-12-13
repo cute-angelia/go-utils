@@ -29,7 +29,7 @@ func InitGorm(opts GormOptions) {
 func GetGorm(dbname string) *gorm.DB {
 	v, ok := Gorm.Load(dbname)
 	if !ok {
-		log.Println("buntdb没有初始化:" + dbname)
+		log.Println("Umysql-DB没有初始化:" + dbname)
 		return nil
 	} else {
 		db := v.(*gorm.DB)
