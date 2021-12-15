@@ -20,11 +20,12 @@ func CreateOrUpdate(orm *gorm.DB, table string, data map[string]interface{}, id 
 }
 
 // 查询分页数据
-func GetPageData(orm *gorm.DB, table string, page int, prepage int, model interface{}, count int64) (interface{}, int64) {
+func GetPageData(orm *gorm.DB, tableName string, page int, prepage int, models interface{}) (interface{}, int64) {
+	count := int64(0)
 	offset := (page - 1) * prepage
-	orm.Table(table).Limit(prepage).Offset(offset).Find(&model)
-	orm.Table(table).Count(&count)
-	return model, count
+	orm.Table(tableName).Limit(prepage).Offset(offset).Find(&models)
+	orm.Table(tableName).Count(&count)
+	return models, count
 }
 
 // 转化数据 dest => &dest
