@@ -23,8 +23,8 @@ func CreateOrUpdate(orm *gorm.DB, table string, data map[string]interface{}, id 
 func GetPageData(orm *gorm.DB, tableName string, page int, prepage int, models interface{}) (interface{}, int64) {
 	count := int64(0)
 	offset := (page - 1) * prepage
-	orm.Table(tableName).Limit(prepage).Offset(offset).Find(&models)
 	orm.Table(tableName).Count(&count)
+	orm.Table(tableName).Limit(prepage).Offset(offset).Find(&models)
 	return models, count
 }
 

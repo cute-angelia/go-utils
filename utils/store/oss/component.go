@@ -3,12 +3,15 @@ package oss
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/cute-angelia/go-utils/syntax/ifile"
 	"github.com/cute-angelia/go-utils/utils/idownload"
 	"github.com/gotomicro/ego/core/elog"
 	"io"
 	"log"
+	"net/url"
+	"path"
 	"strings"
 	"time"
 )
@@ -38,19 +41,40 @@ func newComponent(compName string, config *config, logger *elog.Component) *Comp
 	}
 }
 
-// 获取简短路径
-func (e Component) GetPathByObjectName(objectName string) string {
-	return objectName
+// 从完整链接中，获取 objKey
+func (e Component) GetObjectKeyByUrl(uri string) string {
+	if up, err := url.Parse(uri); err != nil {
+		return uri
+	} else {
+		if path.IsAbs(up.Path) {
+			return up.Path[1:]
+		} else {
+			return up.Path
+		}
+	}
+}
+
+// 拼接完整路径
+func (e Component) JoinUrl(objectKey string) string {
+	return fmt.Sprintf("%s/%s", e.config.BucketHost, objectKey)
+}
+
+func (e Component) CleanObjKey(objectKey string) string {
+	if path.IsAbs(objectKey) {
+		return objectKey[1:]
+	} else {
+		return objectKey
+	}
 }
 
 // 上传文件
 func (e Component) PutObject(objectNameIn string, reader io.Reader) (string, error) {
-	return e.GetPathByObjectName(objectNameIn), e.Client.PutObject(objectNameIn, reader)
+	return e.CleanObjKey(objectNameIn), e.Client.PutObject(objectNameIn, reader)
 }
 
 // 按文件上传
 func (e Component) FPutObject(objectNameIn string, filePath string) (string, error) {
-	return e.GetPathByObjectName(objectNameIn), e.Client.PutObjectFromFile(objectNameIn, filePath)
+	return e.CleanObjKey(objectNameIn), e.Client.PutObjectFromFile(objectNameIn, filePath)
 }
 
 // 提供链接，上传, 返回key， filehash, error
