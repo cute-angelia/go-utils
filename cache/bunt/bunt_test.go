@@ -9,6 +9,21 @@ import (
 	"time"
 )
 
+func TestTimeout(t *testing.T) {
+	InitBuntCache("cache", "/tmp/test.db")
+	cacheKey := "testtimeout"
+	Set("cache", cacheKey, "Value is ------->", time.Second*10)
+	for {
+		data := Get("cache", cacheKey)
+		if len(data) == 0 {
+			break
+		} else {
+			log.Println(data)
+			time.Sleep(time.Second)
+		}
+	}
+}
+
 func TestLocker(t *testing.T) {
 
 	dbname := "cache_locker"
