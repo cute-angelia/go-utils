@@ -15,6 +15,7 @@ import (
 	"log"
 	"math/rand"
 	"net/url"
+	"path"
 	"strings"
 	"sync"
 	"time"
@@ -89,8 +90,10 @@ func (e *Component) GenerateHashKey(bucketType int32, bucket string, prefix stri
 	return hash.NewEncodeMD5(fmt.Sprintf("%d%s%s", bucketType, bucket, prefix))
 }
 
-// Objects 获取 分页
-func (e *Component) GetObjectsByPage(bucket string, prefix string, page int32, perpage int32) (objs []string, notall bool) {
+// minio 获取分页对象数据
+// 1.分页
+// 2.可以指定文件后缀获取
+func (e *Component) GetObjectsByPage(bucket string, prefix string, page int32, perpage int32, fileExt []string) (objs []string, notall bool) {
 	// 控制流程
 	count := int32(0)
 	offset := (page - 1) * perpage
@@ -104,12 +107,30 @@ func (e *Component) GetObjectsByPage(bucket string, prefix string, page int32, p
 	}
 	objectCh := e.Client.ListObjects(ctx, bucket, opt)
 
-	//maxSize := perpage * page
-	//for i := int32(0); i < maxSize; i++ {
-	//}
+	// 后缀扩展
+	extMap := sync.Map{}
+	for _, str := range fileExt {
+		extMap.Store(str, true)
+	}
 
 	for object := range objectCh {
 		if object.Err == nil {
+			// 名称
+			objkeyname := path.Base(object.Key)
+
+			// 内置删除文件
+			if objkeyname == ".DS_Store" {
+				e.Client.RemoveObject(context.Background(), bucket, object.Key, minio.RemoveObjectOptions{})
+				continue
+			}
+
+			// 处理指定后缀文件
+			if len(fileExt) > 0 {
+				if _, ok := extMap.Load(path.Ext(objkeyname)); !ok {
+					continue
+				}
+			}
+
 			// log.Printf("---->1 count:%d, offset:%d, perpage:%d, %v", count, offset, perpage, count >= offset)
 			// 小于当前游标
 			if count >= offset {
@@ -120,10 +141,8 @@ func (e *Component) GetObjectsByPage(bucket string, prefix string, page int32, p
 					cancel()
 					break
 				}
-				//if img_url, err := e.SignUrlWithCache(bucket, object.Key, time.Hour*24*6); err == nil {
 				objs = append(objs, bucket+"/"+object.Key)
 				count++
-				//}
 			} else {
 				count++
 			}
