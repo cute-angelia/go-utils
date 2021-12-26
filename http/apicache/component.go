@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/cute-angelia/go-utils/cache/bunt"
 	"github.com/gotomicro/ego/core/elog"
+	"log"
 	"net/http"
 	"strings"
 	"sync"
@@ -77,10 +78,11 @@ func (e *Component) GetCache() string {
 }
 
 // get cache and write
-func (e *Component) GetCacheAndWriter(w http.ResponseWriter, msg string) (string,error) {
+func (e *Component) GetCacheAndWriter(w http.ResponseWriter, msg string) (string, error) {
 	e.debug(e.getSelfCacheKey()+"get cache", "start get cache")
 	data := bunt.Get(e.config.DbName, e.getSelfCacheKey())
 	if len(data) > 6 {
+		log.Println(e.getSelfCacheKey() + "get cache -> got")
 		e.debug(e.getSelfCacheKey()+"get cache -> got", data)
 		e.resp(w, 0, msg, data)
 		return data, nil
