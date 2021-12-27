@@ -34,4 +34,19 @@ func TestName(t *testing.T) {
 
 	ext := path.Ext(iurl)
 	t.Log(ext)
+
+	t.Log(NewFileName(iurl).GetNameTimelineReverse(true))
+	t.Log(NewFileName(iurl).GetNameTimelineReverse(true))
+	t.Log(NewFileName(iurl).GetNameTimelineReverse(true))
+	t.Log(NewFileName(iurl).GetNameTimelineReverse(true))
+	t.Log(NewFileName(iurl).GetNameTimelineReverse(true))
+	t.Log(NewFileName(iurl).GetNameTimelineReverse(true))
+
+	t.Log("GetNameSnowFlow")
+	t.Log(NewFileName(iurl).GetNameSnowFlow())
+	t.Log(NewFileName(iurl).GetNameSnowFlow())
+	t.Log(NewFileName(iurl).GetNameSnowFlow())
+	t.Log(NewFileName(iurl).GetNameSnowFlow())
+	t.Log(NewFileName(iurl).GetNameSnowFlow())
+	t.Log(NewFileName(iurl).GetNameSnowFlow())
 }
