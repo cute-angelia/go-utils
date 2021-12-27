@@ -8,7 +8,11 @@ import (
 	"time"
 )
 
-var LogRequestAndData = false
+var LogRequestAndData = true
+
+func LogOn(on bool) {
+	LogRequestAndData = on
+}
 
 func Success(w http.ResponseWriter, r *http.Request, data interface{}, msg string) {
 	response := map[string]interface{}{
