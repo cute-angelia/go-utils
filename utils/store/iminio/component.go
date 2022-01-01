@@ -126,7 +126,7 @@ func (e *Component) GetObjectsByPage(bucket string, prefix string, page int32, p
 
 			// 处理指定后缀文件
 			if len(fileExt) > 0 {
-				if _, ok := extMap.Load(path.Ext(objkeyname)); !ok {
+				if _, ok := extMap.Load(strings.ToLower(path.Ext(objkeyname))); !ok {
 					continue
 				}
 			}
