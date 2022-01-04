@@ -1,6 +1,8 @@
 package istrings
 
-import "strings"
+import (
+	"strings"
+)
 
 // ld compares two strings and returns the levenshtein distance between them.
 func Ld(s, t string, ignoreCase bool) int {
