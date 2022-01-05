@@ -41,6 +41,11 @@ func newComponent(compName string, config *config, logger *elog.Component) *Comp
 	}
 }
 
+// GetClient
+func (e Component) GetClient() *oss.Bucket {
+	return e.Client
+}
+
 // 从完整链接中，获取 objKey
 func (e Component) GetObjectKeyByUrl(uri string) string {
 	if up, err := url.Parse(uri); err != nil {
