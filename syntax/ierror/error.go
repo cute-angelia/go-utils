@@ -1,22 +1,41 @@
 package ierror
 
-import (
-	"fmt"
-	"io"
-	"os"
-)
+import "fmt"
 
-// CheckErr prints the msg with the prefix 'Error:' and exits with error code 1. If the msg is nil, it does nothing.
-func CheckErr(msg interface{}) {
-	if msg != nil {
-		fmt.Fprintln(os.Stderr, "Error:", msg)
-		os.Exit(1)
+type Code int32 //错误码
+
+type Error struct {
+	Message string
+	Code    Code
+}
+
+// New returns an error object for the code, message.
+func New(code Code, message string) error {
+	return &Error{
+		Code:    code,
+		Message: message,
 	}
 }
 
-// WriteStringAndCheck writes a string into a buffer, and checks if the error is not nil.
-// buf := new(bytes.Buffer)
-func WriteStringAndCheck(b io.StringWriter, s string) {
-	_, err := b.WriteString(s)
-	CheckErr(err)
+func NewCode(code Code) error {
+	return &Error{
+		Code:    code,
+		Message: code.String(),
+	}
+}
+
+func (e *Error) Error() string {
+	return fmt.Sprintf("[%d]%s", e.Code, e.Message)
+}
+
+func (e *Error) Is(tgt error) bool {
+	target, ok := tgt.(*Error)
+	if !ok {
+		return false
+	}
+	if e == nil || tgt == nil {
+		return e == tgt
+	}
+
+	return e.Code == target.Code
 }
