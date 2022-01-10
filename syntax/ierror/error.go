@@ -25,7 +25,7 @@ func NewCode(code Code) error {
 }
 
 func (e *Error) Error() string {
-	return fmt.Sprintf("[%d]%s", e.Code, e.Message)
+	return fmt.Sprintf("%d - %s", e.Code, e.Message)
 }
 
 func (e *Error) Is(tgt error) bool {
