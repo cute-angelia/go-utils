@@ -2,20 +2,137 @@ package ifile
 
 import (
 	"fmt"
+	"github.com/cute-angelia/go-utils/syntax/ijson"
+	"github.com/cute-angelia/go-utils/utils/pool"
+	"io/fs"
+	"io/ioutil"
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"testing"
 )
 
+// go test -v -run TestDirFiles
 func TestDirFiles(t *testing.T) {
 	// rootPath := "/Users/vanilla/Downloads"
 	// t.Log(GetAllPaths(rootPath))
-
-	//
 	t.Log(Name("/Users/vanilla/Downloads/财务管理学/课件/财务管理学课件精讲四王天娇.pdf"))
 	t.Log(Name2("/Users/vanilla/Downloads/财务管理学/课件/财务管理学课件精讲四王天娇.pdf"))
+
+	rootPath := "/Users/vanilla/Downloads"
+
+	dirPaths, filePaths, err := GetPaths(rootPath)
+	log.Println(ijson.Pretty(dirPaths))
+	log.Println(ijson.Pretty(filePaths))
+	log.Println(err)
+
+}
+
+func TestSyncFiles(t *testing.T) {
+	dirPath := "/Users/vanilla/Downloads/MZZP"
+
+	// 读取文件和文件夹
+	// readCurrentDir(dirPath)
+	readWalkDir(dirPath)
+}
+
+//  读取当前文件夹
+var badDir []string
+
+func readCurrentDir(dirPath string) {
+	// 读取文件和文件夹
+	files, err := ioutil.ReadDir(dirPath)
+	if err != nil {
+		return
+	}
+	for _, file := range files {
+		// log.Println(badDir)
+		// log.Println("读取文件夹:--->", dirPath+"/"+file.Name())
+		if file.IsDir() {
+			next := true
+			for _, s := range badDir {
+				if strings.Contains(dirPath, s) {
+					//  发现忽略文件
+					next = false
+				}
+			}
+			if next {
+				readCurrentDir(dirPath + "/" + file.Name())
+				log.Println("读取:--->", dirPath+"/"+file.Name())
+				writeDir(dirPath + "/" + file.Name())
+			}
+		} else {
+			// log.Println("dif:",dirPath + "/" + file.Name())
+			if file.Name() == ".ignore" {
+				log.Println("发现忽略文件：当前文件夹", dirPath+"/")
+				badDir = append(badDir, dirPath)
+			}
+		}
+	}
+}
+
+func readWalkDir(dirPath string) {
+	ipool := pool.MustNewPoolAnts(30, false)
+	filepath.WalkDir(dirPath, func(path string, d fs.DirEntry, err error) error {
+		if !d.IsDir() {
+			return nil
+		}
+		files, _ := ioutil.ReadDir(path)
+		if len(files) > 0 {
+			// 是否全是文件夹
+			allIsDir := true
+			for _, file := range files {
+				// 文件包含 特殊 ignore
+				if strings.Contains(file.Name(), "ignore") {
+					badDir = append(badDir, path)
+					return nil
+				}
+				// log.Println(path + "/" + file.Name())
+
+				if !file.IsDir() {
+					allIsDir = false
+				}
+			}
+
+
+
+			// 简单判断最后一级
+			if !allIsDir {
+				findIgnore := false
+				for _, s := range badDir {
+					if strings.Contains(path, s) {
+						//  发现忽略文件
+						findIgnore = true
+					}
+				}
+				if !findIgnore {
+					// info, _ := d.Info()
+					ipool.SubmitTask(func() {
+						// this.insert(path, info)
+						log.Println("insert:----->", path)
+					})
+				}
+				// log.Println(d.Name(), ifile.ByteSize(uint64(info.Size())), info.ModTime().Format(itime.TIME_FORMAT))
+			}
+		}
+		return nil
+	})
+
+	ipool.RunningTask()
+	ipool.Stop()
+}
+
+func writeDir(dirPath string) {
+	next := true
+	for _, s := range badDir {
+		if strings.Contains(dirPath, s) {
+			//  发现忽略文件
+			next = false
+		}
+	}
+	log.Println("写", dirPath, next)
 }
 
 // go test -v -run TestMapList
@@ -33,7 +150,7 @@ func DoPutImage(basePath string, data map[string][]string, step int) {
 	baseStepCount := strings.Count(basePath, "/")
 	// 其他测试 处理 子集图片，保留一个子集
 	for key, val := range data {
-		log.Println("===>",key, len(val))
+		log.Println("===>", key, len(val))
 		if len(val) > 0 {
 			for _, v := range val {
 				// 保留多少级
@@ -69,7 +186,7 @@ func DoPutImage(basePath string, data map[string][]string, step int) {
 	}
 
 	// 清理空文件夹
-	dirs,_,_ := GetAllPaths(basePath)
+	dirs, _, _ := GetAllPaths(basePath)
 
 	for _, dir := range dirs {
 		if CheckIsEmptyDir(dir) {

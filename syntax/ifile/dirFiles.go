@@ -84,7 +84,7 @@ func GetFilelist(searchDir string) []string {
 
 // 遍历文件夹获取文件夹列表Map （不包括空文件夹）
 func GetFileMapList(searchDir string, data map[string][]string) map[string][]string {
-	log.SetFlags(log.Lshortfile)
+	// log.SetFlags(log.Lshortfile)
 	// log.Println("dir:",searchDir,path.Base(searchDir))
 	files, err := ioutil.ReadDir(searchDir)
 	if err != nil {
