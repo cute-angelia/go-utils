@@ -20,7 +20,7 @@ import (
 const PackageName = "component.download.file"
 
 var (
-	ErrorNotFound = errors.New("file not found")
+	ErrorNotFound = errors.New("404 file not found")
 )
 
 type FileInfo struct {
