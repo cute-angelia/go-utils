@@ -19,6 +19,10 @@ import (
 
 const PackageName = "component.download.file"
 
+var (
+	ErrorNotFound = errors.New("file not found")
+)
+
 type FileInfo struct {
 	Width     int
 	Height    int
@@ -68,7 +72,7 @@ func (c *Component) RequestFile(src string) ([]byte, string, error) {
 			c.BindBody(&body)
 			return nil
 		case 404: //http code为404时，服务端返回是html 字符串
-			return fmt.Errorf(src + " 404")
+			return ErrorNotFound
 		default:
 			return fmt.Errorf(src+" error: %d", c.Code)
 		}
@@ -113,22 +117,21 @@ func (c *Component) Download(imgurl string, saveName string) (FileInfo, error) {
 			}
 
 			// 图片大小
-			if f,err := ifile.OpenLocalFile(ifileDownload); err != nil {
+			if f, err := ifile.OpenLocalFile(ifileDownload); err != nil {
 				return fi, errors.New("文件获取失败" + ifileDownload)
 			} else {
 
+				defer f.Close()
+				if imgconfig, _, err := image.DecodeConfig(f); err == nil {
+					fi.Width = imgconfig.Width
+					fi.Height = imgconfig.Height
+				}
+				fi.Path = name
+				fi.SourceUrl = imgurl
+				fi.Sha1 = sha1
 
-			defer f.Close()
-			if imgconfig, _, err := image.DecodeConfig(f); err == nil {
-				fi.Width = imgconfig.Width
-				fi.Height = imgconfig.Height
-			}
-			fi.Path = name
-			fi.SourceUrl = imgurl
-			fi.Sha1 = sha1
-
-			log.Println("下载文件✅", imgurl, "成功:"+ifileDownload)
-			return fi, nil
+				log.Println("下载文件✅", imgurl, "成功:"+ifileDownload)
+				return fi, nil
 			}
 		}
 	}
