@@ -83,7 +83,9 @@ func (f fileName) GetNameTimeline() string {
 func (f fileName) GetNameTimelineReverse(withDate bool) string {
 	newName := f.CleanUrl()
 	ext := path.Ext(newName)
-
+	if len(f.ext) > 0 {
+		ext = f.ext
+	}
 	/* 自定义算法，未来时间相减
 	// 3021-01-01 01:01:01
 	etime := int64(3152944195300000000)
