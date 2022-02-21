@@ -2,6 +2,7 @@ package istrings
 
 import (
 	"strings"
+	"unsafe"
 )
 
 // ld compares two strings and returns the levenshtein distance between them.
@@ -59,4 +60,15 @@ func Cut(s, sep string) (before, after string, found bool) {
 		return s[:i], s[i+len(sep):], true
 	}
 	return s, "", false
+}
+
+// Clone
+// 1.18 已支持，这里兼容旧版 不方便升级的包
+func Clone(s string) string {
+	if len(s) == 0 {
+		return ""
+	}
+	b := make([]byte, len(s))
+	copy(b, s)
+	return *(*string)(unsafe.Pointer(&b))
 }
