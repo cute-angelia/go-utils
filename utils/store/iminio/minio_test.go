@@ -3,6 +3,7 @@ package iminio
 import (
 	"log"
 	"path"
+	"strings"
 	"testing"
 )
 
@@ -21,6 +22,28 @@ func TestMinioUpload(t *testing.T) {
 		"test.txt",
 		fileinput,
 		iminio.GetPutObjectOptionByExt(path.Ext(fileinput)),
+	); err != nil {
+		log.Println(err)
+	} else {
+		log.Println(info)
+	}
+}
+
+func TestMinioUploadBase64(t *testing.T) {
+	iminio := Load("").Build(
+		WithEndpoint(" "),
+		WithAccesskeyId(" "),
+		WithSecretaccessKey(" "),
+		WithUseSSL(false),
+	)
+	base64str := ``
+
+	b64data := base64str[strings.IndexByte(base64str, ',')+1:]
+	if info, err := iminio.PutObjectBase64(
+		"photo-station",
+		"upload/test.jpg",
+		b64data,
+		iminio.GetPutObjectOptionByExt(""),
 	); err != nil {
 		log.Println(err)
 	} else {

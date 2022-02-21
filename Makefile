@@ -10,8 +10,8 @@ up:
 tag:
 	git pull origin master
 	git add .
-	git commit -am "update"
+	git commit -am "增加 mino base64 图片上传"
 	git push origin master
-	git tag v1.6.88
+	git tag v1.6.89
 	git push --tags
 	@echo "\n tags 发布中..."

@@ -3,6 +3,7 @@ package iminio
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"github.com/cute-angelia/go-utils/cache/bunt"
@@ -180,7 +181,7 @@ func (e Component) CheckMode(objectName string) (newObjectName string, canupload
 	return
 }
 
-// 上传文件
+// 上传-按读取文件数据
 func (e Component) PutObject(bucket string, objectNameIn string, reader io.Reader, objectSize int64, objopt minio.PutObjectOptions) (minio.UploadInfo, error) {
 	if objectName, ok := e.CheckMode(objectNameIn); ok {
 		objectName = strings.Replace(objectName, "//", "/", -1)
@@ -198,7 +199,7 @@ func (e Component) PutObject(bucket string, objectNameIn string, reader io.Reade
 	}
 }
 
-// 按文件上传
+// 上传-按存在文件
 func (e Component) FPutObject(bucket string, objectNameIn string, filePath string, objopt minio.PutObjectOptions) (minio.UploadInfo, error) {
 	if objectName, ok := e.CheckMode(objectNameIn); ok {
 		uploadInfo, err := e.Client.FPutObject(context.Background(), bucket, objectName, filePath, objopt)
@@ -210,6 +211,29 @@ func (e Component) FPutObject(bucket string, objectNameIn string, filePath strin
 			log.Println("Successfully uploaded bytes: ", uploadInfo)
 		}
 		return uploadInfo, err
+	} else {
+		return minio.UploadInfo{}, fmt.Errorf("模式未设置 %s", objectNameIn)
+	}
+}
+
+// 上传-按 base64
+func (e Component) PutObjectBase64(bucket string, objectNameIn string, base64File string, objopt minio.PutObjectOptions) (minio.UploadInfo, error) {
+	if objectName, ok := e.CheckMode(objectNameIn); ok {
+		b64data := base64File[strings.IndexByte(base64File, ',')+1:]
+		if decode, err := base64.StdEncoding.DecodeString(b64data); err == nil {
+			body := bytes.NewReader(decode)
+			if uploadInfo, err := e.Client.PutObject(context.Background(), bucket, objectName, body, body.Size(), objopt); err == nil {
+				if e.config.Debug {
+					log.Println("Successfully uploaded bytes: ", uploadInfo)
+				}
+				return uploadInfo, err
+			} else {
+				log.Println(bucket, objectNameIn, err)
+				return uploadInfo, err
+			}
+		} else {
+			return minio.UploadInfo{}, err
+		}
 	} else {
 		return minio.UploadInfo{}, fmt.Errorf("模式未设置 %s", objectNameIn)
 	}
@@ -255,8 +279,7 @@ func (e Component) PutObjectWithSrc(dnComponent *idownload.Component, uri string
 
 // 删除文件
 func (e Component) DeleteObject(objectNameWithBucket string) error {
-	opts := minio.RemoveObjectOptions{
-	}
+	opts := minio.RemoveObjectOptions{}
 	bucket, objectName := e.GetBucketAndObjectName(objectNameWithBucket)
 
 	log.Println(PackageName, "删除对象1", objectNameWithBucket, bucket, objectName)
