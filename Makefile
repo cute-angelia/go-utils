@@ -10,8 +10,8 @@ up:
 tag:
 	git pull origin master
 	git add .
-	git commit -am "增加 slice remove element"
+	git commit -am "获得一个干净的不带参数的地址"
 	git push origin master
-	git tag v1.6.90
+	git tag v1.6.91
 	git push --tags
 	@echo "\n tags 发布中..."
