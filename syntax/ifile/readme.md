@@ -2,6 +2,8 @@
 
 ### 文件相关
 
+[写了 30 多个 Go 常用文件操作的示例，收藏这一篇就够了](https://mp.weixin.qq.com/s/dczWeHW6JWSJMJx1nBx7rA)
+
 - 读取-本地按行读取文件
 
 ```

@@ -10,8 +10,8 @@ up:
 tag:
 	git pull origin master
 	git add .
-	git commit -am "获得一个干净的不带参数的地址"
+	git commit -am "调整了文件操作的一些方法名"
 	git push origin master
-	git tag v1.6.91
+	git tag v1.6.92
 	git push --tags
 	@echo "\n tags 发布中..."
