@@ -26,3 +26,62 @@ func CleanUrlWithoutParm(uri string) string {
 		}
 	}
 }
+
+// RemoveParam 移除Query指定字段
+func RemoveParam(uri string, removes []string) (string, error) {
+	if u, err := url.Parse(uri); err != nil {
+		return uri, err
+	} else {
+		m, _ := url.ParseQuery(u.RawQuery)
+		// 移除
+		for k, _ := range m {
+			for _, v := range removes {
+				if k == v {
+					delete(m, k)
+				}
+			}
+		}
+		return fmt.Sprintf("%s://%s%s?%s", u.Scheme, u.Host, u.Path, m.Encode()), nil
+	}
+}
+
+/*
+Encode 文本编码
+one ->
+	url.QueryEscape(text)
+multi ->
+	params := url.Values{}
+	params.Add("q", "1 + 2")
+	params.Add("s", "example for GoLang.com")
+	output := params.Encode()
+*/
+func Encode(s string) string {
+	return url.QueryEscape(s)
+}
+
+// EncodeQuery Url Query 编码
+func EncodeQuery(uri string) string {
+	if strings.Contains(uri, "http") {
+		if l2, err := url.Parse(uri); err != nil {
+			return uri
+		} else {
+			return fmt.Sprintf("%s://%s%s?%s", l2.Scheme, l2.Host, l2.Path, l2.Query().Encode())
+		}
+	} else {
+		if l, err := url.ParseQuery(uri); err != nil {
+			return uri
+		} else {
+			return l.Encode()
+		}
+	}
+}
+
+// Decode 解码文本
+// 如果文本是URL，请用 url.Parse |  url.PathUnescape(path) | url.ParseQuery(queryStr)
+func Decode(s string) string {
+	if d, err := url.QueryUnescape(s); err != nil {
+		return s
+	} else {
+		return d
+	}
+}
