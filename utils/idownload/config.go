@@ -40,7 +40,7 @@ func DefaultConfig() *config {
 		UseRandomUserAgentMobile: false,
 		Referer:                  "",
 		DefaultExt:               "",
-		Timeout:                  time.Second * 6,
+		Timeout:                  time.Second * 60,
 		Debug:                    false,
 	}
 }

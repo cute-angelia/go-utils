@@ -8,6 +8,7 @@ import (
 	"github.com/gotomicro/ego/core/elog"
 	"github.com/guonaihong/gout"
 	"github.com/guonaihong/gout/dataflow"
+	"github.com/schollz/progressbar/v3"
 	"image"
 	"io"
 	"log"
@@ -49,9 +50,26 @@ func newComponent(compName string, config *config, logger *elog.Component) *Comp
 	}
 }
 
-// 请求文件
+// RequestFile 请求文件，返回 字节 & sha1 & error
 // return file body & file sha1 & error
 func (c *Component) RequestFile(src string) ([]byte, string, error) {
+	bar := progressbar.NewOptions(100,
+		progressbar.OptionEnableColorCodes(true),
+		progressbar.OptionShowBytes(true),
+		progressbar.OptionSetWidth(15),
+		progressbar.OptionSetDescription("Download "+src),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "[green]=[reset]",
+			SaucerHead:    "[green]>[reset]",
+			SaucerPadding: " ",
+			BarStart:      "[",
+			BarEnd:        "]",
+		}))
+	for i := 0; i < 100; i++ {
+		bar.Add(1)
+		time.Sleep(5 * time.Millisecond)
+	}
+
 	var body []byte
 	igout := gout.GET(src).SetTimeout(c.config.Timeout)
 
@@ -62,14 +80,21 @@ func (c *Component) RequestFile(src string) ([]byte, string, error) {
 		igout = igout.SetProxy(c.config.ProxyHttp)
 	}
 
+	// 用于解析 服务端 返回的http header
+	type RspHeader struct {
+		ContentLength int64 `header:"content-length"`
+	}
+	var head RspHeader
 	err := igout.SetHeader(gout.H{
 		"cookie":     c.config.Cookie,
 		"user-agent": c.config.UserAgent,
 		"referer":    c.config.Referer,
-	}).Callback(func(c *dataflow.Context) error {
+	}).BindHeader(&head).Callback(func(c *dataflow.Context) error {
+		// 进度条
 		switch c.Code {
 		case 200:
 			c.BindBody(&body)
+			bar.Finish()
 			return nil
 		case 404: //http code为404时，服务端返回是html 字符串
 			return ErrorNotFound
@@ -85,27 +110,19 @@ func (c *Component) RequestFile(src string) ([]byte, string, error) {
 	return body, ifile.FileHashSHA1(bytes.NewReader(body)), err
 }
 
-// 下载文件
-// saveName 为保存路径带后缀
-func (c *Component) Download(imgurl string, saveName string) (FileInfo, error) {
+// Download 下载文件
+// 参数
+//	uri 下载文件路径
+//	saveName 保存路径带后缀
+func (c *Component) Download(uri string, name string) (FileInfo, error) {
 	var fi FileInfo
 
-	name := saveName
-	//if len(saveName) > 0 {
-	//	name = saveName
-	//} else {
-	//	name = ifile.NewFileName(imgurl).SetPrefix(c.config.NamePrefix).GetNameTimeline()
-	//	if !c.config.Rename {
-	//		name = ifile.NewFileName(imgurl).SetPrefix(c.config.NamePrefix).GetNameOrigin()
-	//	}
-	//}
-
-	if body, sha1, err := c.RequestFile(imgurl); err != nil {
+	if body, sha1, err := c.RequestFile(uri); err != nil {
 		log.Println("error:", err)
 		return fi, err
 	} else {
 		if ifileDownload, err := c.saveFile(body, name); err != nil {
-			log.Println("下载文件❌", imgurl, err.Error())
+			log.Println("下载文件❌", uri, err.Error())
 			return fi, err
 		} else {
 			// 过滤图片
@@ -127,17 +144,85 @@ func (c *Component) Download(imgurl string, saveName string) (FileInfo, error) {
 					fi.Height = imgconfig.Height
 				}
 				fi.Path = name
-				fi.SourceUrl = imgurl
+				fi.SourceUrl = uri
 				fi.Sha1 = sha1
 
-				log.Println("下载文件✅", imgurl, "成功:"+ifileDownload)
+				log.Println("下载文件✅", uri, "成功:"+ifileDownload)
 				return fi, nil
 			}
 		}
 	}
 }
 
-// 删除图片
+// DownloadWithProgressbar 下载文件带进度条
+func (c *Component) DownloadWithProgressbar(uri string, name string) (FileInfo, error) {
+	// 设置字节
+	bar := progressbar.NewOptions(-1,
+		progressbar.OptionEnableColorCodes(true),
+		progressbar.OptionShowBytes(true),
+		progressbar.OptionSetWidth(10),
+		progressbar.OptionThrottle(65*time.Millisecond),
+		progressbar.OptionShowCount(),
+		progressbar.OptionOnCompletion(func() {
+			fmt.Printf("\n")
+		}),
+		progressbar.OptionSetDescription("Download "+uri),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "[green]=[reset]",
+			SaucerHead:    "[green]>[reset]",
+			SaucerPadding: " ",
+			BarStart:      "[",
+			BarEnd:        "]",
+		}))
+
+	var fi FileInfo
+	var body []byte
+	igout := gout.GET(uri).SetTimeout(c.config.Timeout)
+
+	if len(c.config.ProxySocks5) > 0 {
+		igout = igout.SetSOCKS5(c.config.ProxySocks5)
+	}
+	if len(c.config.ProxyHttp) > 0 {
+		igout = igout.SetProxy(c.config.ProxyHttp)
+	}
+
+	// 用于解析 服务端 返回的http header
+	type RspHeader struct {
+		ContentLength int `header:"content-length"`
+	}
+	var head RspHeader
+	err := igout.SetHeader(gout.H{
+		"cookie":     c.config.Cookie,
+		"user-agent": c.config.UserAgent,
+		"referer":    c.config.Referer,
+	}).BindHeader(&head).Callback(func(c *dataflow.Context) error {
+		// 进度条
+		switch c.Code {
+		case 200:
+			c.BindBody(&body)
+			return nil
+		case 404: //http code为404时，服务端返回是html 字符串
+			return ErrorNotFound
+		default:
+			return fmt.Errorf(uri+" error: %d", c.Code)
+		}
+	}).F().Retry().Attempt(5).WaitTime(time.Second * 3).MaxWaitTime(time.Second * 30).Do()
+
+	if err == nil {
+		// 设置字节
+		f, _ := os.OpenFile(name, os.O_CREATE|os.O_WRONLY, 0644)
+		defer f.Close()
+		io.Copy(io.MultiWriter(f, bar), bytes.NewReader(body))
+		bar.Finish()
+
+		fi.Path = name
+		fi.SourceUrl = uri
+	}
+
+	return fi, err
+}
+
+// RemoveFile 删除图片
 func (c *Component) RemoveFile(filepath string) error {
 	return os.Remove(filepath)
 }
@@ -210,8 +295,7 @@ func (c *Component) saveFile(body []byte, filenamewithext string) (string, error
 	}
 
 	// Create the file
-	ifile := fmt.Sprintf("%s%s", dir, filenamewithext)
-	out, err := os.Create(ifile)
+	out, err := os.Create(filenamewithext)
 	if err != nil {
 		return "", err
 	}
@@ -221,7 +305,7 @@ func (c *Component) saveFile(body []byte, filenamewithext string) (string, error
 	if _, err = io.Copy(out, r); err != nil {
 		return "", err
 	} else {
-		return ifile, err
+		return filenamewithext, err
 	}
 }
 

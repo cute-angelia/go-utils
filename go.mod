@@ -33,6 +33,7 @@ require (
 	github.com/robbert229/jwt v2.0.0+incompatible
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/satori/go.uuid v1.2.0 // indirect
+	github.com/schollz/progressbar/v3 v3.8.6
 	github.com/sirupsen/logrus v1.8.1
 	github.com/smacker/opentracing-gorm v0.0.0-20181207094635-cd4974441042
 	github.com/sony/sonyflake v1.0.0
@@ -40,11 +41,10 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/buntdb v1.2.6
 	github.com/xujiajun/nutsdb v0.6.0
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+	golang.org/x/crypto v0.0.0-20220131195533-30dcbda58838
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
-	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d
+	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
 	golang.org/x/oauth2 v0.0.0-20210810183815-faf39c7919d5
-	golang.org/x/sys v0.0.0-20210820121016-41cdb8703e55 // indirect
 	golang.org/x/text v0.3.7
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
