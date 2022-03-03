@@ -25,7 +25,7 @@ func TestDownloads(t *testing.T) {
 			Socket: "socks5://host-bwg-new.aaqq.in:8096",
 		},
 		datas{
-			Uri:    "https://best-ecology.oss-cn-hangzhou.aliyuncs.com/common/Clash.for.Windows-0.19.7-win.7z",
+			Uri:    "https://go.dev/dl/go1.17.7.src.tar.gz",
 			Socket: "",
 		},
 	)
@@ -36,10 +36,11 @@ func TestDownloads(t *testing.T) {
 		}
 
 		newName := ifile.NewFileName(datum.Uri).GetNameOrigin()
-		fileinfo, err := idown.DownloadWithProgressbar(datum.Uri, "/tmp/"+newName)
-
-		log.Println(ijson.Pretty(fileinfo))
-		log.Println(err)
+		if fileinfo, err := idown.Download(datum.Uri, "/tmp/"+newName); err == nil {
+			log.Println(ijson.Pretty(fileinfo))
+		} else {
+			log.Println("获取图片失败：❌", err)
+		}
 
 		//if filebyte, _, err := idown.RequestFile(datum.Uri); err != nil {
 		//	log.Println("获取图片失败：❌", err)
@@ -55,10 +56,10 @@ func TestDownloadHeader(t *testing.T) {
 		WithDebug(true),
 		WithUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"),
 	)
-	if filebyte, key, err := idown.RequestFile(fileuri); err != nil {
+	if filebyte, err := idown.DownloadToByte(fileuri, 5); err != nil {
 		log.Println("获取图片失败：❌", err)
 	} else {
-		log.Println(len(filebyte), key)
+		log.Println(len(filebyte))
 	}
 }
 
@@ -70,9 +71,9 @@ func TestDownload3(t *testing.T) {
 		WithReferer("https://www.v2ph.com/"),
 		WithUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"),
 	)
-	if filebyte, key, err := idown.RequestFile(fileuri); err != nil {
+	if filebyte, err := idown.DownloadToByte(fileuri, 5); err != nil {
 		log.Println("获取图片失败：❌", err)
 	} else {
-		log.Println("获取图片成功", len(filebyte), key)
+		log.Println("获取图片成功", len(filebyte))
 	}
 }

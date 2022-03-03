@@ -1,4 +1,4 @@
-package idownload
+package internal
 
 import (
 	"fmt"

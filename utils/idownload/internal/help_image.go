@@ -1,4 +1,4 @@
-package idownload
+package internal
 
 /*
 	图片帮助类

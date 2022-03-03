@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 )
 
+// Deprecated: hash.Hash(hash.AlgoMD5, "txt")
 func NewEncodeMD5(text string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(text))

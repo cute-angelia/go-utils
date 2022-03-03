@@ -10,8 +10,8 @@ up:
 tag:
 	git pull origin master
 	git add .
-	git commit -am "iurl 增加 Encode 方法"
+	git commit -am "优化下载，增加进度条和分片下载"
 	git push origin master
-	git tag v1.6.93
+	git tag v1.6.94
 	git push --tags
 	@echo "\n tags 发布中..."

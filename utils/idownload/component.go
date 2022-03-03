@@ -4,16 +4,17 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/cute-angelia/go-utils/syntax/ifile"
 	"github.com/gotomicro/ego/core/elog"
 	"github.com/guonaihong/gout"
 	"github.com/guonaihong/gout/dataflow"
+	"github.com/k0kubun/go-ansi"
 	"github.com/schollz/progressbar/v3"
-	"image"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"path"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -25,294 +26,322 @@ var (
 )
 
 type FileInfo struct {
-	Width     int
-	Height    int
 	SourceUrl string
 	Path      string
-	Sha1      string
 }
 
 type Component struct {
 	config *config
 	logger *elog.Component
-	locker sync.Mutex
+	// 进度条
+	bar *progressbar.ProgressBar
 }
 
 // newComponent ...
 func newComponent(compName string, config *config, logger *elog.Component) *Component {
-	if config.Debug {
-		log.Println(PackageName, "配置信息：", fmt.Sprintf("%+v", config))
-	}
+	//if config.Debug {
+	//	log.Println(PackageName, "配置信息：", fmt.Sprintf("%+v", config))
+	//}
+	comp := &Component{}
+	comp.config = config
+	comp.logger = logger
 
-	return &Component{
-		config: config,
-		logger: logger,
-	}
+	return comp
 }
 
-// RequestFile 请求文件，返回 字节 & sha1 & error
-// return file body & file sha1 & error
-func (c *Component) RequestFile(src string) ([]byte, string, error) {
-	bar := progressbar.NewOptions(100,
-		progressbar.OptionEnableColorCodes(true),
-		progressbar.OptionShowBytes(true),
-		progressbar.OptionSetWidth(15),
-		progressbar.OptionSetDescription("Download "+src),
-		progressbar.OptionSetTheme(progressbar.Theme{
-			Saucer:        "[green]=[reset]",
-			SaucerHead:    "[green]>[reset]",
-			SaucerPadding: " ",
-			BarStart:      "[",
-			BarEnd:        "]",
-		}))
-	for i := 0; i < 100; i++ {
-		bar.Add(1)
-		time.Sleep(5 * time.Millisecond)
+// getGoHttpClient 业务定制头部
+func (d *Component) getGoHttpClient(uri string, method string) *dataflow.DataFlow {
+	var igout *dataflow.DataFlow
+	switch method {
+	case "GET":
+		igout = gout.GET(uri)
+	case "POST":
+		igout = gout.POST(uri)
+	case "PUT":
+		igout = gout.PUT(uri)
+	case "DELETE":
+		igout = gout.DELETE(uri)
+	case "HEAD":
+		igout = gout.HEAD(uri)
+	case "OPTIONS":
+		igout = gout.OPTIONS(uri)
+	default:
+		igout = gout.GET(uri)
 	}
+	// 设置过期时间
+	if d.config.Timeout > 0 {
+		igout = igout.SetTimeout(d.config.Timeout)
+	}
+	if len(d.config.ProxySocks5) > 0 {
+		igout = igout.SetSOCKS5(d.config.ProxySocks5)
+	}
+	if len(d.config.ProxyHttp) > 0 {
+		igout = igout.SetProxy(d.config.ProxyHttp)
+	}
+	return igout.SetHeader(gout.H{
+		"Cookie":        d.config.Cookie,
+		"User-Agent":    d.config.UserAgent,
+		"Referer":       d.config.Referer,
+		"Authorization": "Bearer " + d.config.Authorization,
+	})
+}
 
+// Download 下载文件
+func (d *Component) Download(strURL, filename string) (FileInfo, error) {
+	if filename == "" {
+		filename = path.Base(strURL)
+	}
+	header := http.Header{}
+	var statusCode int
+	if err := d.getGoHttpClient(strURL, "HEAD").BindHeader(&header).Code(&statusCode).Do(); err == nil {
+		if statusCode == http.StatusOK && header.Get("Accept-Ranges") == "bytes" {
+			contentLength, _ := strconv.Atoi(header.Get("Content-Length"))
+			return d.multiDownload(strURL, filename, contentLength)
+		}
+	}
+	return d.singleDownload(strURL, filename)
+}
+
+// DownloadToByte 请求文件，返回 字节
+func (d *Component) DownloadToByte(src string, retry int) ([]byte, error) {
 	var body []byte
-	igout := gout.GET(src).SetTimeout(c.config.Timeout)
-
-	if len(c.config.ProxySocks5) > 0 {
-		igout = igout.SetSOCKS5(c.config.ProxySocks5)
-	}
-	if len(c.config.ProxyHttp) > 0 {
-		igout = igout.SetProxy(c.config.ProxyHttp)
-	}
-
-	// 用于解析 服务端 返回的http header
-	type RspHeader struct {
-		ContentLength int64 `header:"content-length"`
-	}
-	var head RspHeader
-	err := igout.SetHeader(gout.H{
-		"cookie":     c.config.Cookie,
-		"user-agent": c.config.UserAgent,
-		"referer":    c.config.Referer,
-	}).BindHeader(&head).Callback(func(c *dataflow.Context) error {
+	err := d.getGoHttpClient(src, "GET").Callback(func(c *dataflow.Context) error {
 		// 进度条
 		switch c.Code {
 		case 200:
 			c.BindBody(&body)
-			bar.Finish()
 			return nil
 		case 404: //http code为404时，服务端返回是html 字符串
 			return ErrorNotFound
 		default:
 			return fmt.Errorf(src+" error: %d", c.Code)
 		}
-	}).F().Retry().Attempt(5).WaitTime(time.Second * 3).MaxWaitTime(time.Second * 30).Do()
+	}).F().Retry().Attempt(retry).WaitTime(time.Second * 3).MaxWaitTime(time.Second * 60).Do()
 
 	if err != nil {
-		log.Println(PackageName, "request file error -> ", src, err)
+		log.Println(PackageName, "DownloadToByte error -> ", src, err)
 	}
-
-	return body, ifile.FileHashSHA1(bytes.NewReader(body)), err
+	return body, err
 }
 
-// Download 下载文件
-// 参数
-//	uri 下载文件路径
-//	saveName 保存路径带后缀
-func (c *Component) Download(uri string, name string) (FileInfo, error) {
+// DownloadRetry 重试下载文件
+func (d *Component) DownloadRetry(strURL, filename string, retry int) (FileInfo, error) {
 	var fi FileInfo
+	if body, err := d.DownloadToByte(strURL, retry); err == nil {
+		// 设置字节
+		f, _ := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, 0644)
+		defer f.Close()
+		io.Copy(f, bytes.NewReader(body))
 
-	if body, sha1, err := c.RequestFile(uri); err != nil {
-		log.Println("error:", err)
+		fi.Path = filename
+		fi.SourceUrl = strURL
 		return fi, err
 	} else {
-		if ifileDownload, err := c.saveFile(body, name); err != nil {
-			log.Println("下载文件❌", uri, err.Error())
-			return fi, err
-		} else {
-			// 过滤图片
-			if c.config.Width > 0 || c.config.Height > 0 {
-				// 限制图片大小
-				if errlimit := c.limitWidthHeightUseIsNot(ifileDownload); errlimit != nil {
-					return fi, errlimit
-				}
-			}
-
-			// 图片大小
-			if f, err := ifile.OpenLocalFile(ifileDownload); err != nil {
-				return fi, errors.New("文件获取失败" + ifileDownload)
-			} else {
-
-				defer f.Close()
-				if imgconfig, _, err := image.DecodeConfig(f); err == nil {
-					fi.Width = imgconfig.Width
-					fi.Height = imgconfig.Height
-				}
-				fi.Path = name
-				fi.SourceUrl = uri
-				fi.Sha1 = sha1
-
-				log.Println("下载文件✅", uri, "成功:"+ifileDownload)
-				return fi, nil
-			}
-		}
+		return fi, err
 	}
 }
 
-// DownloadWithProgressbar 下载文件带进度条
-func (c *Component) DownloadWithProgressbar(uri string, name string) (FileInfo, error) {
-	// 设置字节
-	bar := progressbar.NewOptions(-1,
+// RemoveFile 删除图片
+func (d *Component) RemoveFile(filepath string) error {
+	return os.Remove(filepath)
+}
+
+// multiDownload 并发下载
+func (d *Component) multiDownload(strURL, filename string, contentLen int) (FileInfo, error) {
+	var info FileInfo
+
+	d.getBar(contentLen, strURL)
+
+	partSize := contentLen / d.config.Concurrency
+
+	// 创建部分文件的存放目录
+	partDir := d.getPartDir(filename)
+	os.Mkdir(partDir, 0777)
+	defer os.RemoveAll(partDir)
+
+	var wg sync.WaitGroup
+	wg.Add(d.config.Concurrency)
+
+	rangeStart := 0
+
+	for i := 0; i < d.config.Concurrency; i++ {
+		go func(i, rangeStart int) {
+			defer wg.Done()
+
+			rangeEnd := rangeStart + partSize
+			// 最后一部分，总长度不能超过 ContentLength
+			if i == d.config.Concurrency-1 {
+				rangeEnd = contentLen
+			}
+
+			downloaded := 0
+			if d.config.Resume {
+				partFileName := d.getPartFilename(filename, i)
+				content, err := os.ReadFile(partFileName)
+				if err == nil {
+					downloaded = len(content)
+				}
+				d.bar.Add(downloaded)
+			}
+
+			d.downloadPartial(strURL, filename, rangeStart+downloaded, rangeEnd, i)
+
+		}(i, rangeStart)
+
+		rangeStart += partSize + 1
+	}
+
+	wg.Wait()
+
+	if err := d.merge(filename); err == nil {
+		info.SourceUrl = strURL
+		info.Path = filename
+		return info, nil
+	} else {
+		log.Println("合并文件发生错误，", filename, err)
+		return info, err
+	}
+}
+
+//  singleDownload 直接下载
+func (d *Component) singleDownload(strURL, filename string) (FileInfo, error) {
+	var info FileInfo
+
+	// 需要进度条，更要复用 http.client 这里就不使用原生的 http
+	// resp, err := http.Get(strURL)
+	// Transport: &http.Transport{
+	//	MaxIdleConnsPerHost: 10000,
+	// },
+	iClient := d.getGoHttpClient(strURL, "GET").Client()
+	req, err := http.NewRequest("GET", strURL, nil)
+	if err != nil {
+		return info, err
+	}
+	resp, err := iClient.Do(req)
+	if err != nil {
+		return info, err
+	}
+	defer resp.Body.Close()
+
+	// 进度条
+	d.getBar(int(resp.ContentLength), strURL)
+
+	f, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		return info, err
+	}
+	defer f.Close()
+
+	buf := make([]byte, 32*1024)
+	_, err = io.CopyBuffer(io.MultiWriter(f, d.bar), resp.Body, buf)
+
+	info.SourceUrl = strURL
+	info.Path = filename
+
+	return info, err
+}
+
+// getBar 设置进度条
+func (d *Component) getBar(length int, name string) {
+	d.bar = progressbar.NewOptions(
+		length,
+		progressbar.OptionSetWriter(ansi.NewAnsiStdout()),
 		progressbar.OptionEnableColorCodes(true),
 		progressbar.OptionShowBytes(true),
-		progressbar.OptionSetWidth(10),
-		progressbar.OptionThrottle(65*time.Millisecond),
+		progressbar.OptionSetWidth(50),
 		progressbar.OptionShowCount(),
 		progressbar.OptionOnCompletion(func() {
-			fmt.Printf("\n")
+			fmt.Print("\n")
 		}),
-		progressbar.OptionSetDescription("Download "+uri),
+		progressbar.OptionSetPredictTime(true),
+		progressbar.OptionSetDescription("downloading "+name),
 		progressbar.OptionSetTheme(progressbar.Theme{
 			Saucer:        "[green]=[reset]",
 			SaucerHead:    "[green]>[reset]",
 			SaucerPadding: " ",
 			BarStart:      "[",
 			BarEnd:        "]",
-		}))
-
-	var fi FileInfo
-	var body []byte
-	igout := gout.GET(uri).SetTimeout(c.config.Timeout)
-
-	if len(c.config.ProxySocks5) > 0 {
-		igout = igout.SetSOCKS5(c.config.ProxySocks5)
-	}
-	if len(c.config.ProxyHttp) > 0 {
-		igout = igout.SetProxy(c.config.ProxyHttp)
-	}
-
-	// 用于解析 服务端 返回的http header
-	type RspHeader struct {
-		ContentLength int `header:"content-length"`
-	}
-	var head RspHeader
-	err := igout.SetHeader(gout.H{
-		"cookie":     c.config.Cookie,
-		"user-agent": c.config.UserAgent,
-		"referer":    c.config.Referer,
-	}).BindHeader(&head).Callback(func(c *dataflow.Context) error {
-		// 进度条
-		switch c.Code {
-		case 200:
-			c.BindBody(&body)
-			return nil
-		case 404: //http code为404时，服务端返回是html 字符串
-			return ErrorNotFound
-		default:
-			return fmt.Errorf(uri+" error: %d", c.Code)
-		}
-	}).F().Retry().Attempt(5).WaitTime(time.Second * 3).MaxWaitTime(time.Second * 30).Do()
-
-	if err == nil {
-		// 设置字节
-		f, _ := os.OpenFile(name, os.O_CREATE|os.O_WRONLY, 0644)
-		defer f.Close()
-		io.Copy(io.MultiWriter(f, bar), bytes.NewReader(body))
-		bar.Finish()
-
-		fi.Path = name
-		fi.SourceUrl = uri
-	}
-
-	return fi, err
+		}),
+	)
 }
 
-// RemoveFile 删除图片
-func (c *Component) RemoveFile(filepath string) error {
-	return os.Remove(filepath)
-}
-
-// 限制图片大小
-func (c *Component) limitWidthHeightUseIsNot(localFile string) error {
-	if f, err := ifile.OpenLocalFile(localFile); err != nil {
-		return err
-	} else {
-		defer f.Close()
-		if i, _, err := image.DecodeConfig(f); err != nil {
-			c.print("限制图片大小", fmt.Sprintf("图片不存在 %s", localFile), "error")
-			return err
-		} else {
-			if c.config.Width > 0 {
-				if i.Width < c.config.Width {
-					os.Remove(localFile)
-					return fmt.Errorf(fmt.Sprintf("限制图片大小:小于规定宽度:%d，移除图片", c.config.Width))
-				}
-			}
-			if c.config.Height > 0 {
-				if i.Height < c.config.Height {
-					os.Remove(localFile)
-					return fmt.Errorf(fmt.Sprintf("限制图片大小:小于规定高度:%d，移除图片", c.config.Height))
-				}
-			}
-		}
-
-		return nil
-	}
-}
-
-// 保存文件
-func (c *Component) saveFile(body []byte, filenamewithext string) (string, error) {
-	dir := ""
-
-	// 空目标文件
-	if len(c.config.Dest) == 0 {
-		dir = path.Dir(filenamewithext) + "/"
-	} else {
-		if !path.IsAbs(filenamewithext) {
-			dir = c.config.Dest + "/" + path.Dir(filenamewithext) + "/"
-		} else {
-			dir = c.config.Dest + path.Dir(filenamewithext) + "/"
-		}
+// 下载分片
+func (d *Component) downloadPartial(strURL, filename string, rangeStart, rangeEnd, i int) {
+	if rangeStart >= rangeEnd {
+		return
 	}
 
-	// 清理
-	dir = path.Clean(dir)
-	if dir == "." {
-		dir = dir + "/"
-	}
+	iClient := d.getGoHttpClient(strURL, "GET").Client()
 
-	if _, err := os.Stat(dir); err != nil {
-		if os.IsNotExist(err) {
-			//dir
-			// saveDir := path.Dir(dir)
-			err := os.MkdirAll(dir, os.ModePerm)
-			if err != nil {
-				panic(err)
-			}
-		}
-	}
-
-	r := bytes.NewReader(body)
-
-	// 有些文件没有扩展名称
-	if len(c.config.DefaultExt) > 0 {
-		filenamewithext = fmt.Sprintf("%s%s", filenamewithext, c.config.DefaultExt)
-	}
-
-	// Create the file
-	out, err := os.Create(filenamewithext)
+	req, err := http.NewRequest("GET", strURL, nil)
 	if err != nil {
-		return "", err
+		log.Fatal(err)
 	}
-	defer out.Close()
 
-	// Write the body to file
-	if _, err = io.Copy(out, r); err != nil {
-		return "", err
-	} else {
-		return filenamewithext, err
+	req.Header.Set("Range", fmt.Sprintf("bytes=%d-%d", rangeStart, rangeEnd))
+	resp, err := iClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	flags := os.O_CREATE | os.O_WRONLY
+	if d.config.Resume {
+		flags |= os.O_APPEND
+	}
+
+	partFile, err := os.OpenFile(d.getPartFilename(filename, i), flags, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer partFile.Close()
+
+	buf := make([]byte, 32*1024)
+	_, err = io.CopyBuffer(io.MultiWriter(partFile, d.bar), resp.Body, buf)
+	if err != nil {
+		if err == io.EOF {
+			return
+		}
+		log.Fatal(err)
 	}
 }
 
-func (c *Component) print(topic string, msg string, errtype string) {
+func (d *Component) merge(filename string) error {
+	destFile, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		return err
+	}
+	defer destFile.Close()
+
+	for i := 0; i < d.config.Concurrency; i++ {
+		partFileName := d.getPartFilename(filename, i)
+		partFile, err := os.Open(partFileName)
+		if err != nil {
+			return err
+		}
+		io.Copy(destFile, partFile)
+		partFile.Close()
+		os.Remove(partFileName)
+	}
+
+	return nil
+}
+
+// getPartDir 部分文件存放的目录
+func (d *Component) getPartDir(filename string) string {
+	return path.Dir(filename)
+}
+
+// getPartFilename 构造部分文件的名字
+func (d *Component) getPartFilename(filename string, partNum int) string {
+	partDir := d.getPartDir(filename)
+	return fmt.Sprintf("%s/%s-%d", partDir, path.Base(filename), partNum)
+}
+
+func (d *Component) print(topic string, msg string, errtype string) {
 	if errtype == "error" {
-		c.logger.With(elog.FieldName(topic)).Error(msg)
+		d.logger.With(elog.FieldName(topic)).Error(msg)
 	} else {
-		c.logger.With(elog.FieldName(topic)).Info(msg)
+		d.logger.With(elog.FieldName(topic)).Info(msg)
 	}
 }

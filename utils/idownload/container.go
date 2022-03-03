@@ -1,6 +1,7 @@
 package idownload
 
 import (
+	"github.com/cute-angelia/go-utils/utils/idownload/internal"
 	"github.com/gotomicro/ego/core/econf"
 	"github.com/gotomicro/ego/core/elog"
 	"strings"
@@ -35,62 +36,14 @@ func Load(key string) *Container {
 	return c
 }
 
-// Width  int // 图片-最小宽度
-func WithWidth(Width int) Option {
-	return func(c *Container) {
-		c.config.Width = Width
-	}
-}
-
-//Height int // 图片-最小高度
-func WithHeight(Height int) Option {
-	return func(c *Container) {
-		c.config.Height = Height
-	}
-}
-
-//Rename     bool   // 文件-是否重命名
-func WithRename(Rename bool) Option {
-	return func(c *Container) {
-		c.config.Rename = Rename
-	}
-}
-
-// Dest       string // 文件-下载路径
-func WithDest(dest string) Option {
-	return func(c *Container) {
-		c.config.Dest = dest
-	}
-}
-
-func WithDestAppend(dest string) Option {
-	return func(c *Container) {
-		c.config.Dest = c.config.Dest + "/" + dest
-	}
-}
-
-// NamePrefix string // 文件-命名前缀
-func WithNamePrefix(NamePrefix string) Option {
-	return func(c *Container) {
-		c.config.NamePrefix = NamePrefix
-	}
-}
-
-//DefaultExt string // 文件-后缀属性，有些文件没有后缀
-func WithDefaultExt(DefaultExt string) Option {
-	return func(c *Container) {
-		c.config.DefaultExt = DefaultExt
-	}
-}
-
-//ProxyHttp   string // 代理 http://ip:port
+// WithProxyHttp   string // 代理 http://ip:port
 func WithProxyHttp(ProxyHttp string) Option {
 	return func(c *Container) {
 		c.config.ProxyHttp = ProxyHttp
 	}
 }
 
-//ProxySocks5 string // 代理 ip:port
+// WithProxySocks5 string // 代理 ip:port
 func WithProxySocks5(ProxySocks5 string) Option {
 	ProxySocks5 = strings.Replace(ProxySocks5, "socks5://", "", -1)
 
@@ -99,14 +52,14 @@ func WithProxySocks5(ProxySocks5 string) Option {
 	}
 }
 
-//Cookie      string // cookie
+// WithCookie  string // cookie
 func WithCookie(Cookie string) Option {
 	return func(c *Container) {
 		c.config.Cookie = Cookie
 	}
 }
 
-//UserAgent   string // user-agent
+// WithUserAgent user-agent
 func WithUserAgent(UserAgent string) Option {
 	return func(c *Container) {
 		c.config.UserAgent = UserAgent
@@ -131,17 +84,33 @@ func WithReferer(Referer string) Option {
 	}
 }
 
-// timeout
 func WithTimeout(timeout time.Duration) Option {
 	return func(c *Container) {
 		c.config.Timeout = timeout
 	}
 }
 
-// debug
 func WithDebug(Debug bool) Option {
 	return func(c *Container) {
 		c.config.Debug = Debug
+	}
+}
+
+func WithResume(resume bool) Option {
+	return func(c *Container) {
+		c.config.Resume = resume
+	}
+}
+
+func WithAuthorization(authorization string) Option {
+	return func(c *Container) {
+		c.config.Authorization = authorization
+	}
+}
+
+func WithConcurrency(concurrency int) Option {
+	return func(c *Container) {
+		c.config.Concurrency = concurrency
 	}
 }
 
@@ -152,10 +121,10 @@ func (c *Container) Build(options ...Option) *Component {
 	}
 
 	if c.config.UseRandomUserAgent {
-		c.config.UserAgent = RandomUserAgent()
+		c.config.UserAgent = internal.RandomUserAgent()
 	}
 	if c.config.UseRandomUserAgentMobile {
-		c.config.UserAgent = RandomMobileUserAgent()
+		c.config.UserAgent = internal.RandomMobileUserAgent()
 	}
 
 	return newComponent(c.name, c.config, c.logger)

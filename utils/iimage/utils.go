@@ -1,6 +1,8 @@
 package iimage
 
 import (
+	"fmt"
+	"github.com/cute-angelia/go-utils/syntax/ifile"
 	"image"
 	"image/color"
 	"os"
@@ -39,4 +41,31 @@ func DecodePixelsFromImage(img image.Image, offsetX, offsetY int) []*Pixel {
 		}
 	}
 	return pixels
+}
+
+// LimitWidthHeightUseIsNot 限制图片大小
+func LimitWidthHeightUseIsNot(localFile string, width, height int) error {
+	if f, err := ifile.OpenLocalFile(localFile); err != nil {
+		return err
+	} else {
+		defer f.Close()
+		if i, _, err := image.DecodeConfig(f); err != nil {
+			return err
+		} else {
+			if width > 0 {
+				if i.Width < width {
+					os.Remove(localFile)
+					return fmt.Errorf(fmt.Sprintf("限制图片大小:小于规定宽度:%d", width))
+				}
+			}
+			if height > 0 {
+				if i.Height < height {
+					os.Remove(localFile)
+					return fmt.Errorf(fmt.Sprintf("限制图片大小:小于规定高度:%d", height))
+				}
+			}
+		}
+
+		return nil
+	}
 }

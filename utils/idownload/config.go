@@ -1,17 +1,12 @@
 package idownload
 
-import "time"
+import (
+	"runtime"
+	"time"
+)
 
 // config options
 type config struct {
-	Width  int // 图片-最小宽度
-	Height int // 图片-最小高度
-
-	Rename     bool   // 文件-是否重命名
-	Dest       string // 文件-下载路径
-	NamePrefix string // 文件-命名前缀
-	DefaultExt string // 文件-后缀属性，有些文件没有后缀
-
 	ProxyHttp                string // 代理 http://ip:port
 	ProxySocks5              string // 代理 ip:port
 	Cookie                   string // cookie
@@ -19,6 +14,12 @@ type config struct {
 	UserAgent                string // user-agent
 	UseRandomUserAgent       bool
 	UseRandomUserAgentMobile bool
+	Authorization            string
+
+	// 并发数量
+	Concurrency int
+	// 分片下载
+	Resume bool
 
 	Timeout time.Duration // 超时时间
 	Debug   bool          //  debug 日志
@@ -26,12 +27,10 @@ type config struct {
 
 // DefaultConfig 返回默认配置
 func DefaultConfig() *config {
+	concurrency := runtime.NumCPU()
 	return &config{
-		Dest:                     "",
-		Width:                    0,
-		Height:                   0,
-		Rename:                   false,
-		NamePrefix:               "",
+		Concurrency:              concurrency,
+		Resume:                   true,
 		ProxyHttp:                "",
 		ProxySocks5:              "",
 		Cookie:                   "",
@@ -39,8 +38,7 @@ func DefaultConfig() *config {
 		UseRandomUserAgent:       false,
 		UseRandomUserAgentMobile: false,
 		Referer:                  "",
-		DefaultExt:               "",
-		Timeout:                  time.Second * 60,
 		Debug:                    false,
+		Authorization:            "",
 	}
 }
