@@ -1,7 +1,6 @@
 package idownload
 
 import (
-	"bufio"
 	"bytes"
 	"errors"
 	"fmt"
@@ -145,7 +144,9 @@ func (d *Component) DownloadToByte(strURL string) ([]byte, error) {
 	d.getBar(int(resp.ContentLength), strURL)
 
 	bufcache := make([]byte, 32*1024)
-	io.CopyBuffer(io.MultiWriter(bufio.NewWriter(&buf), d.bar), resp.Body, bufcache)
+	// You don't need use "bufio.NewWriter(&b)" to create an io.Writer. &b is an io.Writer itself.
+	// bufio.NewWriter(&buf)
+	io.CopyBuffer(io.MultiWriter(&buf, d.bar), resp.Body, bufcache)
 	return buf.Bytes(), nil
 }
 
