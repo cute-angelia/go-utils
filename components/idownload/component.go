@@ -1,6 +1,7 @@
 package idownload
 
 import (
+	"bufio"
 	"bytes"
 	"errors"
 	"fmt"
@@ -105,8 +106,8 @@ func (d *Component) Download(strURL, filename string) (FileInfo, error) {
 	return d.singleDownload(strURL, filename)
 }
 
-// DownloadToByte 请求文件，返回 字节
-func (d *Component) DownloadToByte(src string, retry int) ([]byte, error) {
+// DownloadToByteRetry 请求文件，返回 字节
+func (d *Component) DownloadToByteRetry(src string, retry int) ([]byte, error) {
 	var body []byte
 	err := d.getGoHttpClient(src, "GET").Callback(func(c *dataflow.Context) error {
 		// 进度条
@@ -127,21 +128,25 @@ func (d *Component) DownloadToByte(src string, retry int) ([]byte, error) {
 	return body, err
 }
 
-// DownloadRetry 重试下载文件
-func (d *Component) DownloadRetry(strURL, filename string, retry int) (FileInfo, error) {
-	var fi FileInfo
-	if body, err := d.DownloadToByte(strURL, retry); err == nil {
-		// 设置字节
-		f, _ := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, 0644)
-		defer f.Close()
-		io.Copy(f, bytes.NewReader(body))
-
-		fi.Path = filename
-		fi.SourceUrl = strURL
-		return fi, err
-	} else {
-		return fi, err
+// DownloadToByte 请求文件，返回 字节
+func (d *Component) DownloadToByte(strURL string) ([]byte, error) {
+	var buf bytes.Buffer
+	iClient := d.getGoHttpClient(strURL, "GET").Client()
+	req, err := http.NewRequest("GET", strURL, nil)
+	if err != nil {
+		return nil, err
 	}
+	resp, err := iClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	// 进度条
+	d.getBar(int(resp.ContentLength), strURL)
+
+	bufcache := make([]byte, 32*1024)
+	io.CopyBuffer(io.MultiWriter(bufio.NewWriter(&buf), d.bar), resp.Body, bufcache)
+	return buf.Bytes(), nil
 }
 
 // RemoveFile 删除图片

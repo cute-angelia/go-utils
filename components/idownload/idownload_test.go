@@ -1,8 +1,6 @@
 package idownload
 
 import (
-	"github.com/cute-angelia/go-utils/syntax/ifile"
-	"github.com/cute-angelia/go-utils/syntax/ijson"
 	"log"
 	"testing"
 )
@@ -35,18 +33,19 @@ func TestDownloads(t *testing.T) {
 			idown = Load("").Build(WithDebug(true), WithProxySocks5(datum.Socket))
 		}
 
-		newName := ifile.NewFileName(datum.Uri).GetNameOrigin()
-		if fileinfo, err := idown.Download(datum.Uri, "/tmp/"+newName); err == nil {
-			log.Println(ijson.Pretty(fileinfo))
-		} else {
-			log.Println("获取图片失败：❌", err)
-		}
-
-		//if filebyte, _, err := idown.RequestFile(datum.Uri); err != nil {
-		//	log.Println("获取图片失败：❌", err)
+		// 下载文件
+		//newName := ifile.NewFileName(datum.Uri).GetNameOrigin()
+		//if fileinfo, err := idown.Download(datum.Uri, "/tmp/"+newName); err == nil {
+		//	log.Println(ijson.Pretty(fileinfo))
 		//} else {
-		//	log.Println(len(filebyte))
+		//	log.Println("获取图片失败：❌", err)
 		//}
+
+		if filebyte, err := idown.DownloadToByte2(datum.Uri); err != nil {
+			log.Println("获取图片失败：❌", err)
+		} else {
+			log.Println(len(filebyte))
+		}
 	}
 }
 
@@ -56,7 +55,7 @@ func TestDownloadHeader(t *testing.T) {
 		WithDebug(true),
 		WithUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"),
 	)
-	if filebyte, err := idown.DownloadToByte(fileuri, 5); err != nil {
+	if filebyte, err := idown.DownloadToByte2(fileuri); err != nil {
 		log.Println("获取图片失败：❌", err)
 	} else {
 		log.Println(len(filebyte))
