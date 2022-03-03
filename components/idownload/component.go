@@ -129,7 +129,7 @@ func (d *Component) DownloadToByteRetry(src string, retry int) ([]byte, error) {
 
 // DownloadToByte 请求文件，返回 字节
 func (d *Component) DownloadToByte(strURL string) ([]byte, error) {
-	var buf bytes.Buffer
+
 	iClient := d.getGoHttpClient(strURL, "GET").Client()
 	req, err := http.NewRequest("GET", strURL, nil)
 	if err != nil {
@@ -143,6 +143,7 @@ func (d *Component) DownloadToByte(strURL string) ([]byte, error) {
 	// 进度条
 	d.getBar(int(resp.ContentLength), strURL)
 
+	var buf bytes.Buffer
 	bufcache := make([]byte, 32*1024)
 	// You don't need use "bufio.NewWriter(&b)" to create an io.Writer. &b is an io.Writer itself.
 	// bufio.NewWriter(&buf)
