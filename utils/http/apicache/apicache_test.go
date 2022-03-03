@@ -1,7 +1,7 @@
 package apicache
 
 import (
-	"github.com/cute-angelia/go-utils/cache/bunt"
+	"github.com/cute-angelia/go-utils/utils/cache/bunt"
 	"log"
 	"testing"
 )

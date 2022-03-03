@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/cute-angelia/go-utils/components/idownload"
 	"github.com/cute-angelia/go-utils/syntax/ifile"
-	"github.com/cute-angelia/go-utils/utils/idownload"
 	"github.com/gotomicro/ego/core/elog"
 	"io"
 	"log"
@@ -94,7 +94,7 @@ func (e Component) PutObjectWithSrc(uri string, objectName string) (string, stri
 		idownload.WithDebug(e.config.Debug),
 		idownload.WithTimeout(time.Second*20),
 	)
-	if filebyte, _, err := idown.RequestFile(uri); err != nil {
+	if filebyte, err := idown.DownloadToByte(uri, 3); err != nil {
 		log.Println(PackageName, "获取图片失败：❌", err)
 		return "", "", errors.New("获取图片失败：❌：" + uri)
 	} else {

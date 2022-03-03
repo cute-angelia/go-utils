@@ -9,13 +9,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/astaxie/beego/logs"
-	"github.com/pkg/errors"
-	"github.com/cute-angelia/go-utils/cache/mem"
-	"log"
-	"hash/crc32"
-	"encoding/json"
 	"crypto/tls"
+	"encoding/json"
+	"github.com/astaxie/beego/logs"
+	"github.com/cute-angelia/go-utils/utils/cache/mem"
+	"github.com/pkg/errors"
+	"hash/crc32"
+	"log"
 	"regexp"
 )
 

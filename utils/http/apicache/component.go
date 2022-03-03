@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/cute-angelia/go-utils/cache/bunt"
+	"github.com/cute-angelia/go-utils/utils/cache/bunt"
 	"github.com/gotomicro/ego/core/elog"
 	"log"
 	"net/http"

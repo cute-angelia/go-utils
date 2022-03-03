@@ -6,9 +6,9 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/cute-angelia/go-utils/cache/bunt"
+	"github.com/cute-angelia/go-utils/components/idownload"
+	"github.com/cute-angelia/go-utils/utils/cache/bunt"
 	"github.com/cute-angelia/go-utils/utils/encrypt/hash"
-	"github.com/cute-angelia/go-utils/utils/idownload"
 	"github.com/gotomicro/ego/core/elog"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -239,25 +239,18 @@ func (e Component) PutObjectBase64(bucket string, objectNameIn string, base64Fil
 	}
 }
 
-// 提供链接，上传到 minio
+// PutObjectWithSrc 提供链接，上传到 minio
 // return key & hash sha1 & error
-func (e Component) PutObjectWithSrc(dnComponent *idownload.Component, uri string, bucket string, objectName string, objopt minio.PutObjectOptions) (string, string, error) {
+func (e Component) PutObjectWithSrc(dnComponent *idownload.Component, uri string, bucket string, objectName string, objopt minio.PutObjectOptions) (string, error) {
 	// http 不处理
 	if !strings.Contains(uri, "http") {
-		return uri, "", errors.New("非链接地址:" + uri)
+		return uri, errors.New("非链接地址:" + uri)
 	}
-	// 更换图片到本地
-	//idown := idownload.Load("").Build(
-	//	idownload.WithProxySocks5(e.config.ProxySocks5),
-	//	idownload.WithDebug(e.config.Debug),
-	//	idownload.WithTimeout(e.config.Timeout),
-	//	idownload.WithReferer(e.config.Referer),
-	//)
-	if filebyte, sha1, err := dnComponent.RequestFile(uri); err != nil {
+	if filebyte, err := dnComponent.DownloadToByte(uri, 3); err != nil {
 		if e.config.Debug {
 			log.Println(PackageName, "获取图片失败：❌", uri, err)
 		}
-		return "", "", errors.New("获取图片失败：❌" + uri + "  " + err.Error())
+		return "", errors.New("获取图片失败：❌" + uri + "  " + err.Error())
 	} else {
 		// 打印日志
 		if e.config.Debug {
@@ -269,10 +262,10 @@ func (e Component) PutObjectWithSrc(dnComponent *idownload.Component, uri string
 			if e.config.Debug {
 				log.Println(PackageName, "上传失败：❌", err, bucket, objectName, uri)
 			}
-			return "", "", fmt.Errorf("上传失败：❌ %v, %s %s %s", err, bucket, objectName, uri)
+			return "", fmt.Errorf("上传失败：❌ %v, %s %s %s", err, bucket, objectName, uri)
 		} else {
 			log.Println(PackageName, "上传成功：✅", uri, bucket+"/"+info.Key)
-			return bucket + "/" + info.Key, sha1, nil
+			return bucket + "/" + info.Key, nil
 		}
 	}
 }
