@@ -1,8 +1,4 @@
-package internal
-
-/*
-	图片帮助类
-*/
+package iimage
 
 import (
 	"github.com/anthonynsimon/bild/imgio"

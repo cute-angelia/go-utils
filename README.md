@@ -4,6 +4,13 @@
 
 go开发工具包，因很多项目都要重复写一些包，如日志，Gorm池，缓存组件
 
+包说明：
+
+1. components (功能模块，是工具类的升级版)
+2. syntax (语法类)
+3. utils (工具类)
+4. examples (例子)
+
 ### 主要模块
 
 | 模块   |                                                              |
@@ -16,12 +23,14 @@ go开发工具包，因很多项目都要重复写一些包，如日志，Gorm�
 | utils  | encrypt, orderid,snowflake, idownload, ip, store,task,etc... |
 | limit  | retry, risk                                                  |
 
-
 ### Refer:
+
 1. [goutil](https://github.com/gookit/goutil)
 2. [gotools](https://github.com/asktop/gotools)
 3. [golang-examples](https://github.com/SimonWaldherr/golang-examples)
 4. [kit](https://github.com/ardanlabs/kit)
 5. [time](https://github.com/jinzhu/now)
 6. [go-extend](https://github.com/cute-angelia/go-extend)
-7. [写了 30 多个 Go 常用文件操作的示例](https://mp.weixin.qq.com/s/dczWeHW6JWSJMJx1nBx7rA)
+7. [yiigo](https://github.com/shenghui0779/yiigo)
+8. [downloader](https://github.com/polaris1119/downloader)
+9. [写了 30 多个 Go 常用文件操作的示例](https://mp.weixin.qq.com/s/dczWeHW6JWSJMJx1nBx7rA)

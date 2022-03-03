@@ -1,7 +1,6 @@
 package idownload
 
 import (
-	"github.com/cute-angelia/go-utils/utils/idownload/internal"
 	"github.com/gotomicro/ego/core/econf"
 	"github.com/gotomicro/ego/core/elog"
 	"strings"
@@ -121,10 +120,10 @@ func (c *Container) Build(options ...Option) *Component {
 	}
 
 	if c.config.UseRandomUserAgent {
-		c.config.UserAgent = internal.RandomUserAgent()
+		c.config.UserAgent = RandomUserAgent()
 	}
 	if c.config.UseRandomUserAgentMobile {
-		c.config.UserAgent = internal.RandomMobileUserAgent()
+		c.config.UserAgent = RandomMobileUserAgent()
 	}
 
 	return newComponent(c.name, c.config, c.logger)

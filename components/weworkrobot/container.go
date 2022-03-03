@@ -1,4 +1,4 @@
-package robot
+package weworkrobot
 
 import "fmt"
 
@@ -14,7 +14,7 @@ func DefaultContainer() *Container {
 	}
 }
 
-// Invoker ...
+// Load Invoker ...
 func Load(key string) *Container {
 	c := DefaultContainer()
 	c.config.Key = key
@@ -45,5 +45,29 @@ func WithMentionedMobileList(list []string) Option {
 func WithDebug(debug bool) Option {
 	return func(c *Container) {
 		c.config.Debug = debug
+	}
+}
+
+func WithFrom(from string) Option {
+	return func(c *Container) {
+		c.config.From = from
+	}
+}
+
+func WithTopic(topic string) Option {
+	return func(c *Container) {
+		c.config.Topic = topic
+	}
+}
+
+func WithTime(withTime bool) Option {
+	return func(c *Container) {
+		c.config.WithTime = withTime
+	}
+}
+
+func WithRetry(retry int) Option {
+	return func(c *Container) {
+		c.config.Retry = retry
 	}
 }

@@ -98,6 +98,9 @@ func (d *Component) Download(strURL, filename string) (FileInfo, error) {
 			contentLength, _ := strconv.Atoi(header.Get("Content-Length"))
 			return d.multiDownload(strURL, filename, contentLength)
 		}
+		if statusCode == http.StatusNotFound {
+			return FileInfo{}, ErrorNotFound
+		}
 	}
 	return d.singleDownload(strURL, filename)
 }
@@ -116,7 +119,7 @@ func (d *Component) DownloadToByte(src string, retry int) ([]byte, error) {
 		default:
 			return fmt.Errorf(src+" error: %d", c.Code)
 		}
-	}).F().Retry().Attempt(retry).WaitTime(time.Second * 3).MaxWaitTime(time.Second * 60).Do()
+	}).F().Retry().Attempt(retry).WaitTime(time.Second * 3).Do()
 
 	if err != nil {
 		log.Println(PackageName, "DownloadToByte error -> ", src, err)
