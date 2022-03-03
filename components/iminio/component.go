@@ -246,7 +246,7 @@ func (e Component) PutObjectWithSrc(dnComponent *idownload.Component, uri string
 	if !strings.Contains(uri, "http") {
 		return uri, errors.New("非链接地址:" + uri)
 	}
-	if filebyte, err := dnComponent.DownloadToByte(uri, 3); err != nil {
+	if filebyte, err := dnComponent.DownloadToByte(uri); err != nil {
 		if e.config.Debug {
 			log.Println(PackageName, "获取图片失败：❌", uri, err)
 		}

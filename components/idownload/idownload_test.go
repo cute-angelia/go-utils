@@ -41,7 +41,7 @@ func TestDownloads(t *testing.T) {
 		//	log.Println("获取图片失败：❌", err)
 		//}
 
-		if filebyte, err := idown.DownloadToByte2(datum.Uri); err != nil {
+		if filebyte, err := idown.DownloadToByte(datum.Uri); err != nil {
 			log.Println("获取图片失败：❌", err)
 		} else {
 			log.Println(len(filebyte))
@@ -55,7 +55,7 @@ func TestDownloadHeader(t *testing.T) {
 		WithDebug(true),
 		WithUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"),
 	)
-	if filebyte, err := idown.DownloadToByte2(fileuri); err != nil {
+	if filebyte, err := idown.DownloadToByte(fileuri); err != nil {
 		log.Println("获取图片失败：❌", err)
 	} else {
 		log.Println(len(filebyte))
@@ -70,7 +70,7 @@ func TestDownload3(t *testing.T) {
 		WithReferer("https://www.v2ph.com/"),
 		WithUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"),
 	)
-	if filebyte, err := idown.DownloadToByte(fileuri, 5); err != nil {
+	if filebyte, err := idown.DownloadToByte(fileuri); err != nil {
 		log.Println("获取图片失败：❌", err)
 	} else {
 		log.Println("获取图片成功", len(filebyte))
