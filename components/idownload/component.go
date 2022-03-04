@@ -86,6 +86,17 @@ func (d *Component) getGoHttpClient(uri string, method string) *dataflow.DataFlo
 	})
 }
 
+// GetContentLength 获取文件长度
+func (d *Component) GetContentLength(strURL string) int {
+	contentLength := 0
+	header := http.Header{}
+	var statusCode int
+	if err := d.getGoHttpClient(strURL, "HEAD").BindHeader(&header).Code(&statusCode).Do(); err == nil {
+		contentLength, _ = strconv.Atoi(header.Get("Content-Length"))
+	}
+	return contentLength
+}
+
 // Download 下载文件
 func (d *Component) Download(strURL, filename string) (FileInfo, error) {
 	if filename == "" {

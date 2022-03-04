@@ -7,8 +7,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cute-angelia/go-utils/components/idownload"
+	"github.com/cute-angelia/go-utils/syntax/ifile"
 	"github.com/cute-angelia/go-utils/utils/cache/bunt"
 	"github.com/cute-angelia/go-utils/utils/encrypt/hash"
+	humanize "github.com/dustin/go-humanize"
 	"github.com/gotomicro/ego/core/elog"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -16,6 +18,7 @@ import (
 	"log"
 	"math/rand"
 	"net/url"
+	"os"
 	"path"
 	"strings"
 	"sync"
@@ -246,26 +249,51 @@ func (e Component) PutObjectWithSrc(dnComponent *idownload.Component, uri string
 	if !strings.Contains(uri, "http") {
 		return uri, errors.New("非链接地址:" + uri)
 	}
-	if filebyte, err := dnComponent.DownloadToByte(uri); err != nil {
-		if e.config.Debug {
-			log.Println(PackageName, "获取图片失败：❌", uri, err)
-		}
-		return "", errors.New("获取图片失败：❌" + uri + "  " + err.Error())
-	} else {
-		// 打印日志
-		if e.config.Debug {
-			log.Printf("获取图片: %s, 代理：%s", uri, e.config.ProxySocks5)
-		}
-		objectName = strings.Replace(objectName, "//", "/", -1)
 
-		if info, err := e.Client.PutObject(context.TODO(), bucket, objectName, bytes.NewReader(filebyte), int64(len(filebyte)), objopt); err != nil {
-			if e.config.Debug {
+	objectName = strings.Replace(objectName, "//", "/", -1)
+
+	// 得判断文件大小，过大文件下载后上传
+	// dnComponent.GetContentLength()
+	limitMax, _ := humanize.ParseBytes("43 MB")
+	fileSize := uint64(dnComponent.GetContentLength(uri))
+	if fileSize > limitMax || fileSize == 0 {
+		tempname := ifile.NewFileName(uri).GetNameSnowFlow()
+		if _, err := dnComponent.Download(uri, tempname); err == nil {
+			defer os.Remove(tempname)
+			ctx := context.TODO()
+			if info, err := e.Client.FPutObject(ctx, bucket, objectName, tempname, objopt); err == nil {
+				log.Println(PackageName, "上传成功：✅", uri, bucket+"/"+info.Key)
+				return bucket + "/" + info.Key, nil
+			} else {
 				log.Println(PackageName, "上传失败：❌", err, bucket, objectName, uri)
+				return "", fmt.Errorf("上传失败：❌ %v, %s %s %s", err, bucket, objectName, uri)
 			}
-			return "", fmt.Errorf("上传失败：❌ %v, %s %s %s", err, bucket, objectName, uri)
 		} else {
-			log.Println(PackageName, "上传成功：✅", uri, bucket+"/"+info.Key)
-			return bucket + "/" + info.Key, nil
+			if e.config.Debug {
+				log.Println(PackageName, "获取图片失败：❌", uri, err)
+			}
+			return "", errors.New("获取图片失败：❌" + uri + "  " + err.Error())
+		}
+	} else {
+		if filebyte, err := dnComponent.DownloadToByte(uri); err != nil {
+			if e.config.Debug {
+				log.Println(PackageName, "获取图片失败：❌", uri, err)
+			}
+			return "", errors.New("获取图片失败：❌" + uri + "  " + err.Error())
+		} else {
+			// 打印日志
+			if e.config.Debug {
+				log.Printf("获取图片: %s, 代理：%s", uri, e.config.ProxySocks5)
+			}
+			if info, err := e.Client.PutObject(context.TODO(), bucket, objectName, bytes.NewReader(filebyte), int64(len(filebyte)), objopt); err != nil {
+				if e.config.Debug {
+					log.Println(PackageName, "上传失败：❌", err, bucket, objectName, uri)
+				}
+				return "", fmt.Errorf("上传失败：❌ %v, %s %s %s", err, bucket, objectName, uri)
+			} else {
+				log.Println(PackageName, "上传成功：✅", uri, bucket+"/"+info.Key)
+				return bucket + "/" + info.Key, nil
+			}
 		}
 	}
 }
