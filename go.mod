@@ -7,6 +7,7 @@ require (
 	github.com/anthonynsimon/bild v0.13.0
 	github.com/astaxie/beego v1.12.3
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
+	github.com/dustin/go-humanize v1.0.0
 	github.com/garyburd/redigo v1.6.2
 	github.com/go-chi/chi v1.5.4
 	github.com/go-cmd/cmd v1.3.0
@@ -24,6 +25,7 @@ require (
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/lestrrat-go/strftime v1.0.5 // indirect
 	github.com/lib/pq v1.3.0 // indirect
+	github.com/markity/minio-progress v0.0.0-20200201094755-8dec4f4191f2
 	github.com/minio/minio-go/v7 v7.0.13
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646

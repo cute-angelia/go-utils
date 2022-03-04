@@ -12,6 +12,7 @@ import (
 	"github.com/cute-angelia/go-utils/utils/encrypt/hash"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/gotomicro/ego/core/elog"
+	progress "github.com/markity/minio-progress"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"io"
@@ -188,6 +189,10 @@ func (e Component) CheckMode(objectName string) (newObjectName string, canupload
 func (e Component) PutObject(bucket string, objectNameIn string, reader io.Reader, objectSize int64, objopt minio.PutObjectOptions) (minio.UploadInfo, error) {
 	if objectName, ok := e.CheckMode(objectNameIn); ok {
 		objectName = strings.Replace(objectName, "//", "/", -1)
+
+		// 创建上传进度条对象
+		objopt.Progress = progress.NewUploadProgress(objectSize)
+
 		uploadInfo, err := e.Client.PutObject(context.Background(), bucket, objectName, reader, objectSize, objopt)
 		if err != nil {
 			log.Println(bucket, objectNameIn, err)
@@ -202,10 +207,28 @@ func (e Component) PutObject(bucket string, objectNameIn string, reader io.Reade
 	}
 }
 
-// 上传-按存在文件
+// FPutObject 上传-按存在文件
 func (e Component) FPutObject(bucket string, objectNameIn string, filePath string, objopt minio.PutObjectOptions) (minio.UploadInfo, error) {
 	if objectName, ok := e.CheckMode(objectNameIn); ok {
-		uploadInfo, err := e.Client.FPutObject(context.Background(), bucket, objectName, filePath, objopt)
+
+		// 打开文件
+		file, err := os.OpenFile(filePath, os.O_RDONLY, 0444)
+		defer file.Close()
+		if err != nil {
+			log.Fatalf("打开文件失败:%v\n", err)
+		}
+		// 获取文件大小
+		fileInfo, err := file.Stat()
+		if err != nil {
+			log.Fatalf("获取文件信息失败:%v\n", err)
+		}
+		tempFileSize := fileInfo.Size()
+
+		// 创建上传进度条对象
+		objopt.Progress = progress.NewUploadProgress(tempFileSize)
+
+		ctx := context.TODO()
+		uploadInfo, err := e.Client.PutObject(ctx, bucket, objectName, file, tempFileSize, objopt)
 		if err != nil {
 			log.Println(err)
 			return uploadInfo, err
@@ -219,7 +242,7 @@ func (e Component) FPutObject(bucket string, objectNameIn string, filePath strin
 	}
 }
 
-// 上传-按 base64
+// PutObjectBase64 上传 - base64
 func (e Component) PutObjectBase64(bucket string, objectNameIn string, base64File string, objopt minio.PutObjectOptions) (minio.UploadInfo, error) {
 	if objectName, ok := e.CheckMode(objectNameIn); ok {
 		b64data := base64File[strings.IndexByte(base64File, ',')+1:]
@@ -260,8 +283,24 @@ func (e Component) PutObjectWithSrc(dnComponent *idownload.Component, uri string
 		tempname := ifile.NewFileName(uri).GetNameSnowFlow()
 		if _, err := dnComponent.Download(uri, tempname); err == nil {
 			defer os.Remove(tempname)
+			// 打开文件
+			file, err := os.OpenFile(tempname, os.O_RDONLY, 0444)
+			defer file.Close()
+			if err != nil {
+				log.Fatalf("打开文件失败:%v\n", err)
+			}
+			// 获取文件大小
+			fileInfo, err := file.Stat()
+			if err != nil {
+				log.Fatalf("获取文件信息失败:%v\n", err)
+			}
+			tempFileSize := fileInfo.Size()
+
+			// 创建上传进度条对象
+			objopt.Progress = progress.NewUploadProgress(tempFileSize)
+
 			ctx := context.TODO()
-			if info, err := e.Client.FPutObject(ctx, bucket, objectName, tempname, objopt); err == nil {
+			if info, err := e.Client.PutObject(ctx, bucket, objectName, file, tempFileSize, objopt); err == nil {
 				log.Println(PackageName, "上传成功：✅", uri, bucket+"/"+info.Key)
 				return bucket + "/" + info.Key, nil
 			} else {
