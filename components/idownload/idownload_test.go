@@ -1,6 +1,8 @@
 package idownload
 
 import (
+	"github.com/cute-angelia/go-utils/syntax/ifile"
+	"github.com/cute-angelia/go-utils/syntax/ijson"
 	"log"
 	"testing"
 )
@@ -74,5 +76,19 @@ func TestDownload3(t *testing.T) {
 		log.Println("获取图片失败：❌", err)
 	} else {
 		log.Println("获取图片成功", len(filebyte))
+	}
+}
+
+// go test -v -run TestDownLargeFile
+func TestDownLargeFile(t *testing.T) {
+	fileuri := "https://ttq.jinyemimi.com/2021/0782/202201010831.zip"
+	idown := Load("").Build(
+		WithDebug(true),
+	)
+	newname := ifile.NewFileName(fileuri).GetNameSnowFlow()
+	if filebyte, err := idown.Download(fileuri, "/tmp/"+newname); err == nil {
+		log.Println(ijson.Pretty(filebyte))
+	} else {
+		log.Println(err)
 	}
 }

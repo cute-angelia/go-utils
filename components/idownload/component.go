@@ -52,21 +52,22 @@ func newComponent(compName string, config *config, logger *elog.Component) *Comp
 // getGoHttpClient 业务定制头部
 func (d *Component) getGoHttpClient(uri string, method string) *dataflow.DataFlow {
 	var igout *dataflow.DataFlow
+	ic := gout.NewWithOpt(gout.WithInsecureSkipVerify())
 	switch method {
 	case "GET":
-		igout = gout.GET(uri)
+		igout = ic.GET(uri)
 	case "POST":
-		igout = gout.POST(uri)
+		igout = ic.POST(uri)
 	case "PUT":
-		igout = gout.PUT(uri)
+		igout = ic.PUT(uri)
 	case "DELETE":
-		igout = gout.DELETE(uri)
+		igout = ic.DELETE(uri)
 	case "HEAD":
-		igout = gout.HEAD(uri)
+		igout = ic.HEAD(uri)
 	case "OPTIONS":
-		igout = gout.OPTIONS(uri)
+		igout = ic.OPTIONS(uri)
 	default:
-		igout = gout.GET(uri)
+		igout = ic.GET(uri)
 	}
 	// 设置过期时间
 	if d.config.Timeout > 0 {
@@ -323,7 +324,11 @@ func (d *Component) downloadPartial(strURL, filename string, rangeStart, rangeEn
 		if err == io.EOF {
 			return
 		}
-		log.Fatal(err)
+		log.Println("分片下载错误", err)
+		// 合并文件并删除临时文件
+		for iz := 0; iz < d.config.Concurrency; iz++ {
+			os.Remove(d.getPartFilename(filename, iz))
+		}
 	}
 }
 
