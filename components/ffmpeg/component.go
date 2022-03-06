@@ -18,3 +18,7 @@ func newComponent(compName string, config *config, logger *elog.Component) *Comp
 		logger: logger,
 	}
 }
+
+func (c Component) GetFfmpegPath() string {
+	return c.config.FfmpegPath
+}
