@@ -24,7 +24,7 @@ type Component struct {
 // GetLogger 开放方法
 func GetLogger() *zerolog.Logger {
 	if logger == nil {
-		log.Println("日志未初始化，将启动`stdout`输出模式")
+		log.Println("日志未初始化，启动默认输出保存为文件log_default.log")
 		logger = newComponent(DefaultConfig()).NewLogger()
 	}
 	return logger
