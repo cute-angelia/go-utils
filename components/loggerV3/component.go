@@ -15,10 +15,10 @@ import (
 )
 
 var logOnce sync.Once
+var Logger *zerolog.Logger
 
 type Component struct {
 	config *config
-	*zerolog.Logger
 }
 
 func newComponent(config *config) *Component {
@@ -61,10 +61,9 @@ func (self *Component) NewLogger() *zerolog.Logger {
 			return buffer.String()
 		}
 		ilog := zerolog.New(mw).With().Timestamp().Caller().Logger()
-
-		self.Logger = &ilog
+		Logger = &ilog
 	})
-	return self.Logger
+	return Logger
 }
 
 func (self *Component) formatLogger(out io.Writer) io.Writer {
