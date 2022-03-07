@@ -15,10 +15,19 @@ import (
 )
 
 var logOnce sync.Once
-var Logger *zerolog.Logger
+var logger *zerolog.Logger
 
 type Component struct {
 	config *config
+}
+
+// GetLogger 开放方法
+func GetLogger() *zerolog.Logger {
+	if logger == nil {
+		log.Println("日志未初始化，将启动`stdout`输出模式")
+		logger = newComponent(DefaultConfig()).NewLogger()
+	}
+	return logger
 }
 
 func newComponent(config *config) *Component {
@@ -61,9 +70,9 @@ func (self *Component) NewLogger() *zerolog.Logger {
 			return buffer.String()
 		}
 		ilog := zerolog.New(mw).With().Timestamp().Caller().Logger()
-		Logger = &ilog
+		logger = &ilog
 	})
-	return Logger
+	return logger
 }
 
 func (self *Component) formatLogger(out io.Writer) io.Writer {

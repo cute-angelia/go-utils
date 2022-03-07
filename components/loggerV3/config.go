@@ -25,5 +25,6 @@ func DefaultConfig() *config {
 		everyday:   true,
 		level:      zerolog.DebugLevel,
 		fileJson:   true,
+		project:    "default",
 	}
 }
