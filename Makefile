@@ -10,8 +10,8 @@ up:
 tag:
 	git pull origin master
 	git add .
-	git commit -am "update"
+	git commit -am "增加 zerolog"
 	git push origin master
-	git tag v1.7.7
+	git tag v1.7.8
 	git push --tags
 	@echo "\n tags 发布中..."

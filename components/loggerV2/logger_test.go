@@ -7,9 +7,9 @@ import (
 
 func TestLogger(t *testing.T) {
 	// online false
-	logger := NewLogger(WithProject("test-local"), WithIsOnline(false))
-	logger.Info("start")
-	logger.WithTime(time.Now()).WithField("title", "for test").Error("not sup")
+	loggerObj := NewLogger(WithProject("test-local"), WithIsOnline(false))
+	loggerObj.Info("start")
+	loggerObj.WithTime(time.Now()).WithField("title", "for test").Error("not sup")
 
 	// online true
 	logger2 := NewLogger(WithProject("test-local"), WithIsOnline(true))

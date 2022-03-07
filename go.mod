@@ -36,6 +36,7 @@ require (
 	github.com/qiniu/go-sdk/v7 v7.9.8
 	github.com/robbert229/jwt v2.0.0+incompatible
 	github.com/robfig/cron/v3 v3.0.1
+	github.com/rs/zerolog v1.26.1
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/schollz/progressbar/v3 v3.8.6
 	github.com/sirupsen/logrus v1.8.1
