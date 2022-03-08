@@ -6,9 +6,8 @@ import (
 )
 
 func TestLogger(t *testing.T) {
-	// develop
-	logger := Load().Build(
-		WithIsOnline(true),
+	logger := New(
+		WithIsOnline(false),
 		WithProject("test.bud"),
 		WithLevel(1),
 	).NewLogger()

@@ -1,6 +1,8 @@
 package loggerV3
 
-import "github.com/rs/zerolog"
+import (
+	"github.com/rs/zerolog"
+)
 
 type Option func(c *Container)
 
@@ -8,18 +10,10 @@ type Container struct {
 	config *config
 }
 
-func DefaultContainer() *Container {
-	return &Container{
+func New(options ...Option) *Component {
+	c := &Container{
 		config: DefaultConfig(),
 	}
-}
-
-func Load() *Container {
-	return DefaultContainer()
-}
-
-// Build ...
-func (c *Container) Build(options ...Option) *Component {
 	for _, option := range options {
 		option(c)
 	}
