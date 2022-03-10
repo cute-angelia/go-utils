@@ -1,17 +1,15 @@
-/**
- * buntCache.go
- * buntdb 缓存类
- *
- * @author : Cyw
- * @email  : rose2099.c@gmail.com
- * @created: 2018/11/27 下午1:34
- * @logs   :
- *
- */
+// Package bunt
+// * 缓存类
+// *
+// * @author : Cyw
+// * @email  : rose2099.c@gmail.com
+// * @created: 2018/11/27 下午1:34
+// * @logs   :
 package bunt
 
 import (
 	"fmt"
+	"github.com/cute-angelia/go-utils/syntax/ijson"
 	"github.com/tidwall/buntdb"
 	"log"
 	"os"
@@ -22,7 +20,7 @@ import (
 
 var BuntCaches sync.Map
 
-// 初始化缓存  内部使用昵称：保存名称
+// InitBuntCache 初始化缓存  内部使用昵称：保存名称
 func InitBuntCache(nickname string, dbname string) error {
 	if _, ok := BuntCaches.Load(nickname); ok {
 		return nil
@@ -105,10 +103,6 @@ func SetDb(name string, db *buntdb.DB) {
 	BuntCaches.Store(name, db)
 }
 
-/**
-设置
-不要设置为空
-*/
 func Set(dbname string, key string, val string, ttl time.Duration) error {
 	if db := GetDb(dbname); db != nil {
 		db.Update(func(tx *buntdb.Tx) error {
@@ -121,9 +115,21 @@ func Set(dbname string, key string, val string, ttl time.Duration) error {
 	}
 }
 
-/**
-获取
-*/
+// GetOrSet 获取数据或者存储数据
+func GetOrSet(dbname string, key string, function func() interface{}, ttl time.Duration) (interface{}, error) {
+	cacheData := Get(dbname, key)
+	var resp interface{}
+	if len(cacheData) > 10 {
+		err := ijson.Unmarshal([]byte(cacheData), &resp)
+		return resp, err
+	} else {
+		byteJson, _ := ijson.Marshal(function())
+		strJson := string(byteJson)
+		err := Set(dbname, key, strJson, ttl)
+		return strJson, err
+	}
+}
+
 func Get(dbname string, key string) string {
 	if db := GetDb(dbname); db != nil {
 		val := ""

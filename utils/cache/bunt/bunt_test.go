@@ -12,16 +12,27 @@ import (
 func TestTimeout(t *testing.T) {
 	InitBuntCache("cache", "/tmp/test.db")
 	cacheKey := "testtimeout"
-	Set("cache", cacheKey, "Value is ------->", time.Second*10)
-	for {
-		data := Get("cache", cacheKey)
-		if len(data) == 0 {
-			break
-		} else {
-			log.Println(data)
-			time.Sleep(time.Second)
-		}
-	}
+
+	// Timeout 测试
+	//Set("cache", cacheKey, "Value is ------->", time.Second*10)
+	//for {
+	//	data := Get("cache", cacheKey)
+	//	if len(data) == 0 {
+	//		break
+	//	} else {
+	//		log.Println(data)
+	//		time.Sleep(time.Second)
+	//	}
+	//}
+
+	// 测试 GetOrSet
+	v, err := GetOrSet("cache", cacheKey, func() interface{} {
+		return "hvzz GetOrSet"
+	}, time.Minute)
+	log.Println(v)
+	log.Println(err)
+
+	log.Println(Get("cache", cacheKey))
 }
 
 func TestLocker(t *testing.T) {
