@@ -116,12 +116,10 @@ func Set(dbname string, key string, val string, ttl time.Duration) error {
 }
 
 // GetOrSet 获取数据或者存储数据
-func GetOrSet(dbname string, key string, function func() interface{}, ttl time.Duration) (interface{}, error) {
+func GetOrSet(dbname string, key string, function func() interface{}, ttl time.Duration) (string, error) {
 	cacheData := Get(dbname, key)
-	var resp interface{}
 	if len(cacheData) > 10 {
-		err := ijson.Unmarshal([]byte(cacheData), &resp)
-		return resp, err
+		return cacheData, nil
 	} else {
 		byteJson, _ := ijson.Marshal(function())
 		strJson := string(byteJson)
