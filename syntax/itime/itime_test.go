@@ -13,6 +13,9 @@ import (
 --- PASS: TestCycle (0.00s)
 */
 func TestCycle(t *testing.T) {
+	// year
+	t.Log(GetYearDay())
+
 	// 获得当前月的初始和结束日期
 	t.Log(GetMonthDay())
 

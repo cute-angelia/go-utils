@@ -75,6 +75,18 @@ func GetQuarterDay() (string, string, int) {
 	return firstOfQuarter, lastOfQuarter, quarter
 }
 
+func GetYearDay() (string, string) {
+	now := time.Now()
+	currentYear, _, _ := now.Date()
+	currentLocation := now.Location()
+
+	first := time.Date(currentYear, 1, 1, 0, 0, 0, 0, currentLocation)
+	last := first.AddDate(1, 0, -1)
+	f := first.Unix()
+	l := last.Unix()
+	return time.Unix(f, 0).Format("2006-01-02") + " 00:00:00", time.Unix(l, 0).Format("2006-01-02") + " 23:59:59"
+}
+
 // GetBetweenDates 根据开始日期和结束日期计算出时间段内所有日期
 // 参数为日期格式，如：2020-01-01
 func GetBetweenDates(sdate, edate string) []string {
