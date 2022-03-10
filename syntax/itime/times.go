@@ -4,9 +4,14 @@ import (
 	"time"
 )
 
-/**
- * 获得当前月的初始和结束日期
- **/
+// GetTimeZero 获取零点
+func GetTimeZero() time.Time {
+	timeStr := time.Now().Format("2006-01-02")
+	t, _ := time.ParseInLocation("2006-01-02", timeStr, time.Local)
+	return t
+}
+
+// GetMonthDay 获得当前月的初始和结束日期
 func GetMonthDay() (string, string) {
 	now := time.Now()
 	currentYear, currentMonth, _ := now.Date()
@@ -19,9 +24,7 @@ func GetMonthDay() (string, string) {
 	return time.Unix(f, 0).Format("2006-01-02") + " 00:00:00", time.Unix(l, 0).Format("2006-01-02") + " 23:59:59"
 }
 
-/**
- * 获得当前周的初始和结束日期
- **/
+// GetWeekDay 获得当前周的初始和结束日期
 func GetWeekDay() (string, string) {
 	now := time.Now()
 	offset := int(time.Monday - now.Weekday())
@@ -43,9 +46,7 @@ func GetWeekDay() (string, string) {
 	return time.Unix(f, 0).Format("2006-01-02") + " 00:00:00", time.Unix(l, 0).Format("2006-01-02") + " 23:59:59"
 }
 
-/**
- * 获得当前季度的初始和结束日期
- **/
+// GetQuarterDay 获得当前季度的初始和结束日期
 func GetQuarterDay() (string, string, int) {
 	year := time.Now().Format("2006")
 	month := int(time.Now().Month())
@@ -74,9 +75,44 @@ func GetQuarterDay() (string, string, int) {
 	return firstOfQuarter, lastOfQuarter, quarter
 }
 
-/**
- * 每日零点执行任务
- */
+// GetBetweenDates 根据开始日期和结束日期计算出时间段内所有日期
+// 参数为日期格式，如：2020-01-01
+func GetBetweenDates(sdate, edate string) []string {
+	d := []string{}
+	timeFormatTpl := "2006-01-02 15:04:05"
+	if len(timeFormatTpl) != len(sdate) {
+		timeFormatTpl = timeFormatTpl[0:len(sdate)]
+	}
+	date, err := time.Parse(timeFormatTpl, sdate)
+	if err != nil {
+		// 时间解析，异常
+		return d
+	}
+	date2, err := time.Parse(timeFormatTpl, edate)
+	if err != nil {
+		// 时间解析，异常
+		return d
+	}
+	if date2.Before(date) {
+		// 如果结束时间小于开始时间，异常
+		return d
+	}
+	// 输出日期格式固定
+	timeFormatTpl = "2006-01-02"
+	date2Str := date2.Format(timeFormatTpl)
+	d = append(d, date.Format(timeFormatTpl))
+	for {
+		date = date.AddDate(0, 0, 1)
+		dateStr := date.Format(timeFormatTpl)
+		d = append(d, dateStr)
+		if dateStr == date2Str {
+			break
+		}
+	}
+	return d
+}
+
+// TimingSettlement 每日零点执行任务
 func TimingSettlement() {
 	for {
 		now := time.Now()

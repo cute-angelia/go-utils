@@ -1,7 +1,7 @@
 package itime
 
 import (
-	"strings"
+	"sort"
 	"testing"
 )
 
@@ -21,15 +21,9 @@ func TestCycle(t *testing.T) {
 
 	// 季度
 	t.Log(GetQuarterDay())
-}
 
-func TestTime(t *testing.T) {
-	t.Log( strings.Join( SecToStr(10), ":"))
-	t.Log( strings.Join( SecToStr(60), ":"))
-	t.Log( strings.Join( SecToStr(70), ":"))
-	t.Log( strings.Join( SecToStr(100), ":"))
-	t.Log( strings.Join( SecToStr(1000), ":"))
-	t.Log( strings.Join( SecToStr(10000), ":"))
-	t.Log( strings.Join( SecToStr(86400), ":"))
-	t.Log( strings.Join( SecToStr(86401), ":"))
+	// between
+	dates := GetBetweenDates("2022-02-07", "2022-03-10")
+	sort.Sort(sort.Reverse(sort.StringSlice(dates)))
+	t.Log(dates)
 }

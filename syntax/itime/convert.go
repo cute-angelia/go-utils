@@ -1,6 +1,7 @@
 package itime
 
 import (
+	"fmt"
 	"strings"
 	"time"
 )
@@ -12,12 +13,6 @@ const (
 	TIME_FORMAT_TIME  = "15:04:05"
 	TIME_FORMAT_MONTH = "2006-01"
 )
-
-func TimeZero() time.Time {
-	timeStr := time.Now().Format("2006-01-02")
-	t, _ := time.ParseInLocation("2006-01-02", timeStr, time.Local)
-	return t
-}
 
 func ConverRFC3339(layout string, inTime string) string {
 	t := ConverRFC3339ToTime(layout, inTime)
@@ -40,4 +35,23 @@ func ConverRFC3339ToTime(layout string, inTime string) time.Time {
 		t, _ = time.ParseInLocation(layout, inTime, time.Local)
 	}
 	return t
+}
+
+// ConvertVideoSecToStr 视频时长多少秒 =》 转 slice
+// 100s => []string{00,01,40}
+func ConvertVideoSecToStr(sec int64) []string {
+	if sec <= 0 {
+		return []string{}
+	}
+	lastsec := sec
+	h := sec / 3600
+	if h > 0 {
+		lastsec = lastsec - h*3600
+	}
+	m := lastsec / 60
+	if m > 0 {
+		lastsec = lastsec - m*60
+	}
+	s := lastsec
+	return []string{fmt.Sprintf("%02d", h), fmt.Sprintf("%02d", m), fmt.Sprintf("%02d", s)}
 }
