@@ -45,6 +45,12 @@ func New(options ...Option) *Component {
 	return newComponent(c.config)
 }
 
+func WithDbName(dbName string) Option {
+	return func(c *Container) {
+		c.config.DbName = dbName
+	}
+}
+
 // SetMaxIdleConns 用于设置连接池中空闲连接的最大数量(10)
 func WithMaxIdleConns(maxIdleConns int) Option {
 	return func(c *Container) {

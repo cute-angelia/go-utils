@@ -2,11 +2,14 @@ package igorm
 
 import (
 	"errors"
+	"fmt"
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
 	"log"
 	"time"
 )
+
+const PackageNameSqlServer = "component.igorm.sqlserver"
 
 /*
 note:
@@ -29,13 +32,15 @@ func GetGormSqlServer(dbName string) (*gorm.DB, error) {
 func (c *Component) MustInitSqlServer() *Component {
 	// 配置必须信息
 	if len(c.config.Dsn) == 0 {
-		log.Println(packageName, "❌数据库配置不正确，dsn未设置", c.config.DbName)
-		panic(c.config.DbName + "❌数据库配置不正确，dsn未设置")
+		panic(fmt.Sprintf("❌数据库配置不正确 dbName=%s dsn=%s", c.config.DbName, c.config.Dsn))
 	}
 	// 初始化 db
 	if _, ok := gormPool.Load(c.config.DbName); !ok {
 		gormPool.Store(c.config.DbName, c.initSqlServerDb())
 	}
+
+	log.Println(PackageNameSqlServer, "初始化数据库", c.config.DbName)
+
 	return c
 }
 
