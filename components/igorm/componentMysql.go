@@ -2,11 +2,14 @@ package igorm
 
 import (
 	"errors"
+	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
 	"time"
 )
+
+const PackageNameMysql = "component.igorm.mysql"
 
 // 获取 gorm.DB 对象
 func GetGormMysql(dbName string) (*gorm.DB, error) {
@@ -17,7 +20,7 @@ func GetGormMysql(dbName string) (*gorm.DB, error) {
 	}
 }
 
-// 初始化
+// MustInitMysql 初始化
 func (c *Component) MustInitMysql() *Component {
 	// 配置必须信息
 	if len(c.config.Dsn) == 0 {
@@ -28,6 +31,13 @@ func (c *Component) MustInitMysql() *Component {
 	if _, ok := gormPool.Load(c.config.DbName); !ok {
 		gormPool.Store(c.config.DbName, c.initMysqlDb())
 	}
+
+	// 初始化日志
+	log.Println(fmt.Sprintf("[%s] Name:%s 初始化",
+		PackageNameMysql,
+		c.config.DbName,
+	))
+
 	return c
 }
 

@@ -1,15 +1,34 @@
 package loggerV3
 
 import (
+	"github.com/cute-angelia/go-utils/syntax/ijson"
 	"github.com/rs/zerolog"
+	"github.com/spf13/viper"
+	"log"
 )
 
 type Option func(c *Container)
 
+// Container 两种方式
+// 一种从 viper 获取配置
+// 一种是 options 模式
 type Container struct {
 	config *config
 }
 
+// Load viper 加载 配置
+func Load(key string) *Component {
+	iconfig := DefaultConfig()
+	configData := viper.GetStringMap(key)
+	jsonstr, _ := ijson.Marshal(configData)
+	if err := ijson.Unmarshal(jsonstr, &iconfig); err != nil {
+		log.Println(err)
+	}
+	// log.Println(ijson.Pretty(iconfig))
+	return newComponent(iconfig)
+}
+
+// New options 模式
 func New(options ...Option) *Component {
 	c := &Container{
 		config: DefaultConfig(),
@@ -22,45 +41,45 @@ func New(options ...Option) *Component {
 
 func WithProject(project string) Option {
 	return func(c *Container) {
-		c.config.project = project
+		c.config.Project = project
 	}
 }
 
 func WithIsOnline(isOnline bool) Option {
 	return func(c *Container) {
-		c.config.isOnline = isOnline
+		c.config.IsOnline = isOnline
 	}
 }
 
 func WithMaxSize(maxSize int) Option {
 	return func(c *Container) {
-		c.config.maxSize = maxSize
+		c.config.MaxSize = maxSize
 	}
 }
 func WithMaxBackups(maxBackups int) Option {
 	return func(c *Container) {
-		c.config.maxBackups = maxBackups
+		c.config.MaxBackups = maxBackups
 	}
 }
 func WithMaxAge(maxAge int) Option {
 	return func(c *Container) {
-		c.config.maxAge = maxAge
+		c.config.MaxAge = maxAge
 	}
 }
 func WithEveryday(everyday bool) Option {
 	return func(c *Container) {
-		c.config.everyday = everyday
+		c.config.Everyday = everyday
 	}
 }
 
 func WithLevel(level zerolog.Level) Option {
 	return func(c *Container) {
-		c.config.level = level
+		c.config.Level = level
 	}
 }
 
 func WithFileJson(fileJson bool) Option {
 	return func(c *Container) {
-		c.config.fileJson = fileJson
+		c.config.FileJson = fileJson
 	}
 }

@@ -1,11 +1,4 @@
-// Package bunt
-// * 缓存类
-// *
-// * @author : Cyw
-// * @email  : rose2099.c@gmail.com
-// * @created: 2018/11/27 下午1:34
-// * @logs   :
-package bunt
+package ibunt
 
 import (
 	"fmt"
@@ -20,15 +13,29 @@ import (
 
 var BuntCaches sync.Map
 
-// InitBuntCache 初始化缓存  内部使用昵称：保存名称
-func InitBuntCache(nickname string, dbname string) error {
-	if _, ok := BuntCaches.Load(nickname); ok {
+const PackageName = "component.ibunt"
+
+var RedisPools sync.Map
+
+type Component struct {
+	config *config
+}
+
+// newComponent ...
+func newComponent(config *config) *Component {
+	comp := &Component{}
+	comp.config = config
+	return comp
+}
+
+func (c Component) Init() error {
+	if _, ok := BuntCaches.Load(c.config.Name); ok {
 		return nil
 	} else {
 		// dbname
-		db := dbname
-		if !strings.Contains(dbname, ".db") {
-			db = nickname + ".db"
+		db := c.config.DbFile
+		if !strings.Contains(db, ".db") {
+			db = db + ".db"
 		}
 		// 无法创建
 		if cache, err := buntdb.Open(db); err != nil {
@@ -46,7 +53,7 @@ func InitBuntCache(nickname string, dbname string) error {
 						AutoShrinkPercentage: 30,
 					})
 					cache.Shrink()
-					SetDb(nickname, cache)
+					SetDb(c.config.Name, cache)
 				}
 			}
 		} else {
@@ -56,8 +63,14 @@ func InitBuntCache(nickname string, dbname string) error {
 				AutoShrinkPercentage: 30,
 			})
 			cache.Shrink()
-			SetDb(nickname, cache)
+			SetDb(c.config.Name, cache)
 		}
+		// 初始化日志
+		log.Println(fmt.Sprintf("[%s] Name:%s, dbFile=%s 初始化",
+			PackageName,
+			c.config.Name,
+			c.config.DbFile,
+		))
 		return nil
 	}
 }

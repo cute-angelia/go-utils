@@ -1,6 +1,8 @@
 package igorm
 
 import (
+	"github.com/cute-angelia/go-utils/syntax/ijson"
+	"github.com/spf13/viper"
 	"gorm.io/gorm/logger"
 	"io"
 	"log"
@@ -20,10 +22,27 @@ func DefaultContainer() *Container {
 	}
 }
 
-func Load(dbName string) *Container {
-	c := DefaultContainer()
-	c.config.DbName = dbName
-	return c
+// Load viper 加载 配置
+func Load(key string) *Component {
+	iconfig := DefaultConfig()
+	configData := viper.GetStringMap(key)
+	jsonstr, _ := ijson.Marshal(configData)
+	if err := ijson.Unmarshal(jsonstr, &iconfig); err != nil {
+		log.Println(err)
+	}
+	// log.Println(ijson.Pretty(iconfig))
+	return newComponent(iconfig)
+}
+
+// New options 模式
+func New(options ...Option) *Component {
+	c := &Container{
+		config: DefaultConfig(),
+	}
+	for _, option := range options {
+		option(c)
+	}
+	return newComponent(c.config)
 }
 
 // SetMaxIdleConns 用于设置连接池中空闲连接的最大数量(10)

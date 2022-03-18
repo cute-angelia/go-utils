@@ -1,4 +1,4 @@
-package bunt
+package ibunt
 
 import (
 	"fmt"
@@ -9,10 +9,13 @@ import (
 	"time"
 )
 
-func TestTimeout(t *testing.T) {
-	InitBuntCache("cache", "/tmp/test.db")
-	cacheKey := "testtimeout"
+func initDb() {
+	New(WithName("cache"), WithDbFile("/tmp/test.db"))
+}
 
+func TestTimeout(t *testing.T) {
+	initDb()
+	cacheKey := "testtimeout"
 	// Timeout 测试
 	//Set("cache", cacheKey, "Value is ------->", time.Second*10)
 	//for {
@@ -36,20 +39,13 @@ func TestTimeout(t *testing.T) {
 }
 
 func TestLocker(t *testing.T) {
-
-	dbname := "cache_locker"
-
-	if err := InitBuntCache(dbname, fmt.Sprintf("/tmp/test_%d.db", time.Now().Unix())); err != nil {
-		log.Println(err)
-		return
-	}
-
+	initDb()
 	opt1 := NewLockerOpt(WithLimit(3), WithToday(true))
 	opt2 := NewLockerOpt(WithLimit(1), WithToday(false))
 	opt3 := NewLockerOpt(WithLimit(35))
-
 	for i := 1; i <= 30; i++ {
-		if IsNotLockedInLimit(dbname, "test1", time.Hour, opt1) {
+		if ok, err := IsNotLockedInLimit("cache", "test1", time.Hour, opt1); ok {
+			log.Println(err)
 			log.Println("opt1 > ", i)
 			//2020/08/13 17:17:17 opt1 >  1
 			//2020/08/13 17:17:17 opt1 >  2
@@ -58,14 +54,16 @@ func TestLocker(t *testing.T) {
 	}
 
 	for i := 1; i <= 30; i++ {
-		if IsNotLockedInLimit(dbname, "test2", time.Hour, opt2) {
+		if ok, err := IsNotLockedInLimit("cache", "test2", time.Hour, opt2); ok {
+			log.Println(err)
 			log.Println("opt2 > ", i)
 			// 2020/08/13 17:17:17 opt2 >  1
 		}
 	}
 
 	for i := 1; i <= 30; i++ {
-		if IsNotLockedInLimit(dbname, "test3", time.Hour, opt3) {
+		if ok, err := IsNotLockedInLimit("cache", "test3", time.Hour, opt3); ok {
+			log.Println(err)
 			log.Println("opt3 > ", i)
 		}
 	}
@@ -73,10 +71,7 @@ func TestLocker(t *testing.T) {
 }
 
 func TestShrink(t *testing.T) {
-	if err := InitBuntCache("cache", "/tmp/test_1.db"); err != nil {
-		log.Println(err)
-		return
-	}
+	initDb()
 	db := GetDb("cache")
 	db.SetConfig(buntdb.Config{
 		AutoShrinkDisabled:   true,
@@ -88,11 +83,7 @@ func TestShrink(t *testing.T) {
 
 func TestAutoShrink(t *testing.T) {
 
-	if err := InitBuntCache("cache", "/tmp/test_1.db"); err != nil {
-		log.Println(err)
-		return
-	}
-
+	initDb()
 	db := GetDb("cache")
 
 	db.SetConfig(buntdb.Config{

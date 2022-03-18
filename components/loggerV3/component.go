@@ -45,9 +45,9 @@ func (self *Component) NewLogger() *zerolog.Logger {
 		log.SetOutput(zerolog.New(output).With().Timestamp().CallerWithSkipFrameCount(4).Logger())
 
 		var writers []io.Writer
-		if self.config.isOnline {
+		if self.config.IsOnline {
 
-			if self.config.fileJson {
+			if self.config.FileJson {
 				// 线上 json 模式
 				writers = append(writers, self.newRollingFile())
 			} else {
@@ -60,7 +60,7 @@ func (self *Component) NewLogger() *zerolog.Logger {
 		mw := zerolog.MultiLevelWriter(writers...)
 
 		// 配置
-		zerolog.SetGlobalLevel(self.config.level)
+		zerolog.SetGlobalLevel(self.config.Level)
 		zerolog.TimeFieldFormat = "2006-01-02 15:04:05.000"
 		zerolog.CallerMarshalFunc = func(file string, line int) string {
 			var buffer bytes.Buffer
@@ -89,9 +89,9 @@ func (self *Component) formatLogger(out io.Writer) io.Writer {
 
 func (self *Component) newRollingFile() io.Writer {
 	return &lumberjack.Logger{
-		Filename:   "./log_" + self.config.project + ".log",
-		MaxBackups: self.config.maxBackups, // files
-		MaxSize:    self.config.maxSize,    // megabytes
-		MaxAge:     self.config.maxAge,     // days
+		Filename:   "./log_" + self.config.Project + ".log",
+		MaxBackups: self.config.MaxBackups, // files
+		MaxSize:    self.config.MaxSize,    // megabytes
+		MaxAge:     self.config.MaxAge,     // days
 	}
 }

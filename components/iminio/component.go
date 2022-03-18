@@ -6,9 +6,9 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/cute-angelia/go-utils/components/ibunt"
 	"github.com/cute-angelia/go-utils/components/idownload"
 	"github.com/cute-angelia/go-utils/syntax/ifile"
-	"github.com/cute-angelia/go-utils/utils/cache/bunt"
 	"github.com/cute-angelia/go-utils/utils/encrypt/hash"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/gotomicro/ego/core/elog"
@@ -56,7 +56,7 @@ func newComponent(compName string, config *config, logger *elog.Component) *Comp
 // 获取链接 不带bucket
 func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration) (string, error) {
 	hashkey := e.GenerateHashKey(1, bucket, key)
-	cachedata := bunt.Get("cache", hashkey)
+	cachedata := ibunt.Get("cache", hashkey)
 
 	if len(cachedata) > 3 {
 		return cachedata, nil
@@ -68,7 +68,7 @@ func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration)
 		return "", err
 	} else {
 		log.Println(PackageName, "Successfully URL: ", presignedURL)
-		bunt.Set("cache", hashkey, presignedURL.String(), t)
+		ibunt.Set("cache", hashkey, presignedURL.String(), t)
 		return presignedURL.String(), nil
 	}
 }

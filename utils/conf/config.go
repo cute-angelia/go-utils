@@ -55,12 +55,12 @@ func MustLoadConfigByte(data []byte, filetype string) {
 	}
 }
 
-// 合并配置 byte
+// MergeConfig 合并配置 byte
 func MergeConfig(byteCfg io.Reader) error {
 	return viper.MergeConfig(byteCfg)
 }
 
-// 合并配置 文件路径 cfgPath 文件夹路径
+// MergeConfigWithPath 合并配置 文件路径 cfgPath 文件夹路径
 func MergeConfigWithPath(cfgPath string) error {
 	// 追加一份配置
 	viper.AddConfigPath(cfgPath)
@@ -72,12 +72,12 @@ func MergeConfigWithPath(cfgPath string) error {
 	}
 }
 
-// 合并配置 map
+// MergeConfigWithMap 合并配置 map
 func MergeConfigWithMap(cfg map[string]interface{}) error {
 	return viper.MergeConfigMap(cfg)
 }
 
-// 获取 系统环境变量
+// GetEnv 获取 系统环境变量
 func GetEnv(key string) interface{} {
 	viper.AutomaticEnv()
 	return viper.Get(key)

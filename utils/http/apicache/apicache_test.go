@@ -1,13 +1,13 @@
 package apicache
 
 import (
-	"github.com/cute-angelia/go-utils/utils/cache/bunt"
+	"github.com/cute-angelia/go-utils/components/ibunt"
 	"log"
 	"testing"
 )
 
 func TestCache(t *testing.T) {
-	bunt.InitBuntCache("cache", "apicachetest.db")
+	ibunt.New()
 
 	u := struct {
 		Id    int32

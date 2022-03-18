@@ -8,7 +8,15 @@ import (
 	"time"
 )
 
-// 获取 gorm.DB 对象
+/*
+note:
+// sql 特殊字符处理
+sqldsn := viper.GetString("db.yq_sql_userdb")
+sqldsnpwd := viper.GetString("db.yq_sql_userdb_pwd")
+sqldsnstr := fmt.Sprintf(sqldsn, strings.ReplaceAll(url.QueryEscape(sqldsnpwd), "+", "%20"))
+*/
+
+// GetGormSqlServer 获取 gorm.DB 对象
 func GetGormSqlServer(dbName string) (*gorm.DB, error) {
 	if v, ok := gormPool.Load(dbName); ok {
 		return v.(*gorm.DB), nil
@@ -17,7 +25,7 @@ func GetGormSqlServer(dbName string) (*gorm.DB, error) {
 	}
 }
 
-// 初始化
+// MustInitSqlServer 初始化
 func (c *Component) MustInitSqlServer() *Component {
 	// 配置必须信息
 	if len(c.config.Dsn) == 0 {

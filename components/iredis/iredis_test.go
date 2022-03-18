@@ -8,7 +8,7 @@ import (
 )
 
 func TestRedis(t *testing.T) {
-	InitRedis("cache", "47.99.166:6379", "")
+	New(WithName("cache"), WithServer("47.99.166.xx:6379"), WithPassword("xxx")).Init()
 	rdb, _ := GetRedis("cache")
 	ctx := context.Background()
 
