@@ -14,13 +14,55 @@ func LogOn(on bool) {
 	LogRequestAndData = on
 }
 
-func Success(w http.ResponseWriter, r *http.Request, data interface{}, msg string) {
-	response := map[string]interface{}{
-		"code":    0,
-		"message": msg,
-		"data":    data,
-	}
+// Res 标准JSON输出格式
+type Res struct {
+	// Code 响应的业务错误码。0表示业务执行成功，非0表示业务执行失败。
+	Code int `json:"code"`
+	// Msg 响应的参考消息。前端可使用msg来做提示
+	Msg string `json:"msg"`
+	// Data 响应的具体数据
+	Data interface{} `json:"data"`
+}
 
+// ResPage 带分页的标准JSON输出格式
+type ResPage struct {
+	Res
+	Pagination Pagination `json:"pagination"`
+}
+
+type Pagination struct {
+	// Current 当前页
+	Current int `json:"current"`
+	// PageSize 每页记录数
+	PageSize int `json:"pageSize"`
+	// Total 总页数
+	Total int64 `json:"total"`
+}
+
+// Success 成功返回
+func Success(w http.ResponseWriter, r *http.Request, data interface{}, msg string) {
+	response := Res{
+		Code: 0,
+		Msg:  msg,
+		Data: data,
+	}
+	doResp(w, r, response)
+}
+
+// SuccessWithPage 成功分页返回
+func SuccessWithPage(w http.ResponseWriter, r *http.Request, data interface{}, msg string, pager Pagination) {
+	response := ResPage{
+		Res: Res{
+			Code: 0,
+			Msg:  msg,
+			Data: data,
+		},
+		Pagination: pager,
+	}
+	doResp(w, r, response)
+}
+
+func doResp(w http.ResponseWriter, r *http.Request, response interface{}) {
 	// 日志
 	// FIXED 优化,协程处理
 	// ApiMakeLog.createLog(r, response)
@@ -39,10 +81,10 @@ func Success(w http.ResponseWriter, r *http.Request, data interface{}, msg strin
 
 // 缓存返回
 func SuccessCache(w http.ResponseWriter, code int, msg string, cacheData interface{}) {
-	response := map[string]interface{}{
-		"code":    code,
-		"message": msg,
-		"data":    cacheData,
+	response := Res{
+		Code: 0,
+		Msg:  msg,
+		Data: cacheData,
 	}
 	// json
 	w.Header().Set("Content-Type", "application/json")
@@ -61,10 +103,10 @@ func Error(w http.ResponseWriter, r *http.Request, data interface{}, msg string,
 		return
 	}
 
-	response := map[string]interface{}{
-		"code":    code,
-		"message": msg,
-		"data":    data,
+	response := Res{
+		Code: 0,
+		Msg:  msg,
+		Data: data,
 	}
 
 	if LogRequestAndData {

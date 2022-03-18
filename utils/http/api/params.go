@@ -62,6 +62,11 @@ func PostInt32(r *http.Request, name string) int32 {
 	return int32(p)
 }
 
+func PostInt(r *http.Request, name string) int {
+	p, _ := strconv.Atoi(r.PostFormValue(name))
+	return p
+}
+
 func PostInt64(r *http.Request, name string) int64 {
 	p, _ := strconv.Atoi(r.PostFormValue(name))
 	return int64(p)
@@ -80,4 +85,9 @@ func GetUserUid(r *http.Request) int32 {
 func GetUserUidInt64(r *http.Request) int64 {
 	uid, _ := strconv.Atoi(r.Header.Get("jwt_uid"))
 	return int64(uid)
+}
+
+// GetJwtHeader 获取 jwt 里面数据
+func GetJwtHeader(r *http.Request, key string) interface{} {
+	return r.Header.Get(key)
 }

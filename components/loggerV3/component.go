@@ -88,6 +88,7 @@ func (self *Component) formatLogger(out io.Writer) io.Writer {
 }
 
 func (self *Component) newRollingFile() io.Writer {
+	log.Println("记录日志 > ./log_" + self.config.Project + ".log")
 	return &lumberjack.Logger{
 		Filename:   "./log_" + self.config.Project + ".log",
 		MaxBackups: self.config.MaxBackups, // files
