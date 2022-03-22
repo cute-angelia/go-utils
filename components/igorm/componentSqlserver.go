@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"log"
+	"os"
 	"time"
 )
 
@@ -49,8 +51,25 @@ func (c *Component) initSqlServerDb() *gorm.DB {
 
 	var db *gorm.DB
 	var err error
+
+	// logger
+	var vlog = new(log.Logger)
+	if c.config.LoggerWriter == nil {
+		vlog = log.New(os.Stdout, "\r\n", log.LstdFlags|log.Lshortfile)
+	} else {
+		vlog = log.New(c.config.LoggerWriter, "", 0)
+	}
+
+	newLogger := logger.New(
+		vlog, // io writer
+		logger.Config{
+			SlowThreshold: time.Second,       // Slow SQL threshold
+			LogLevel:      c.config.LogLevel, // Log level
+		},
+	)
+
 	gconfig := gorm.Config{
-		Logger: c.config.Logger,
+		Logger: newLogger,
 	}
 
 	for db, err = gorm.Open(sqlserver.Open(c.config.Dsn), &gconfig); err != nil; {

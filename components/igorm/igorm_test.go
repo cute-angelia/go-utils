@@ -1,53 +1,54 @@
 package igorm
 
 import (
+	"github.com/cute-angelia/go-utils/components/loggerV3"
 	"github.com/cute-angelia/go-utils/syntax/ijson"
+	"gorm.io/gorm/logger"
 	"testing"
 )
 
-type MinioPostModel struct {
-	Id           int32  `json:"id" gorm:"primary_key"`
-	Title        string `json:"title" gorm:"column:title"`
-	Desc         string `json:"desc" gorm:"column:desc"`
-	Cover        string `json:"cover" gorm:"column:cover"`
-	Idols        string `json:"idols" gorm:"column:idols"`
-	Tags         string `json:"tags" gorm:"column:tags"`
-	Categorys    string `json:"categorys" gorm:"column:categorys"`
-	SourcePage   string `json:"source_page" gorm:"column:source_page"`
-	BucketHash   string `json:"bucket_hash" gorm:"column:bucket_hash"`
-	Bucket       string `json:"bucket" gorm:"column:bucket"`
-	BucketGroup  int32  `json:"bucket_group" gorm:"column:bucket_group"`
-	BucketPrefix string `json:"bucket_prefix" gorm:"column:bucket_prefix"`
-	BucketType   int32  `json:"bucket_type" gorm:"column:bucket_type"`
-	Dateline     int64  `json:"dateline" gorm:"column:dateline"`
-	CollectNum   int32  `json:"collect_num" gorm:"column:collect_num"`
-	ZanNum       int32  `json:"zan_num" gorm:"column:zan_num"`
-	Views        int32  `json:"views" gorm:"column:views"`
-	Liked        bool   `json:"liked" gorm:"-"`
-	CoverUrl     string `json:"cover_url" gorm:"-"`
+type Project struct {
+	Id int32 `gorm:"primary_key;sort:desc" json:"id"` // Project
+
+	Name string `gorm:"column:name" json:"name"` // Project
+
+	Author string `gorm:"column:author" json:"author"` // Project
+
+	LoginUid int32 `gorm:"column:login_uid" json:"login_uid"` // Project
+
+	CreateAt string `gorm:"column:create_at" json:"create_at"` // Project
+
+	UpdateAt string `gorm:"column:update_at" json:"update_at"` // Project
+
 }
 
-func (MinioPostModel) TableName() string {
-	return "minio_post"
+// TableName 设置表明
+func (t Project) TableName() string {
+	return "project"
 }
 
 func TestConnect(t *testing.T) {
-	dbName := "dtwk_meter"
-	dsn := "/orange?charset=utf8mb4&parseTime=true&loc=Local"
-	Load(dbName).Build(
-		//WithLogDebug(true),
+	// loggerv3
+	loggerV3.New()
+
+	dbName := "company_ues"
+	dsn := "admin:yunquan2018@tcp(47.99.166.84:3306)/company_ues?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai"
+	New(
+		WithLogLevel(logger.Info),
 		WithMaxIdleConns(1),
 		WithMaxOpenConnss(5),
+		WithDbName(dbName),
 		WithDsn(dsn),
+		WithLoggerWriter(loggerV3.GetLogger()),
 	).MustInitMysql()
 
 	orm, _ := GetGormMysql(dbName)
-	model := MinioPostModel{}
+	model := Project{}
 	orm.First(&model)
 	t.Log(ijson.Pretty(model))
 
 	orm2, _ := GetGormMysql(dbName)
-	model2 := MinioPostModel{} // 不新建数据有问题，和上面一样
+	model2 := Project{} // 不新建数据有问题，和上面一样
 	orm2.Debug().Order("id desc").First(&model2)
 	t.Log(ijson.Pretty(model2))
 }

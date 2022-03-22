@@ -13,12 +13,13 @@ require (
 	github.com/go-cmd/cmd v1.3.0
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
 	github.com/go-redis/redis/v8 v8.11.3
+	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gotomicro/ego v0.6.2
 	github.com/guonaihong/gout v0.2.11
 	github.com/jinzhu/gorm v1.9.16
-	github.com/jinzhu/now v1.1.4 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jonboulle/clockwork v0.2.2 // indirect
 	github.com/json-iterator/go v1.1.11
 	github.com/k0kubun/go-ansi v0.0.0-20180517002512-3bf9e2903213
@@ -42,11 +43,12 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/smacker/opentracing-gorm v0.0.0-20181207094635-cd4974441042
 	github.com/sony/sonyflake v1.0.0
+	github.com/spf13/cast v1.3.1
 	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/buntdb v1.2.6
 	github.com/xujiajun/nutsdb v0.6.0
-	golang.org/x/crypto v0.0.0-20220214200702-86341886e292
+	golang.org/x/crypto v0.0.0-20220321153916-2c7772ba3064
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f
 	golang.org/x/oauth2 v0.0.0-20210810183815-faf39c7919d5
@@ -54,9 +56,9 @@ require (
 	golang.org/x/text v0.3.7
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
-	gorm.io/driver/mysql v1.2.1
-	gorm.io/driver/sqlserver v1.2.1
-	gorm.io/gorm v1.22.4
+	gorm.io/driver/mysql v1.3.2
+	gorm.io/driver/sqlserver v1.3.1
+	gorm.io/gorm v1.23.3
 )
 
 replace github.com/tidwall/gjson => github.com/tidwall/gjson v1.9.3
