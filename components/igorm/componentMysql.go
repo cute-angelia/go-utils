@@ -60,6 +60,7 @@ func (c *Component) initMysqlDb() *gorm.DB {
 		logger.Config{
 			SlowThreshold: time.Second,       // Slow SQL threshold
 			LogLevel:      c.config.LogLevel, // Log level
+			Colorful:      true,
 		},
 	)
 

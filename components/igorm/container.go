@@ -51,14 +51,14 @@ func WithDbName(dbName string) Option {
 	}
 }
 
-// SetMaxIdleConns 用于设置连接池中空闲连接的最大数量(10)
+// WithMaxIdleConns SetMaxIdleConns 用于设置连接池中空闲连接的最大数量(10)
 func WithMaxIdleConns(maxIdleConns int) Option {
 	return func(c *Container) {
 		c.config.MaxIdleConns = maxIdleConns
 	}
 }
 
-// SetMaxOpenConns 设置打开数据库连接的最大数量(100)
+// WithMaxOpenConnss SetMaxOpenConns 设置打开数据库连接的最大数量(100)
 func WithMaxOpenConnss(maxOpenConns int) Option {
 	return func(c *Container) {
 		c.config.MaxOpenConns = maxOpenConns
