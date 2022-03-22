@@ -32,7 +32,7 @@ func TestConnect(t *testing.T) {
 	loggerV3.New()
 
 	dbName := "company_ues"
-	dsn := "admin:yunquan2018@tcp(47.99.166.84:3306)/company_ues?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai"
+	dsn := "admin"
 	New(
 		WithLogLevel(logger.Info),
 		WithMaxIdleConns(1),

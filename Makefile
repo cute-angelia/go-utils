@@ -12,6 +12,6 @@ tag:
 	git add .
 	git commit -am "upload"
 	git push origin master
-	git tag v1.7.19
+	git tag v1.7.20
 	git push --tags
 	@echo "\n tags 发布中..."
