@@ -14,7 +14,7 @@ type Sign struct {
 	apiKey string
 }
 
-// 创建
+// NewSign 创建
 func NewSign(apikey string) *Sign {
 	if len(apikey) > 0 {
 		return &Sign{
@@ -35,16 +35,15 @@ func (c *Sign) GetApiKey() string {
 	return c.apiKey
 }
 
-// 验证签名
+// ValidSign 验证签名
 func (c *Sign) ValidSign(signIn string, signOut string) bool {
 	return signIn == signOut
 }
 
-/**
-Signature 签名算法
-query = r.URL.Query()
-*/
-func (c *Sign) Signature(query map[string][]string) string {
+// Signature 签名算法
+// query = r.URL.Query()
+// 返回加密后 和 加密字符串
+func (c *Sign) Signature(query map[string][]string) (string, string) {
 	// 排序
 	keys := make([]string, 0, len(query))
 	for k := range query {
@@ -69,5 +68,5 @@ func (c *Sign) Signature(query map[string][]string) string {
 	md5Ctx := md5.New()
 	md5Ctx.Write([]byte(stringA))
 	sign := hex.EncodeToString(md5Ctx.Sum(nil))
-	return strings.ToUpper(sign)
+	return strings.ToUpper(sign), stringA
 }

@@ -7,7 +7,6 @@ import (
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/cute-angelia/go-utils/components/idownload"
 	"github.com/cute-angelia/go-utils/syntax/ifile"
-	"github.com/gotomicro/ego/core/elog"
 	"io"
 	"log"
 	"net/url"
@@ -16,27 +15,25 @@ import (
 	"time"
 )
 
+const PackageName = "components.aliyun-oss"
+
 type Component struct {
-	name   string
 	config *config
-	logger *elog.Component
 	Client *oss.Bucket
 }
 
 // newComponent ...
-func newComponent(compName string, config *config, logger *elog.Component) *Component {
+func newComponent(config *config) *Component {
 	client, err := oss.New(config.Endpoint, config.AccessKeyId, config.AccessKeySecret)
 	if err != nil {
 		log.Println(err.Error())
 	}
 	bucket, err := client.Bucket(config.BucketName)
 	if err != nil {
-		logger.Error("发生错误" + err.Error())
+		log.Println("发生错误" + err.Error())
 	}
 	return &Component{
-		name:   compName,
 		config: config,
-		logger: logger,
 		Client: bucket,
 	}
 }
@@ -61,7 +58,8 @@ func (e Component) GetObjectKeyByUrl(uri string) string {
 
 // 拼接完整路径
 func (e Component) JoinUrl(objectKey string) string {
-	return fmt.Sprintf("%s/%s", e.config.BucketHost, objectKey)
+	e.config.BucketHost = strings.TrimRight(e.config.BucketHost, "/")
+	return fmt.Sprintf("%s/%s", e.config.BucketHost, e.CleanObjKey(objectKey))
 }
 
 func (e Component) CleanObjKey(objectKey string) string {

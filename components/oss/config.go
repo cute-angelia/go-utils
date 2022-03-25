@@ -1,7 +1,5 @@
 package oss
 
-const PackageName = "aliyun-oss"
-
 // config options
 type config struct {
 	AccessKeyId     string

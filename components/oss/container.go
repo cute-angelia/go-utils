@@ -2,8 +2,8 @@ package oss
 
 import (
 	"fmt"
-	"github.com/gotomicro/ego/core/econf"
-	"github.com/gotomicro/ego/core/elog"
+	"github.com/cute-angelia/go-utils/syntax/ijson"
+	"github.com/spf13/viper"
 	"log"
 )
 
@@ -12,27 +12,35 @@ type Option func(c *Container)
 type Container struct {
 	config *config
 	name   string
-	logger *elog.Component
 }
 
 func DefaultContainer() *Container {
 	return &Container{
 		config: DefaultConfig(),
-		logger: elog.EgoLogger.With(elog.FieldComponent(PackageName)),
 	}
 }
 
-func Load(key string) *Container {
-	c := DefaultContainer()
-	// 两种方式，一种是 ego 的 config 加载，一种是option with 加载
-	if err := econf.UnmarshalKey(key, &c.config); err != nil {
-		c.logger.Panic("parse config error", elog.FieldErr(err), elog.FieldKey(key))
-		return c
+// Load viper 加载 配置
+func Load(key string) *Component {
+	iconfig := DefaultConfig()
+	configData := viper.GetStringMap(key)
+	jsonstr, _ := ijson.Marshal(configData)
+	if err := ijson.Unmarshal(jsonstr, &iconfig); err != nil {
+		log.Println(err)
 	}
+	// log.Println(ijson.Pretty(iconfig))
+	return newComponent(iconfig)
+}
 
-	c.logger = c.logger.With(elog.FieldComponentName(key))
-	c.name = key
-	return c
+// New options 模式
+func New(options ...Option) *Component {
+	c := &Container{
+		config: DefaultConfig(),
+	}
+	for _, option := range options {
+		option(c)
+	}
+	return newComponent(c.config)
 }
 
 func WithAccessKeyId(AccessKeyId string) Option {
@@ -77,5 +85,5 @@ func (c *Container) MustBuild(options ...Option) *Component {
 		len(c.config.AccessKeySecret) == 0 {
 		log.Println(PackageName, fmt.Sprintf("ERROR: %+v", c.config))
 	}
-	return newComponent(c.name, c.config, c.logger)
+	return newComponent(c.config)
 }
