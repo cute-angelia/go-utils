@@ -1,0 +1,10 @@
+[90m2022-03-28 11:04:26.570[0m | WARN  | [1mlogger_test.go:13[0m[36m >[0m hello, success [36mname=[0mkk
+[90m2022-03-28 11:04:26.570[0m | INFO  | [1mlogger_test.go:14[0m[36m >[0m hello
+[90m2022-03-28 11:04:26.570[0m | INFO  | [1mlogger_test.go:15[0m[36m >[0m cat
+[90m2022-03-28 11:04:26.570[0m | INFO  | [1mlogger_test.go:16[0m[36m >[0m dog
+[90m2022-03-28 11:04:26.570[0m | ERROR | [1mlogger_test.go:17[0m[36m >[0m dog
+[90m2022-03-28 11:04:26.570[0m | WARN  | [1mlogger_test.go:29[0m[36m >[0m hello, success [36mname=[0mkk
+[90m2022-03-28 11:04:26.570[0m | INFO  | [1mlogger_test.go:30[0m[36m >[0m hello
+[90m2022-03-28 11:04:26.570[0m | INFO  | [1mlogger_test.go:31[0m[36m >[0m cat
+[90m2022-03-28 11:04:26.570[0m | INFO  | [1mlogger_test.go:32[0m[36m >[0m dog
+[90m2022-03-28 11:04:26.570[0m | ERROR | [1mlogger_test.go:33[0m[36m >[0m dog

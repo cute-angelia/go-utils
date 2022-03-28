@@ -38,23 +38,24 @@ func newComponent(config *config) *Component {
 
 func (self *Component) NewLogger() *zerolog.Logger {
 	logOnce.Do(func() {
-		// 开发模式自定义日志格式
-		output := self.formatLogger(os.Stdout)
-		// 原生日志支持
-		log.SetFlags(0)
-		log.SetOutput(zerolog.New(output).With().Timestamp().CallerWithSkipFrameCount(4).Logger())
-
 		var writers []io.Writer
 		if self.config.IsOnline {
-
+			var w io.Writer
+			// 线上 json 模式
 			if self.config.FileJson {
-				// 线上 json 模式
-				writers = append(writers, self.newRollingFile())
+				w = self.newRollingFile()
 			} else {
 				// 线上输出模式
-				writers = append(writers, self.formatLogger(self.newRollingFile()))
+				w = self.formatLogger(self.newRollingFile())
 			}
+			log.SetOutput(w)
+			writers = append(writers, w)
 		} else {
+			// 开发模式自定义日志格式
+			output := self.formatLogger(os.Stdout)
+			// 原生日志支持
+			log.SetFlags(0)
+			log.SetOutput(zerolog.New(output).With().Timestamp().CallerWithSkipFrameCount(4).Logger())
 			writers = append(writers, output)
 		}
 		mw := zerolog.MultiLevelWriter(writers...)
