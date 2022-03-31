@@ -9,12 +9,12 @@ import (
 func TestLoggerLoad(t *testing.T) {
 	conf.LoadConfigFile("config_test.toml")
 	logger := Load("logger.test").NewLogger()
-	log.Println("heloe")
 	logger.Warn().Str("name", "kk").Msg("hello, success")
 	logger.Info().Msg("hello")
 	logger.Info().Msg("cat")
 	logger.Info().Msg("dog")
 	logger.Error().Msg("dog")
+	log.Println("heloe xxxxxxxxxxxxxxxxxxxxxx")
 }
 
 func TestLogger(t *testing.T) {
@@ -24,7 +24,7 @@ func TestLogger(t *testing.T) {
 		WithLevel(1),
 	).NewLogger()
 
-	log.Println("heloe")
+	log.Println("heloe ttttttttttttttttttt")
 
 	logger.Warn().Str("name", "kk").Msg("hello, success")
 	logger.Info().Msg("hello")

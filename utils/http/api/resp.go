@@ -96,7 +96,7 @@ func SuccessCache(w http.ResponseWriter, code int, msg string, cacheData interfa
 }
 
 // 错误
-func Error(w http.ResponseWriter, r *http.Request, data interface{}, msg string, code int32) {
+func Error(w http.ResponseWriter, r *http.Request, data interface{}, msg string, code int) {
 	// 内部错误
 	if code == 500 {
 		http.Error(w, msg, 500)
@@ -104,7 +104,7 @@ func Error(w http.ResponseWriter, r *http.Request, data interface{}, msg string,
 	}
 
 	response := Res{
-		Code: 0,
+		Code: code,
 		Msg:  msg,
 		Data: data,
 	}

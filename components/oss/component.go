@@ -2,6 +2,7 @@ package oss
 
 import (
 	"bytes"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
@@ -80,7 +81,7 @@ func (e Component) FPutObject(objectNameIn string, filePath string) (string, err
 	return e.CleanObjKey(objectNameIn), e.Client.PutObjectFromFile(objectNameIn, filePath)
 }
 
-// 提供链接，上传, 返回key， filehash, error
+// PutObjectWithSrc 提供链接，上传, 返回key， filehash, error
 func (e Component) PutObjectWithSrc(uri string, objectName string) (string, string, error) {
 	// http 不处理
 	if !strings.Contains(uri, "http") {
@@ -108,6 +109,17 @@ func (e Component) PutObjectWithSrc(uri string, objectName string) (string, stri
 			log.Printf(PackageName+"上传成功：✅ %s => %s", uri, objectName)
 			return p, ifile.FileHashSHA1(bytes.NewReader(filebyte)), nil
 		}
+	}
+}
+
+// PutObjectWithBase64 上传 - base64
+func (e Component) PutObjectWithBase64(objectNameIn string, base64File string) (string, error) {
+	b64data := base64File[strings.IndexByte(base64File, ',')+1:]
+	if decode, err := base64.StdEncoding.DecodeString(b64data); err == nil {
+		body := bytes.NewReader(decode)
+		return e.PutObject(objectNameIn, body)
+	} else {
+		return "", err
 	}
 }
 
