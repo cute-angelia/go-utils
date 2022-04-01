@@ -31,4 +31,6 @@ func TestLogger(t *testing.T) {
 	logger.Info().Msg("cat")
 	logger.Info().Msg("dog")
 	logger.Error().Msg("dog")
+
+	select {}
 }

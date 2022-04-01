@@ -1,6 +1,0 @@
-{"level":"warn","name":"kk","time":"2022-03-31 14:23:49.038","caller":"logger_test.go:12","message":"hello, success"}
-{"level":"info","time":"2022-03-31 14:23:49.038","caller":"logger_test.go:13","message":"hello"}
-{"level":"info","time":"2022-03-31 14:23:49.038","caller":"logger_test.go:14","message":"cat"}
-{"level":"info","time":"2022-03-31 14:23:49.038","caller":"logger_test.go:15","message":"dog"}
-{"level":"error","time":"2022-03-31 14:23:49.038","caller":"logger_test.go:16","message":"dog"}
-2022/03/31 14:23:49.038505 logger_test.go:17: heloe xxxxxxxxxxxxxxxxxxxxxx
