@@ -25,7 +25,7 @@ func (c *Component) String() string {
 	return ComponentName
 }
 
-// InitWithRedis 初始化
+// InitWeWork 初始化
 func (c *Component) InitWeWork(redisClient *redis.Client) {
 	log.Println("InitWeWork", c.config.CorpId, c.config.AgentId)
 	Corp := corporation.New(corporation.Config{
