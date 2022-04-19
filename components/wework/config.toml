@@ -1,9 +1,9 @@
 [redis]
 Name = "cache"
-Server = "47.99.166.84:6379"
-Password = "yunquan2018"
+Server = "47.99.16.84:6379"
+Password = "yunuan2018"
 
 [wework]
-CorpId = "ww02771f6067ba6caf"
-AgentId = "1000012"
-Secret = "VtC5gO8H3irivLWSX5WI45XWUXUhYk0SStw25uj76Z0"
+CorpId = "ww02771f6067ba6caf1"
+AgentId = "10000122"
+Secret = "VtC5gO8H3irivLWSX5WI45XWUXUhYk0SStw25uj76Z03"
