@@ -53,6 +53,16 @@ func (c Component) printRedisPool(msg string, stats *redis.PoolStats) {
 	)
 }
 
+// GetRedisClint 获取 redis 实例
+func GetRedisClient(name string) *redis.Client {
+	if v, ok := RedisPools.Load(name); ok {
+		return v.(*redis.Client)
+	} else {
+		return nil
+	}
+}
+
+// GetRedis 获取 redis 实例
 func GetRedis(name string) (*redis.Client, error) {
 	if v, ok := RedisPools.Load(name); ok {
 		return v.(*redis.Client), nil

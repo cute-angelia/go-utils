@@ -53,7 +53,7 @@ func newComponent(compName string, config *config, logger *elog.Component) *Comp
 	}
 }
 
-// 获取链接 不带bucket
+// SignUrlWithCache 获取链接 不带bucket
 func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration) (string, error) {
 	hashkey := e.GenerateHashKey(1, bucket, key)
 	cachedata := ibunt.Get("cache", hashkey)
@@ -73,7 +73,7 @@ func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration)
 	}
 }
 
-// 获取链接 链接带 bucket
+// SignCoverWithCache 获取链接 链接带 bucket
 func (e *Component) SignCoverWithCache(cover string, t time.Duration) string {
 	if strings.Contains(cover, "http") {
 		return cover
@@ -90,12 +90,12 @@ func (e *Component) SignCoverWithCache(cover string, t time.Duration) string {
 	}
 }
 
-// 生成缓存
+// GenerateHashKey 生成缓存
 func (e *Component) GenerateHashKey(bucketType int32, bucket string, prefix string) string {
 	return hash.NewEncodeMD5(fmt.Sprintf("%d%s%s", bucketType, bucket, prefix))
 }
 
-// minio 获取分页对象数据
+// GetObjectsByPage minio 获取分页对象数据
 // 1.分页
 // 2.可以指定文件后缀获取
 func (e *Component) GetObjectsByPage(bucket string, prefix string, page int32, perpage int32, fileExt []string) (objs []string, notall bool) {
@@ -158,8 +158,8 @@ func (e *Component) GetObjectsByPage(bucket string, prefix string, page int32, p
 	return objs, notall
 }
 
-// Objects 状态
-func (e Component) GetObjectStat(bucket string, objectName string) (minio.ObjectInfo, error) {
+// GetObjectStat Objects 状态
+func (e *Component) GetObjectStat(bucket string, objectName string) (minio.ObjectInfo, error) {
 	objInfo, err := e.Client.StatObject(context.Background(), bucket, objectName, minio.StatObjectOptions{})
 	if err != nil {
 		log.Println(err)
@@ -167,7 +167,7 @@ func (e Component) GetObjectStat(bucket string, objectName string) (minio.Object
 	return objInfo, err
 }
 
-func (e Component) CheckMode(objectName string) (newObjectName string, canupload bool) {
+func (e *Component) CheckMode(objectName string) (newObjectName string, canupload bool) {
 	// 跳过
 	if e.config.ReplaceMode == ReplaceModeIgnore {
 		canupload = false
@@ -185,8 +185,8 @@ func (e Component) CheckMode(objectName string) (newObjectName string, canupload
 	return
 }
 
-// 上传-按读取文件数据
-func (e Component) PutObject(bucket string, objectNameIn string, reader io.Reader, objectSize int64, objopt minio.PutObjectOptions) (minio.UploadInfo, error) {
+// PutObject 上传-按读取文件数据
+func (e *Component) PutObject(bucket string, objectNameIn string, reader io.Reader, objectSize int64, objopt minio.PutObjectOptions) (minio.UploadInfo, error) {
 	if objectName, ok := e.CheckMode(objectNameIn); ok {
 		objectName = strings.Replace(objectName, "//", "/", -1)
 
@@ -208,7 +208,7 @@ func (e Component) PutObject(bucket string, objectNameIn string, reader io.Reade
 }
 
 // FPutObject 上传-按存在文件
-func (e Component) FPutObject(bucket string, objectNameIn string, filePath string, objopt minio.PutObjectOptions) (minio.UploadInfo, error) {
+func (e *Component) FPutObject(bucket string, objectNameIn string, filePath string, objopt minio.PutObjectOptions) (minio.UploadInfo, error) {
 	if objectName, ok := e.CheckMode(objectNameIn); ok {
 
 		// 打开文件
@@ -243,7 +243,7 @@ func (e Component) FPutObject(bucket string, objectNameIn string, filePath strin
 }
 
 // PutObjectBase64 上传 - base64
-func (e Component) PutObjectBase64(bucket string, objectNameIn string, base64File string, objopt minio.PutObjectOptions) (minio.UploadInfo, error) {
+func (e *Component) PutObjectBase64(bucket string, objectNameIn string, base64File string, objopt minio.PutObjectOptions) (minio.UploadInfo, error) {
 	if objectName, ok := e.CheckMode(objectNameIn); ok {
 		b64data := base64File[strings.IndexByte(base64File, ',')+1:]
 		if decode, err := base64.StdEncoding.DecodeString(b64data); err == nil {
@@ -267,7 +267,7 @@ func (e Component) PutObjectBase64(bucket string, objectNameIn string, base64Fil
 
 // PutObjectWithSrc 提供链接，上传到 minio
 // return key & hash sha1 & error
-func (e Component) PutObjectWithSrc(dnComponent *idownload.Component, uri string, bucket string, objectName string, objopt minio.PutObjectOptions) (string, error) {
+func (e *Component) PutObjectWithSrc(dnComponent *idownload.Component, uri string, bucket string, objectName string, objopt minio.PutObjectOptions) (string, error) {
 	// http 不处理
 	if !strings.Contains(uri, "http") {
 		return uri, errors.New("非链接地址:" + uri)
@@ -337,8 +337,8 @@ func (e Component) PutObjectWithSrc(dnComponent *idownload.Component, uri string
 	}
 }
 
-// 删除文件
-func (e Component) DeleteObject(objectNameWithBucket string) error {
+// DeleteObject 删除文件
+func (e *Component) DeleteObject(objectNameWithBucket string) error {
 	opts := minio.RemoveObjectOptions{}
 	bucket, objectName := e.GetBucketAndObjectName(objectNameWithBucket)
 
@@ -352,8 +352,8 @@ func (e Component) DeleteObject(objectNameWithBucket string) error {
 	return nil
 }
 
-// 根据路径获取bucket 和 object name
-func (e Component) GetBucketAndObjectName(objectNameWithBucket string) (string, string) {
+// GetBucketAndObjectName 根据路径获取bucket 和 object name
+func (e *Component) GetBucketAndObjectName(objectNameWithBucket string) (string, string) {
 	if len(objectNameWithBucket) > 0 {
 		objectNameWithBucket = strings.TrimLeft(objectNameWithBucket, "/")
 		temp := strings.Split(objectNameWithBucket, "/")
@@ -368,17 +368,17 @@ func (e Component) GetBucketAndObjectName(objectNameWithBucket string) (string, 
 	}
 }
 
-// 获取默认PutObjectOptions
+// GetPutObjectOptions 获取默认PutObjectOptions
 // video/mp4,video/webm,video/ogg
-func (e Component) GetPutObjectOptions(contentType string) minio.PutObjectOptions {
+func (e *Component) GetPutObjectOptions(contentType string) minio.PutObjectOptions {
 	if len(contentType) > 0 {
 		return minio.PutObjectOptions{ContentType: contentType}
 	}
 	return minio.PutObjectOptions{ContentType: "image/jpeg,image/png,image/jpeg"}
 }
 
-// 根据类型获取对象
-func (e Component) GetPutObjectOptionByExt(fileExt string) minio.PutObjectOptions {
+// GetPutObjectOptionByExt 根据类型获取对象
+func (e *Component) GetPutObjectOptionByExt(fileExt string) minio.PutObjectOptions {
 	contentType := ""
 	switch fileExt {
 	case ".png":
@@ -404,6 +404,6 @@ func (e Component) GetPutObjectOptionByExt(fileExt string) minio.PutObjectOption
 	return minio.PutObjectOptions{ContentType: contentType}
 }
 
-func (e Component) GetConfig() {
+func (e *Component) GetConfig() {
 	log.Println(PackageName, "配置信息：", fmt.Sprintf("%+v", e.config))
 }

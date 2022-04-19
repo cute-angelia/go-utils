@@ -8,6 +8,8 @@ require (
 	github.com/astaxie/beego v1.12.3
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/dustin/go-humanize v1.0.0
+	github.com/faabiosr/cachego v0.16.3
+	github.com/fastwego/wxwork v1.0.0-beta.8
 	github.com/garyburd/redigo v1.6.2
 	github.com/go-chi/chi v1.5.4
 	github.com/go-cmd/cmd v1.3.0

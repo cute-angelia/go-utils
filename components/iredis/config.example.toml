@@ -1,0 +1,4 @@
+[redis]
+Name = "cache"
+Server = "47.99.16.84:6379"
+Password = "yunuan2018"
