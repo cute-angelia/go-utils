@@ -1,10 +1,12 @@
 package idownload
 
 import (
+	"context"
 	"github.com/cute-angelia/go-utils/syntax/ifile"
 	"github.com/cute-angelia/go-utils/syntax/ijson"
 	"log"
 	"testing"
+	"time"
 )
 
 type datas struct {
@@ -91,4 +93,28 @@ func TestDownLargeFile(t *testing.T) {
 	} else {
 		log.Println(err)
 	}
+}
+
+// 定时器测试， 必须 reset
+func TestRetryTimer(t *testing.T) {
+	timer := time.NewTimer(time.Second * 5)
+	for i := 0; i < 12; i++ {
+		timer.Reset(time.Second * 2)
+		select {
+		case <-timer.C:
+			log.Println("z...", i)
+		}
+	}
+	timer.Stop()
+}
+
+// 重试方法
+func TestRetryFuc(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	defer cancel()
+
+	NewRetry(3, time.Second*3).Func(func() error {
+		log.Println("i, ok")
+		return ErrRetry
+	}).Do(ctx)
 }

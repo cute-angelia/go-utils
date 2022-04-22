@@ -8,3 +8,7 @@ idownload.Load("").Build(
     idownload.WithReferer(e.config.Referer),
 )
 ```
+
+搭配协程池
+
+https://github.com/wazsmwazsm/mortar

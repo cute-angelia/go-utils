@@ -7,8 +7,11 @@ import (
 
 // config options
 type config struct {
-	ProxyHttp                string // 代理 http://ip:port
-	ProxySocks5              string // 代理 ip:port
+	// 代理
+	ProxyHttp   string // 代理 http://ip:port
+	ProxySocks5 string // 代理 ip:port
+
+	// 头部信息
 	Cookie                   string // cookie
 	Referer                  string // Referer
 	UserAgent                string // user-agent
@@ -16,11 +19,16 @@ type config struct {
 	UseRandomUserAgentMobile bool
 	Authorization            string
 
+	// 重试
+	RetryAttempt  int           // 重试次数
+	RetryWaitTime time.Duration // 重试间隔
+
 	// 并发数量
 	Concurrency int
 	// 分片下载
 	Resume bool
 
+	// 超时
 	Timeout time.Duration // 超时时间
 	Debug   bool          //  debug 日志
 }
@@ -43,5 +51,7 @@ func DefaultConfig() *config {
 		Referer:                  "",
 		Debug:                    false,
 		Authorization:            "",
+		RetryAttempt:             3,
+		RetryWaitTime:            time.Second * 5,
 	}
 }

@@ -112,6 +112,16 @@ func WithConcurrency(concurrency int) Option {
 		c.config.Concurrency = concurrency
 	}
 }
+func WithRetryAttempt(retryAttempt int) Option {
+	return func(c *Container) {
+		c.config.RetryAttempt = retryAttempt
+	}
+}
+func WithRetryWaitTime(retryWaitTime time.Duration) Option {
+	return func(c *Container) {
+		c.config.RetryWaitTime = retryWaitTime
+	}
+}
 
 // Build ...
 func (c *Container) Build(options ...Option) *Component {

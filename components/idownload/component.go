@@ -2,6 +2,7 @@ package idownload
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"github.com/gotomicro/ego/core/elog"
@@ -99,22 +100,56 @@ func (d *Component) GetContentLength(strURL string) int {
 }
 
 // Download 下载文件
-func (d *Component) Download(strURL, filename string) (FileInfo, error) {
+func (d *Component) Download(strURL, filename string) (fileInfo FileInfo, errResp error) {
 	if filename == "" {
 		filename = path.Base(strURL)
 	}
 	header := http.Header{}
 	var statusCode int
+
+	ctx, cancel := context.WithTimeout(context.Background(), d.config.Timeout)
+	defer cancel()
+
 	if err := d.getGoHttpClient(strURL, "HEAD").BindHeader(&header).Code(&statusCode).Do(); err == nil {
 		if statusCode == http.StatusOK && header.Get("Accept-Ranges") == "bytes" {
 			contentLength, _ := strconv.Atoi(header.Get("Content-Length"))
-			return d.multiDownload(strURL, filename, contentLength)
+			if fileInfo, errResp = d.multiDownload(strURL, filename, contentLength); err != nil {
+				//  重试下载
+				if d.config.RetryAttempt > 0 {
+					NewRetry(d.config.RetryAttempt, d.config.RetryWaitTime).Func(func() error {
+						log.Println("NewRetry multiDownload", strURL, filename)
+						fileInfo, errResp = d.multiDownload(strURL, filename, contentLength)
+						if errResp != nil {
+							return ErrRetry
+						} else {
+							return nil
+						}
+					}).Do(ctx)
+				}
+			}
+			return fileInfo, errResp
 		}
 		if statusCode == http.StatusNotFound {
 			return FileInfo{}, ErrorNotFound
 		}
 	}
-	return d.singleDownload(strURL, filename)
+
+	// 单例下载
+	if fileInfo, errResp = d.singleDownload(strURL, filename); errResp != nil {
+		//  重试下载
+		if d.config.RetryAttempt > 0 {
+			NewRetry(d.config.RetryAttempt, d.config.RetryWaitTime).Func(func() error {
+				log.Println("NewRetry singleDownload", strURL, filename)
+				fileInfo, errResp = d.singleDownload(strURL, filename)
+				if errResp != nil {
+					return ErrRetry
+				} else {
+					return nil
+				}
+			}).Do(ctx)
+		}
+	}
+	return fileInfo, errResp
 }
 
 // DownloadToByteRetry 请求文件，返回 字节
@@ -228,7 +263,6 @@ func (d *Component) multiDownload(strURL, filename string, contentLen int) (File
 //  singleDownload 直接下载
 func (d *Component) singleDownload(strURL, filename string) (FileInfo, error) {
 	var info FileInfo
-
 	// 需要进度条，更要复用 http.client 这里就不使用原生的 http
 	// resp, err := http.Get(strURL)
 	// Transport: &http.Transport{
@@ -297,13 +331,15 @@ func (d *Component) downloadPartial(strURL, filename string, rangeStart, rangeEn
 
 	req, err := http.NewRequest("GET", strURL, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
 
 	req.Header.Set("Range", fmt.Sprintf("bytes=%d-%d", rangeStart, rangeEnd))
 	resp, err := iClient.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
 	defer resp.Body.Close()
 
@@ -314,7 +350,8 @@ func (d *Component) downloadPartial(strURL, filename string, rangeStart, rangeEn
 
 	partFile, err := os.OpenFile(d.getPartFilename(filename, i), flags, 0666)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
 	defer partFile.Close()
 
