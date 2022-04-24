@@ -22,6 +22,13 @@ import (
 
 const PackageName = "component.download.file"
 
+// 全局 iclient
+var iHttpClient *gout.Client
+
+func init() {
+	iHttpClient = gout.NewWithOpt(gout.WithInsecureSkipVerify())
+}
+
 var (
 	ErrorNotFound = errors.New("404 file not found")
 )
@@ -53,22 +60,21 @@ func newComponent(compName string, config *config, logger *elog.Component) *Comp
 // getGoHttpClient 业务定制头部
 func (d *Component) getGoHttpClient(uri string, method string) *dataflow.DataFlow {
 	var igout *dataflow.DataFlow
-	ic := gout.NewWithOpt(gout.WithInsecureSkipVerify())
 	switch method {
 	case "GET":
-		igout = ic.GET(uri)
+		igout = iHttpClient.GET(uri)
 	case "POST":
-		igout = ic.POST(uri)
+		igout = iHttpClient.POST(uri)
 	case "PUT":
-		igout = ic.PUT(uri)
+		igout = iHttpClient.PUT(uri)
 	case "DELETE":
-		igout = ic.DELETE(uri)
+		igout = iHttpClient.DELETE(uri)
 	case "HEAD":
-		igout = ic.HEAD(uri)
+		igout = iHttpClient.HEAD(uri)
 	case "OPTIONS":
-		igout = ic.OPTIONS(uri)
+		igout = iHttpClient.OPTIONS(uri)
 	default:
-		igout = ic.GET(uri)
+		igout = iHttpClient.GET(uri)
 	}
 	// 设置过期时间
 	if d.config.Timeout > 0 {
