@@ -146,10 +146,12 @@ func (a *aesPackage) EncryptCBC(message []byte, mode Mode) *aesPackage {
 }
 
 // 解密 CBC
-func (a *aesPackage) DecryptCBC(cipherText []byte, mode Mode) *aesPackage {
+func (a *aesPackage) DecryptCBC(cipherText []byte, iv []byte, mode Mode) *aesPackage {
 	//AES分组长度为128位，所以blockSize=16，单位字节
 	blockSize := a.Block.BlockSize()
-	iv := a.Secret[:blockSize] // /初始向量的长度必须等于块block的长度16字节
+	if len(iv) == 0 {
+		iv = a.Secret[:blockSize] // /初始向量的长度必须等于块block的长度16字节
+	}
 	blockMode := cipher.NewCBCDecrypter(a.Block, iv)
 	origData := make([]byte, len(cipherText))
 	blockMode.CryptBlocks(origData, cipherText)
