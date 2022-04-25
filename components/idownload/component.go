@@ -26,7 +26,7 @@ const PackageName = "component.download.file"
 var iHttpClient *gout.Client
 
 func init() {
-	iHttpClient = gout.NewWithOpt(gout.WithInsecureSkipVerify())
+	iHttpClient = gout.NewWithOpt(gout.WithInsecureSkipVerify(), gout.WithClose3xxJump())
 }
 
 var (
@@ -117,6 +117,11 @@ func (d *Component) Download(strURL, filename string) (fileInfo FileInfo, errRes
 	defer cancel()
 
 	if err := d.getGoHttpClient(strURL, "HEAD").BindHeader(&header).Code(&statusCode).Do(); err == nil {
+		// 下载地址切换
+		if len(header["Location"]) > 0 {
+			strURL = header["Location"][0]
+		}
+
 		if statusCode == http.StatusOK && header.Get("Accept-Ranges") == "bytes" {
 			contentLength, _ := strconv.Atoi(header.Get("Content-Length"))
 			if fileInfo, errResp = d.multiDownload(strURL, filename, contentLength); err != nil {

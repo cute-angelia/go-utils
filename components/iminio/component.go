@@ -316,9 +316,9 @@ func (e *Component) PutObjectWithSrc(dnComponent *idownload.Component, uri strin
 	} else {
 		if filebyte, err := dnComponent.DownloadToByte(uri); err != nil {
 			if e.config.Debug {
-				log.Println(PackageName, "获取图片失败：❌", uri, err)
+				log.Println(PackageName, "DownloadToByte 失败：❌", uri, err)
 			}
-			return "", errors.New("获取图片失败：❌" + uri + "  " + err.Error())
+			return "", errors.New("DownloadToByte 失败：❌" + uri + "  " + err.Error())
 		} else {
 			// 打印日志
 			if e.config.Debug {

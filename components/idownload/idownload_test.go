@@ -14,6 +14,14 @@ type datas struct {
 	Socket string
 }
 
+func TestDownloadDouyin(t *testing.T) {
+	uri := "https://aweme.snssdk.com/aweme/v1/play/?video_id=v0200fg10000c6b2tlrc77ub0qkvip1g&line=0&ratio=1080p&media_type=4&vr_type=0&improve_bitrate=0&is_play_url=1&is_support_h265=0&source=PackSourceEnum_PUBLISH"
+	idown := Load("").Build()
+	findo, err := idown.Download(uri, "/tmp/1.mp4")
+	log.Println(ijson.Pretty(findo))
+	log.Println(err)
+}
+
 func TestDownloads(t *testing.T) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile | log.Lmsgprefix)
 	var data []datas
