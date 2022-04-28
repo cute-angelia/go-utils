@@ -1,7 +1,6 @@
 package idownload
 
 import (
-	"runtime"
 	"time"
 )
 
@@ -35,12 +34,8 @@ type config struct {
 
 // DefaultConfig 返回默认配置
 func DefaultConfig() *config {
-	concurrency := runtime.NumCPU()
-	if concurrency >= 2 {
-		concurrency = concurrency / 2
-	}
 	return &config{
-		Concurrency:              concurrency,
+		Concurrency:              0,
 		Resume:                   true,
 		ProxyHttp:                "",
 		ProxySocks5:              "",

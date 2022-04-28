@@ -3,6 +3,7 @@ package idownload
 import (
 	"github.com/gotomicro/ego/core/econf"
 	"github.com/gotomicro/ego/core/elog"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -108,6 +109,15 @@ func WithAuthorization(authorization string) Option {
 }
 
 func WithConcurrency(concurrency int) Option {
+	return func(c *Container) {
+		c.config.Concurrency = concurrency
+	}
+}
+func WithConcurrencyCpu() Option {
+	concurrency := runtime.NumCPU()
+	if concurrency >= 2 {
+		concurrency = concurrency / 2
+	}
 	return func(c *Container) {
 		c.config.Concurrency = concurrency
 	}

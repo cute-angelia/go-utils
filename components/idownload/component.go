@@ -31,6 +31,7 @@ func init() {
 
 var (
 	ErrorNotFound = errors.New("404 file not found")
+	ErrorHead     = errors.New("error head")
 )
 
 type FileInfo struct {
@@ -86,12 +87,22 @@ func (d *Component) getGoHttpClient(uri string, method string) *dataflow.DataFlo
 	if len(d.config.ProxyHttp) > 0 {
 		igout = igout.SetProxy(d.config.ProxyHttp)
 	}
-	return igout.SetHeader(gout.H{
-		"Cookie":        d.config.Cookie,
-		"User-Agent":    d.config.UserAgent,
-		"Referer":       d.config.Referer,
-		"Authorization": "Bearer " + d.config.Authorization,
-	})
+
+	gh := gout.H{}
+	if len(d.config.UserAgent) > 0 {
+		gh["User-Agent"] = d.config.UserAgent
+	}
+	if len(d.config.Referer) > 0 {
+		gh["Referer"] = d.config.Referer
+	}
+	if len(d.config.Cookie) > 0 {
+		gh["Cookie"] = d.config.Cookie
+	}
+	if len(d.config.Authorization) > 0 {
+		gh["Authorization"] = "Bearer " + d.config.Authorization
+	}
+
+	return igout.SetHeader(gh)
 }
 
 // GetContentLength 获取文件长度
@@ -116,37 +127,43 @@ func (d *Component) Download(strURL, filename string) (fileInfo FileInfo, errRes
 	ctx, cancel := context.WithTimeout(context.Background(), d.config.Timeout)
 	defer cancel()
 
-	if err := d.getGoHttpClient(strURL, "HEAD").BindHeader(&header).Code(&statusCode).Do(); err == nil {
-		// 下载地址切换
-		if len(header["Location"]) > 0 {
-			strURL = header["Location"][0]
-		}
+	err := d.getGoHttpClient(strURL, "HEAD").BindHeader(&header).Code(&statusCode).Do()
+	if err != nil {
+		return FileInfo{}, ErrorHead
+	}
 
-		if statusCode == http.StatusOK && header.Get("Accept-Ranges") == "bytes" {
-			contentLength, _ := strconv.Atoi(header.Get("Content-Length"))
-			if fileInfo, errResp = d.multiDownload(strURL, filename, contentLength); err != nil {
-				//  重试下载
-				if d.config.RetryAttempt > 0 {
-					NewRetry(d.config.RetryAttempt, d.config.RetryWaitTime).Func(func() error {
-						log.Println("NewRetry multiDownload", strURL, filename)
-						fileInfo, errResp = d.multiDownload(strURL, filename, contentLength)
-						if errResp != nil {
-							return ErrRetry
-						} else {
-							return nil
-						}
-					}).Do(ctx)
-				}
+	if statusCode == http.StatusNotFound {
+		return FileInfo{}, ErrorNotFound
+	}
+
+	// 下载地址切换
+	if len(header["Location"]) > 0 {
+		strURL = header["Location"][0]
+	}
+
+	// 是否分片下载
+	if statusCode == http.StatusOK && header.Get("Accept-Ranges") == "bytes" && d.config.Concurrency > 0 {
+		contentLength, _ := strconv.Atoi(header.Get("Content-Length"))
+		if fileInfo, errResp = d.multiDownload(strURL, filename, contentLength); err != nil {
+			//  重试下载
+			if d.config.RetryAttempt > 0 {
+				NewRetry(d.config.RetryAttempt, d.config.RetryWaitTime).Func(func() error {
+					log.Println("NewRetry multiDownload", strURL, filename)
+					fileInfo, errResp = d.multiDownload(strURL, filename, contentLength)
+					if errResp != nil {
+						return ErrRetry
+					} else {
+						return nil
+					}
+				}).Do(ctx)
 			}
-			return fileInfo, errResp
 		}
-		if statusCode == http.StatusNotFound {
-			return FileInfo{}, ErrorNotFound
-		}
+		return fileInfo, errResp
 	}
 
 	// 单例下载
 	if fileInfo, errResp = d.singleDownload(strURL, filename); errResp != nil {
+		log.Println("下载失败：错误：", strURL, errResp)
 		//  重试下载
 		if d.config.RetryAttempt > 0 {
 			NewRetry(d.config.RetryAttempt, d.config.RetryWaitTime).Func(func() error {
@@ -225,7 +242,8 @@ func (d *Component) multiDownload(strURL, filename string, contentLen int) (File
 	// 创建部分文件的存放目录
 	partDir := d.getPartDir(filename)
 	os.Mkdir(partDir, 0777)
-	defer os.RemoveAll(partDir)
+
+	// defer os.RemoveAll(partDir)
 
 	var wg sync.WaitGroup
 	wg.Add(d.config.Concurrency)
