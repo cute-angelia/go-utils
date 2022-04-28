@@ -15,9 +15,11 @@ type datas struct {
 }
 
 func TestV2(t *testing.T) {
+	log.SetFlags(log.Lshortfile | log.Ltime)
 	// uri := "https://cdn.v2ph.com/photos/czjDRlLlhvf-robP.jpg"
 	uri := "https://cdn.v2ph.com/photos/4yUuLsfbGgf7dSdf.jpg"
-	idown := Load("").Build(
+	idown := New(
+		WithDebug(true),
 		WithReferer("https://www.v2ph.com/album/XIAOYU-555?page=2"),
 		WithUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36"),
 		WithCookie("frontend=54300d6621fe8bf51aa0bd41bac06da6; frontend-rmu=SIKqjQhmcTsvgdVhaeg4rdj7EC8%3D; frontend-rmt=iWCNVa30N8MEds0vju3LY9QKfnIPrNIgvZ45wtWJnCtsPtvgQCodEKj3RAqyd5cy; _gid=GA1.2.1309613440.1651131130; fpestid=UflGBDjSIrZXUuUkg9YCWQigFBXg9H5TVbykLToxcXpsc5zMwRXfjUSlegirc6fyzbK6rw; __cf_bm=YcWcL8MOMBKJYiDAXWLk6U0f4MbJU0x0twkWApJeQaI-1651138216-0-AUUO2wc3zy5DVtt8H4y8QdyCUha8yGwpS3g87QpXspOiPNv+Xm/ZgNEK1yisl9yhKSS3UCV7WR8Vgv8xze0zU4AO3xsw8CZ6skvQQe9PtInuA9vX50Bs9zGLseAcNPnuhA==; _ga_170M3FX3HZ=GS1.1.1651137021.3.1.1651138218.47; _ga=GA1.2.1638894544.1651131130"),
@@ -29,7 +31,7 @@ func TestV2(t *testing.T) {
 
 func TestV3(t *testing.T) {
 	uri := "https://wx1.sinaimg.cn/large/008oKRrcgy1gv7y8kragcj60u0140goh02.jpg"
-	idown := Load("").Build(
+	idown := New(
 		WithUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36"),
 	)
 	findo, err := idown.Download(uri, "/tmp/2.jpg")
@@ -39,7 +41,7 @@ func TestV3(t *testing.T) {
 
 func TestDownloadDouyin(t *testing.T) {
 	uri := "https://aweme.snssdk.com/aweme/v1/play/?video_id=v0200fg10000c6b2tlrc77ub0qkvip1g&line=0&ratio=1080p&media_type=4&vr_type=0&improve_bitrate=0&is_play_url=1&is_support_h265=0&source=PackSourceEnum_PUBLISH"
-	idown := Load("").Build()
+	idown := New()
 	findo, err := idown.Download(uri, "/tmp/1.mp4")
 	log.Println(ijson.Pretty(findo))
 	log.Println(err)
@@ -63,9 +65,9 @@ func TestDownloads(t *testing.T) {
 		},
 	)
 	for _, datum := range data {
-		idown := Load("").Build()
+		idown := New()
 		if len(datum.Socket) > 0 {
-			idown = Load("").Build(WithDebug(true), WithProxySocks5(datum.Socket))
+			idown = New(WithDebug(true), WithProxySocks5(datum.Socket))
 		}
 
 		// 下载文件
@@ -86,7 +88,7 @@ func TestDownloads(t *testing.T) {
 
 func TestDownloadHeader(t *testing.T) {
 	fileuri := "http://ali2.a.kwimgs.com/ufile/atlas/NTIwMzM0NjQ3NjI4NzQyODkwM18xNjMyMjMyOTczMzMx_0.jpg"
-	idown := Load("").Build(
+	idown := New(
 		WithDebug(true),
 		WithUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"),
 	)
@@ -100,7 +102,7 @@ func TestDownloadHeader(t *testing.T) {
 // go test -v -run TestDownload3
 func TestDownload3(t *testing.T) {
 	fileuri := "https://cdn.v2ph.com/photos/P0DcKbgkeL39x5Ir.jpg"
-	idown := Load("").Build(
+	idown := New(
 		WithDebug(true),
 		WithReferer("https://www.v2ph.com/"),
 		WithUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"),
@@ -115,7 +117,7 @@ func TestDownload3(t *testing.T) {
 // go test -v -run TestDownLargeFile
 func TestDownLargeFile(t *testing.T) {
 	fileuri := "https://ttq.jinyemimi.com/2021/0782/202201010831.zip"
-	idown := Load("").Build(
+	idown := New(
 		WithDebug(true),
 	)
 	newname := ifile.NewFileName(fileuri).GetNameSnowFlow()

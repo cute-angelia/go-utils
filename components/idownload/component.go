@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/gotomicro/ego/core/elog"
 	"github.com/guonaihong/gout"
 	"github.com/guonaihong/gout/dataflow"
 	"github.com/k0kubun/go-ansi"
@@ -19,8 +18,6 @@ import (
 	"sync"
 	"time"
 )
-
-const PackageName = "component.download.file"
 
 // 全局 iclient
 var iHttpClient *gout.Client
@@ -41,21 +38,33 @@ type FileInfo struct {
 
 type Component struct {
 	config *config
-	logger *elog.Component
 	// 进度条
 	bar *progressbar.ProgressBar
 }
 
 // newComponent ...
-func newComponent(compName string, config *config, logger *elog.Component) *Component {
-	//if config.Debug {
-	//	log.Println(PackageName, "配置信息：", fmt.Sprintf("%+v", config))
-	//}
+func newComponent(config *config) *Component {
 	comp := &Component{}
 	comp.config = config
-	comp.logger = logger
-
 	return comp
+}
+
+func (d *Component) getHttpHeader() gout.H {
+	gh := gout.H{}
+	if len(d.config.UserAgent) > 0 {
+		gh["User-Agent"] = d.config.UserAgent
+	}
+	if len(d.config.Referer) > 0 {
+		gh["Referer"] = d.config.Referer
+	}
+	if len(d.config.Cookie) > 0 {
+		gh["Cookie"] = d.config.Cookie
+	}
+	if len(d.config.Authorization) > 0 {
+		gh["Authorization"] = "Bearer " + d.config.Authorization
+	}
+
+	return gh
 }
 
 // getGoHttpClient 业务定制头部
@@ -88,21 +97,7 @@ func (d *Component) getGoHttpClient(uri string, method string) *dataflow.DataFlo
 		igout = igout.SetProxy(d.config.ProxyHttp)
 	}
 
-	gh := gout.H{}
-	if len(d.config.UserAgent) > 0 {
-		gh["User-Agent"] = d.config.UserAgent
-	}
-	if len(d.config.Referer) > 0 {
-		gh["Referer"] = d.config.Referer
-	}
-	if len(d.config.Cookie) > 0 {
-		gh["Cookie"] = d.config.Cookie
-	}
-	if len(d.config.Authorization) > 0 {
-		gh["Authorization"] = "Bearer " + d.config.Authorization
-	}
-
-	return igout.SetHeader(gh)
+	return igout.SetHeader(d.getHttpHeader()).Debug(d.config.Debug)
 }
 
 // GetContentLength 获取文件长度
@@ -170,6 +165,7 @@ func (d *Component) Download(strURL, filename string) (fileInfo FileInfo, errRes
 				log.Println("NewRetry singleDownload", strURL, filename)
 				fileInfo, errResp = d.singleDownload(strURL, filename)
 				if errResp != nil {
+					log.Println("singleDownload 下载失败：", errResp)
 					return ErrRetry
 				} else {
 					return nil
@@ -204,7 +200,6 @@ func (d *Component) DownloadToByteRetry(src string, retry int) ([]byte, error) {
 
 // DownloadToByte 请求文件，返回 字节
 func (d *Component) DownloadToByte(strURL string) ([]byte, error) {
-
 	iClient := d.getGoHttpClient(strURL, "GET").Client()
 	req, err := http.NewRequest("GET", strURL, nil)
 	if err != nil {
@@ -291,17 +286,30 @@ func (d *Component) multiDownload(strURL, filename string, contentLen int) (File
 
 //  singleDownload 直接下载
 func (d *Component) singleDownload(strURL, filename string) (FileInfo, error) {
+
+	log.Println("xxx == = == =", strURL, filename)
+
 	var info FileInfo
 	// 需要进度条，更要复用 http.client 这里就不使用原生的 http
 	// resp, err := http.Get(strURL)
 	// Transport: &http.Transport{
 	//	MaxIdleConnsPerHost: 10000,
 	// },
+
+	//d.getGoHttpClient(strURL, "GET").Do()
+
 	iClient := d.getGoHttpClient(strURL, "GET").Client()
+
 	req, err := http.NewRequest("GET", strURL, nil)
 	if err != nil {
 		return info, err
 	}
+
+	headers := d.getHttpHeader()
+	for key, value := range headers {
+		req.Header.Add(key, fmt.Sprintf("%v", value))
+	}
+
 	resp, err := iClient.Do(req)
 	if err != nil {
 		return info, err
@@ -428,12 +436,4 @@ func (d *Component) getPartDir(filename string) string {
 func (d *Component) getPartFilename(filename string, partNum int) string {
 	partDir := d.getPartDir(filename)
 	return fmt.Sprintf("%s/%s-%d", partDir, path.Base(filename), partNum)
-}
-
-func (d *Component) print(topic string, msg string, errtype string) {
-	if errtype == "error" {
-		d.logger.With(elog.FieldName(topic)).Error(msg)
-	} else {
-		d.logger.With(elog.FieldName(topic)).Info(msg)
-	}
 }

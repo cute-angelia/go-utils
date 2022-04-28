@@ -4,6 +4,8 @@ import (
 	"time"
 )
 
+const PackageName = "component.idownload"
+
 // config options
 type config struct {
 	// 代理
