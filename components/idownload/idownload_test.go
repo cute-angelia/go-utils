@@ -14,6 +14,19 @@ type datas struct {
 	Socket string
 }
 
+func TestToptoon(t *testing.T) {
+	uri := "https://twattraction.akamaized.net/www_v1/imgComic/ep_content/1281_36208_1606901405.7415.jpg?__token__=exp=1651743096~acl=/*~hmac=1017ea8986e6e1b249f03bf06805f39be74c00ef091fbeaf2c172d0d55b618e9"
+	idown := New(
+		WithDebug(true),
+		WithReferer("https://www.toptoon.net/"),
+		WithUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36"),
+	)
+	// findo, err := idown.DownloadToByte(uri)
+	findo, err := idown.Download(uri, "/tmp/1.jpg")
+	log.Println(ijson.Pretty(findo))
+	log.Println(err)
+}
+
 func TestV2(t *testing.T) {
 	log.SetFlags(log.Lshortfile | log.Ltime)
 	// uri := "https://cdn.v2ph.com/photos/czjDRlLlhvf-robP.jpg"

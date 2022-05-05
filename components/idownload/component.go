@@ -205,6 +205,13 @@ func (d *Component) DownloadToByte(strURL string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// 定制 header
+	headers := d.getHttpHeader()
+	for key, value := range headers {
+		req.Header.Add(key, fmt.Sprintf("%v", value))
+	}
+
 	resp, err := iClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -305,6 +312,7 @@ func (d *Component) singleDownload(strURL, filename string) (FileInfo, error) {
 		return info, err
 	}
 
+	// 定制 header
 	headers := d.getHttpHeader()
 	for key, value := range headers {
 		req.Header.Add(key, fmt.Sprintf("%v", value))
@@ -370,6 +378,12 @@ func (d *Component) downloadPartial(strURL, filename string, rangeStart, rangeEn
 	if err != nil {
 		log.Println(err)
 		return
+	}
+
+	// 定制 header
+	headers := d.getHttpHeader()
+	for key, value := range headers {
+		req.Header.Add(key, fmt.Sprintf("%v", value))
 	}
 
 	req.Header.Set("Range", fmt.Sprintf("bytes=%d-%d", rangeStart, rangeEnd))

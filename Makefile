@@ -10,8 +10,8 @@ up:
 tag:
 	git pull origin master
 	git add .
-	git commit -am "fix download some things"
+	git commit -am "upload"
 	git push origin master
-	git tag v1.7.31
+	git tag v1.7.32
 	git push --tags
 	@echo "\n tags 发布中..."

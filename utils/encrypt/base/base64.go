@@ -41,3 +41,13 @@ func Base64Decode(s string) ([]byte, error) {
 		return decoded, nil
 	}
 }
+
+// Base64UrlDecode base64 url 的 decode
+func Base64UrlDecode(s string) ([]byte, error) {
+	decoded, err := base64.RawURLEncoding.DecodeString(s)
+	if err != nil {
+		return nil, err
+	} else {
+		return decoded, nil
+	}
+}
