@@ -6,33 +6,32 @@ import (
 	"sync"
 )
 
-type SetSyncMap struct {
+type inSlice struct {
 	data sync.Map
 }
 
-// 新建集合对象
-func NewSetSyncMap(items ...interface{}) *Set {
-	s := &Set{}
-	s.Add(items...)
-	return s
+func NewInSlice(items ...interface{}) *inSlice {
+	var islice = new(inSlice)
+	islice.Add(items...)
+	return islice
 }
 
 // 添加元素
-func (s *SetSyncMap) Add(items ...interface{}) {
+func (s *inSlice) Add(items ...interface{}) {
 	for _, v := range items {
 		s.data.Store(v, true)
 	}
 }
 
 // 删除元素
-func (s *SetSyncMap) Remove(items ...interface{}) {
+func (s *inSlice) Remove(items ...interface{}) {
 	for _, v := range items {
 		s.data.Delete(v)
 	}
 }
 
 // 判断元素是否存在
-func (s *SetSyncMap) Has(items ...interface{}) bool {
+func (s *inSlice) Has(items ...interface{}) bool {
 	for _, v := range items {
 		if _, ok := s.data.Load(v); !ok {
 			return false
@@ -41,12 +40,12 @@ func (s *SetSyncMap) Has(items ...interface{}) bool {
 	return true
 }
 
-func (s *SetSyncMap) GetData() sync.Map {
+func (s *inSlice) GetData() sync.Map {
 	return s.data
 }
 
 // 元素个数
-func (s *SetSyncMap) Count() int {
+func (s *inSlice) Count() int {
 	count := 0
 	s.data.Range(func(key, value interface{}) bool {
 		count++
@@ -56,17 +55,17 @@ func (s *SetSyncMap) Count() int {
 }
 
 // 清空集合
-func (s *SetSyncMap) Clear() {
+func (s *inSlice) Clear() {
 	s.data = sync.Map{}
 }
 
 // 空集合判断
-func (s *SetSyncMap) Empty() bool {
+func (s *inSlice) Empty() bool {
 	return s.Count() == 0
 }
 
 // 无序列表
-func (s *SetSyncMap) List() []interface{} {
+func (s *inSlice) List() []interface{} {
 	var list []interface{}
 	s.data.Range(func(key, value interface{}) bool {
 		list = append(list, value)

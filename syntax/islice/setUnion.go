@@ -6,14 +6,14 @@ import (
 	"sync"
 )
 
-type Set struct {
+type SetUnion struct {
 	sync.RWMutex
 	m map[interface{}]bool
 }
 
 // 新建集合对象
-func New(items ...interface{}) *Set {
-	s := &Set{
+func New(items ...interface{}) *SetUnion {
+	s := &SetUnion{
 		m: make(map[interface{}]bool, len(items)),
 	}
 	s.Add(items...)
@@ -21,7 +21,7 @@ func New(items ...interface{}) *Set {
 }
 
 // 添加元素
-func (s *Set) Add(items ...interface{}) {
+func (s *SetUnion) Add(items ...interface{}) {
 	s.Lock()
 	defer s.Unlock()
 	for _, v := range items {
@@ -30,7 +30,7 @@ func (s *Set) Add(items ...interface{}) {
 }
 
 // 删除元素
-func (s *Set) Remove(items ...interface{}) {
+func (s *SetUnion) Remove(items ...interface{}) {
 	s.Lock()
 	defer s.Unlock()
 	for _, v := range items {
@@ -39,7 +39,7 @@ func (s *Set) Remove(items ...interface{}) {
 }
 
 // 判断元素是否存在
-func (s *Set) Has(items ...interface{}) bool {
+func (s *SetUnion) Has(items ...interface{}) bool {
 	s.RLock()
 	defer s.RUnlock()
 	for _, v := range items {
@@ -51,24 +51,24 @@ func (s *Set) Has(items ...interface{}) bool {
 }
 
 // 元素个数
-func (s *Set) Count() interface{} {
+func (s *SetUnion) Count() interface{} {
 	return len(s.m)
 }
 
 // 清空集合
-func (s *Set) Clear() {
+func (s *SetUnion) Clear() {
 	s.Lock()
 	defer s.Unlock()
 	s.m = map[interface{}]bool{}
 }
 
 // 空集合判断
-func (s *Set) Empty() bool {
+func (s *SetUnion) Empty() bool {
 	return len(s.m) == 0
 }
 
 // 无序列表
-func (s *Set) List() []interface{} {
+func (s *SetUnion) List() []interface{} {
 	s.RLock()
 	defer s.RUnlock()
 	list := make([]interface{}, 0, len(s.m))
@@ -79,7 +79,7 @@ func (s *Set) List() []interface{} {
 }
 
 // 排序列表
-//func (s *Set) SortList() []interface{} {
+//func (s *SetUnion) SortList() []interface{} {
 //	s.RLock()
 //	defer s.RUnlock()
 //	list := make([]interface{}, 0, len(s.m))
@@ -91,7 +91,7 @@ func (s *Set) List() []interface{} {
 //}
 
 // 并集
-func (s *Set) Union(sets ...*Set) *Set {
+func (s *SetUnion) Union(sets ...*SetUnion) *SetUnion {
 	r := New(s.List()...)
 	for _, set := range sets {
 		for e := range set.m {
@@ -102,7 +102,7 @@ func (s *Set) Union(sets ...*Set) *Set {
 }
 
 // 差集
-func (s *Set) Minus(sets ...*Set) *Set {
+func (s *SetUnion) Minus(sets ...*SetUnion) *SetUnion {
 	r := New(s.List()...)
 	for _, set := range sets {
 		for e := range set.m {
@@ -115,7 +115,7 @@ func (s *Set) Minus(sets ...*Set) *Set {
 }
 
 // 交集
-func (s *Set) Intersect(sets ...*Set) *Set {
+func (s *SetUnion) Intersect(sets ...*SetUnion) *SetUnion {
 	r := New(s.List()...)
 	for _, set := range sets {
 		for e := range s.m {
@@ -128,7 +128,7 @@ func (s *Set) Intersect(sets ...*Set) *Set {
 }
 
 // 补集
-func (s *Set) Complement(full *Set) *Set {
+func (s *SetUnion) Complement(full *SetUnion) *SetUnion {
 	r := New()
 	for e := range full.m {
 		if _, ok := s.m[e]; !ok {

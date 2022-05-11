@@ -2,6 +2,7 @@ package izip
 
 import (
 	"archive/zip"
+	"bytes"
 	"github.com/cute-angelia/go-utils/syntax/ifile"
 	"io"
 	"os"
@@ -13,7 +14,6 @@ import (
 // Param 1: filename is the output zip file's name.
 // Param 2: files is a list of files to add to the zip.
 func ZipFiles(filename string, files []string) error {
-
 	newZipFile, err := os.Create(filename)
 	if err != nil {
 		return err
@@ -25,14 +25,30 @@ func ZipFiles(filename string, files []string) error {
 
 	// Add files to zip
 	for _, file := range files {
-		if err = AddFileToZip(zipWriter, file); err != nil {
+		if err = addFileToZip(zipWriter, file); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func AddFileToZip(zipWriter *zip.Writer, filename string) error {
+// ZipBytes 压缩单个字节文件
+// https://golang.cafe/blog/golang-zip-file-example.html
+func ZipBytes(archiveName string, name string, data []byte) error {
+	archive, err := os.Create(archiveName)
+	if err != nil {
+		return err
+	}
+	defer archive.Close()
+	zipWriter := zip.NewWriter(archive)
+	defer zipWriter.Close()
+	w1, _ := zipWriter.Create(name)
+	_, err = io.Copy(w1, bytes.NewReader(data))
+	defer zipWriter.Close()
+	return err
+}
+
+func addFileToZip(zipWriter *zip.Writer, filename string) error {
 
 	fileToZip, err := os.Open(filename)
 	if err != nil {
@@ -64,6 +80,8 @@ func AddFileToZip(zipWriter *zip.Writer, filename string) error {
 		return err
 	}
 	_, err = io.Copy(writer, fileToZip)
+
+	defer zipWriter.Close()
 	return err
 }
 
@@ -71,6 +89,7 @@ func AddFileToZip(zipWriter *zip.Writer, filename string) error {
 // from https://blog.csdn.net/wangshubo1989/article/details/71743374
 func Unzip(archive, targetDir string) (err error) {
 	reader, err := zip.OpenReader(archive)
+	defer reader.Close()
 	if err != nil {
 		return
 	}
