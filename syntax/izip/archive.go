@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"github.com/cute-angelia/go-utils/syntax/ifile"
+	"github.com/cute-angelia/go-utils/utils/iprogressbar"
 	"io"
 	"os"
 	"path"
@@ -79,7 +80,10 @@ func addFileToZip(zipWriter *zip.Writer, filename string) error {
 	if err != nil {
 		return err
 	}
-	_, err = io.Copy(writer, fileToZip)
+
+	finfo, _ := fileToZip.Stat()
+	bar := iprogressbar.GetProgressbar(int(finfo.Size()), "zip:"+filename)
+	_, err = io.Copy(io.MultiWriter(writer, bar), fileToZip)
 
 	defer zipWriter.Close()
 	return err
