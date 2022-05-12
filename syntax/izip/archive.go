@@ -50,7 +50,6 @@ func ZipBytes(archiveName string, name string, data []byte) error {
 }
 
 func addFileToZip(zipWriter *zip.Writer, filename string) error {
-
 	fileToZip, err := os.Open(filename)
 	if err != nil {
 		return err
@@ -84,8 +83,6 @@ func addFileToZip(zipWriter *zip.Writer, filename string) error {
 	finfo, _ := fileToZip.Stat()
 	bar := iprogressbar.GetProgressbar(int(finfo.Size()), "zip:"+filename)
 	_, err = io.Copy(io.MultiWriter(writer, bar), fileToZip)
-
-	defer zipWriter.Close()
 	return err
 }
 
