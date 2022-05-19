@@ -1,4 +1,4 @@
-package itime
+package datetime
 
 import (
 	"fmt"
