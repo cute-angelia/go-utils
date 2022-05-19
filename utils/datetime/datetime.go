@@ -123,7 +123,7 @@ func (t *theTime) GetWeekEndDay() *theTime {
 	return NewUnix(lastOfWeeK.Unix())
 }
 
-/// --------------------- format -----------------------
+// --------------------- format -----------------------
 
 // FormatDateTime return the time string 'yyyy-mm-dd hh:mm:ss' of unix time
 func (t *theTime) FormatDateTime() string {
