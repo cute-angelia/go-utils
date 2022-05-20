@@ -125,8 +125,8 @@ func (t *theTime) GetWeekEndDay() *theTime {
 
 // --------------------- format -----------------------
 
-// FormatDateTime return the time string 'yyyy-mm-dd hh:mm:ss' of unix time
-func (t *theTime) FormatDateTime() string {
+// Format return the time string 'yyyy-mm-dd hh:mm:ss' of unix time
+func (t *theTime) Format() string {
 	return time.Unix(t.unix, 0).Format("2006-01-02 15:04:05")
 }
 

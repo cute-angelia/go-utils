@@ -14,7 +14,12 @@ func TestToUnix(t *testing.T) {
 
 	assert.Equal(tm1, tm2, "TestToUnix")
 
+	t.Log(tm1.FormatIso8601())
+
+	tm3, _ := NewFormat(tm1.FormatIso8601())
+	t.Log(tm3.Format())
+
 	//  获取0点
 	t.Log(tm2.GetTimeZero().GetUnix())
-	t.Log(tm2.GetTimeZero().FormatDateTime())
+	t.Log(tm2.GetTimeZero().Format())
 }
