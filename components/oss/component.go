@@ -88,7 +88,7 @@ func (e Component) PutObjectWithSrc(uri string, objectName string) (string, stri
 		return "", "", errors.New("链接提供不正确：" + uri)
 	}
 	// 更换图片到本地
-	idown := idownload.Load("").Build(
+	idown := idownload.New(
 		idownload.WithProxySocks5(e.config.ProxySocks5),
 		idownload.WithDebug(e.config.Debug),
 		idownload.WithTimeout(time.Second*20),
