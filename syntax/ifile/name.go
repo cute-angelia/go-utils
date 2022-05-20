@@ -2,8 +2,8 @@ package ifile
 
 import (
 	"fmt"
-	"github.com/cute-angelia/go-utils/syntax/istrings"
 	"github.com/cute-angelia/go-utils/utils/generator/snowflake"
+	"github.com/cute-angelia/go-utils/utils/random"
 	"path"
 	"strings"
 	"time"
@@ -121,7 +121,7 @@ func (f fileName) GetNameTimeDate() string {
 		ext = f.ext
 	}
 
-	dname := time.Now().Format("20060102-150405") + "-" + istrings.RandomChars(10)
+	dname := time.Now().Format("20060102-150405") + "-" + random.RandString(10, random.LetterAbcLower)
 	return fmt.Sprintf("%s%s%s%s", f.prefix, dname, f.suffix, ext)
 }
 
