@@ -5,6 +5,41 @@ import (
 	"time"
 )
 
+// GetMonthDay 获得当前月的初始和结束日期
+func GetMonthDay() (string, string) {
+	now := time.Now()
+	currentYear, currentMonth, _ := now.Date()
+	currentLocation := now.Location()
+
+	firstOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation)
+	lastOfMonth := firstOfMonth.AddDate(0, 1, -1)
+	f := firstOfMonth.Unix()
+	l := lastOfMonth.Unix()
+	return time.Unix(f, 0).Format("2006-01-02") + " 00:00:00", time.Unix(l, 0).Format("2006-01-02") + " 23:59:59"
+}
+
+// GetWeekDay 获得当前周的初始和结束日期
+func GetWeekDay() (string, string) {
+	now := time.Now()
+	offset := int(time.Monday - now.Weekday())
+	//周日做特殊判断 因为time.Monday = 0
+	if offset > 0 {
+		offset = -6
+	}
+
+	lastoffset := int(time.Saturday - now.Weekday())
+	//周日做特殊判断 因为time.Monday = 0
+	if lastoffset == 6 {
+		lastoffset = -1
+	}
+
+	firstOfWeek := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, offset)
+	lastOfWeeK := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, lastoffset+1)
+	f := firstOfWeek.Unix()
+	l := lastOfWeeK.Unix()
+	return time.Unix(f, 0).Format("2006-01-02") + " 00:00:00", time.Unix(l, 0).Format("2006-01-02") + " 23:59:59"
+}
+
 // GetQuarterDay 获得当前季度的初始和结束日期
 func GetQuarterDay() (string, string, int) {
 	year := time.Now().Format("2006")
