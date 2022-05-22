@@ -96,8 +96,6 @@ func readWalkDir(dirPath string) {
 				}
 			}
 
-
-
 			// 简单判断最后一级
 			if !allIsDir {
 				findIgnore := false
@@ -114,7 +112,6 @@ func readWalkDir(dirPath string) {
 						log.Println("insert:----->", path)
 					})
 				}
-				// log.Println(d.Name(), ifile.ByteSize(uint64(info.Size())), info.ModTime().Format(itime.TIME_FORMAT))
 			}
 		}
 		return nil
