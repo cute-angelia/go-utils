@@ -1,6 +1,7 @@
 package loggerV3
 
 import (
+	"github.com/cute-angelia/go-utils/syntax/ifile"
 	"github.com/cute-angelia/go-utils/syntax/ijson"
 	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
@@ -81,5 +82,18 @@ func WithLevel(level zerolog.Level) Option {
 func WithFileJson(fileJson bool) Option {
 	return func(c *Container) {
 		c.config.FileJson = fileJson
+	}
+}
+
+func WithHookError(hookError bool) Option {
+	return func(c *Container) {
+		c.config.HookError = hookError
+	}
+}
+
+func WithLogPath(logPath string) Option {
+	return func(c *Container) {
+		ifile.MkParentDir(logPath)
+		c.config.LogPath = logPath
 	}
 }

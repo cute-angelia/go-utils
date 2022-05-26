@@ -43,8 +43,7 @@ func (c *Component) MustInitMysql() *Component {
 }
 
 func (c *Component) initMysqlDb() *gorm.DB {
-	log.Println(packageName, "初始化数据库", c.config.DbName)
-
+	// log.Println(packageName, "初始化数据库", c.config.DbName)
 	var db *gorm.DB
 	var err error
 

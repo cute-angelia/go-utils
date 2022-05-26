@@ -17,6 +17,7 @@ import (
 
 var logOnce sync.Once
 var logger *zerolog.Logger
+var loggerError *zerolog.Logger
 
 type Component struct {
 	config *config
@@ -28,6 +29,7 @@ func GetLogger() *zerolog.Logger {
 		log.Println("日志未初始化，启动默认输出保存为文件log_default.log")
 		logger = newComponent(DefaultConfig()).NewLogger()
 	}
+
 	return logger
 }
 
@@ -39,45 +41,99 @@ func newComponent(config *config) *Component {
 
 func (self *Component) NewLogger() *zerolog.Logger {
 	logOnce.Do(func() {
-		var writers []io.Writer
-		// 原生日志支持
-		log.SetFlags(log.LstdFlags | log.Lshortfile | log.Lmsgprefix | log.Lmicroseconds)
-		if self.config.IsOnline {
-			var w io.Writer
-			// 线上 json 模式
-			if self.config.FileJson {
-				w = self.newRollingFile()
-				log.SetOutput(w)
-			} else {
-				// 线上输出模式
-				w = self.newRollingFile()
-				log.SetOutput(w)
-				w = self.formatLogger(w)
-			}
-			writers = append(writers, w)
-		} else {
-			// 开发模式自定义日志格式
-			output := self.formatLogger(os.Stdout)
-			log.SetOutput(zerolog.New(output).With().Timestamp().CallerWithSkipFrameCount(4).Logger())
+		ilog := self.makeMainLogger("/log_" + self.config.Project + ".log")
 
-			writers = append(writers, output)
+		// hook error
+		if self.config.HookError {
+			ilog = ilog.Hook(ErrorHook{})
+			loge := self.makeErrorLogger("/error/log_error_" + self.config.Project + ".log")
+			loggerError = &loge
 		}
-		mw := zerolog.MultiLevelWriter(writers...)
 
-		// 配置
-		zerolog.SetGlobalLevel(self.config.Level)
-		zerolog.TimeFieldFormat = "2006-01-02 15:04:05.000"
-		zerolog.CallerMarshalFunc = func(file string, line int) string {
-			var buffer bytes.Buffer
-			buffer.WriteString(path.Base(file))
-			buffer.WriteString(":")
-			buffer.WriteString(strconv.Itoa(line))
-			return buffer.String()
-		}
-		ilog := zerolog.New(mw).With().Timestamp().Caller().Logger()
 		logger = &ilog
 	})
 	return logger
+}
+
+// makeMainLoger 主 logger
+func (self *Component) makeMainLogger(logName string) zerolog.Logger {
+	var writers []io.Writer
+	// 原生日志支持
+	log.SetFlags(log.LstdFlags | log.Lshortfile | log.Lmsgprefix | log.Lmicroseconds)
+	log.Println(fmt.Sprintf("[%s] 初始化，项目:%s 路径：%s 线上模式:%v FileJson:%v", ComponentName, self.config.Project, self.config.LogPath, self.config.IsOnline, self.config.FileJson))
+	if self.config.IsOnline {
+		var w io.Writer
+		// 线上 json 模式
+		if self.config.FileJson {
+			w = self.newRollingFile(logName)
+			log.SetOutput(w)
+		} else {
+			// 线上输出模式
+			w = self.newRollingFile(logName)
+			log.SetOutput(w)
+			w = self.formatLogger(w)
+		}
+		writers = append(writers, w)
+	} else {
+		// 开发模式自定义日志格式
+		output := self.formatLogger(os.Stdout)
+		// 关闭 caller
+		// log.Println("callerWithSkipFrameCount:", callerWithSkipFrameCount, callerWithSkipFrameCount == -1)
+		log.SetOutput(zerolog.New(output).With().Timestamp().CallerWithSkipFrameCount(4).Logger())
+
+		writers = append(writers, output)
+	}
+	mw := zerolog.MultiLevelWriter(writers...)
+
+	// 配置
+	zerolog.SetGlobalLevel(self.config.Level)
+	zerolog.TimeFieldFormat = "2006-01-02 15:04:05.000"
+	zerolog.CallerMarshalFunc = func(file string, line int) string {
+		var buffer bytes.Buffer
+		buffer.WriteString(path.Base(file))
+		buffer.WriteString(":")
+		buffer.WriteString(strconv.Itoa(line))
+		return buffer.String()
+	}
+	ilog := zerolog.New(mw).With().Timestamp().Caller().Logger()
+	return ilog
+}
+
+// makeErrorLogger 需求，error 级别单独文件存储
+func (self *Component) makeErrorLogger(logName string) zerolog.Logger {
+	var writers []io.Writer
+	if self.config.IsOnline {
+		var w io.Writer
+		// 线上 json 模式
+		if self.config.FileJson {
+			w = self.newRollingFile(logName)
+		} else {
+			// 线上输出模式
+			w = self.newRollingFile(logName)
+			w = self.formatLogger(w)
+		}
+		writers = append(writers, w)
+	} else {
+		// 开发模式自定义日志格式
+		output := self.formatLogger(os.Stdout)
+		// 关闭 caller
+		log.SetOutput(zerolog.New(output).With().Timestamp().Logger())
+		writers = append(writers, output)
+	}
+	mw := zerolog.MultiLevelWriter(writers...)
+
+	// 配置
+	zerolog.SetGlobalLevel(self.config.Level)
+	zerolog.TimeFieldFormat = "2006-01-02 15:04:05.000"
+	zerolog.CallerMarshalFunc = func(file string, line int) string {
+		var buffer bytes.Buffer
+		buffer.WriteString(path.Base(file))
+		buffer.WriteString(":")
+		buffer.WriteString(strconv.Itoa(line))
+		return buffer.String()
+	}
+	ilog := zerolog.New(mw).With().Timestamp().Logger()
+	return ilog
 }
 
 func (self *Component) formatLogger(out io.Writer) io.Writer {
@@ -92,10 +148,9 @@ func (self *Component) formatLogger(out io.Writer) io.Writer {
 	return output
 }
 
-func (self *Component) newRollingFile() io.Writer {
-	log.Println("记录日志 > ./log_" + self.config.Project + ".log")
+func (self *Component) newRollingFile(logName string) io.Writer {
 	ljLogger := lumberjack.Logger{
-		Filename:   "./log_" + self.config.Project + ".log",
+		Filename:   self.config.LogPath + "/" + logName,
 		MaxBackups: self.config.MaxBackups, // files
 		MaxSize:    self.config.MaxSize,    // megabytes
 		MaxAge:     self.config.MaxAge,     // days

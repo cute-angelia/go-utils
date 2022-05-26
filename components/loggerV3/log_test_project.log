@@ -1,0 +1,35 @@
+{"level":"warn","name":"kk","time":"2022-05-26 16:11:46.009","caller":"logger_test.go:12","message":"hello, success"}
+{"level":"info","time":"2022-05-26 16:11:46.010","caller":"logger_test.go:13","message":"hello"}
+{"level":"info","time":"2022-05-26 16:11:46.010","caller":"logger_test.go:14","message":"cat"}
+{"level":"info","time":"2022-05-26 16:11:46.010","caller":"logger_test.go:15","message":"dog"}
+{"level":"error","time":"2022-05-26 16:11:46.010","caller":"logger_test.go:16","message":"dog"}
+2022/05/26 16:11:46.010508 logger_test.go:17: heloe xxxxxxxxxxxxxxxxxxxxxx
+2022/05/26 16:11:46.010638 logger_test.go:28: heloe ttttttttttttttttttt
+{"level":"warn","name":"kk","time":"2022-05-26 16:11:46.010","caller":"logger_test.go:30","message":"hello, success"}
+{"level":"info","time":"2022-05-26 16:11:46.010","caller":"logger_test.go:31","message":"hello"}
+{"level":"info","time":"2022-05-26 16:11:46.010","caller":"logger_test.go:32","message":"cat"}
+{"level":"info","time":"2022-05-26 16:11:46.010","caller":"logger_test.go:33","message":"dog"}
+{"level":"error","time":"2022-05-26 16:11:46.010","caller":"logger_test.go:34","message":"dog"}
+{"level":"warn","name":"kk","time":"2022-05-26 16:14:32.243","caller":"logger_test.go:12","message":"hello, success"}
+{"level":"info","time":"2022-05-26 16:14:32.244","caller":"logger_test.go:13","message":"hello"}
+{"level":"info","time":"2022-05-26 16:14:32.244","caller":"logger_test.go:14","message":"cat"}
+{"level":"info","time":"2022-05-26 16:14:32.244","caller":"logger_test.go:15","message":"dog"}
+{"level":"error","time":"2022-05-26 16:14:32.244","caller":"logger_test.go:16","message":"dog"}
+2022/05/26 16:14:32.244415 logger_test.go:17: heloe xxxxxxxxxxxxxxxxxxxxxx
+2022/05/26 16:14:32.244640 component.go:38: {
+    "Project": "test.bud",
+    "IsOnline": false,
+    "FileJson": true,
+    "MaxSize": 100,
+    "MaxBackups": 10,
+    "MaxAge": 10,
+    "Everyday": true,
+    "LogPath": "/tmp",
+    "Level": 1
+} <nil>
+2022/05/26 16:14:32.244708 logger_test.go:28: heloe ttttttttttttttttttt
+{"level":"warn","name":"kk","time":"2022-05-26 16:14:32.244","caller":"logger_test.go:30","message":"hello, success"}
+{"level":"info","time":"2022-05-26 16:14:32.244","caller":"logger_test.go:31","message":"hello"}
+{"level":"info","time":"2022-05-26 16:14:32.244","caller":"logger_test.go:32","message":"cat"}
+{"level":"info","time":"2022-05-26 16:14:32.244","caller":"logger_test.go:33","message":"dog"}
+{"level":"error","time":"2022-05-26 16:14:32.244","caller":"logger_test.go:34","message":"dog"}
