@@ -32,7 +32,7 @@
 //		valid.Range(u.Age, 0, 140, "age")
 //		if valid.HasErrors() {
 //			// validation does not pass
-//			// print invalid message
+//			// print invalid sendMessage
 //			for _, err := range valid.Errors {
 //				log.Println(err.Key, err.Message)
 //			}
@@ -88,7 +88,7 @@ func (r *Result) Key(key string) *Result {
 	return r
 }
 
-// Message Set Result message by string or format string with args
+// Message Set Result sendMessage by string or format string with args
 func (r *Result) Message(message string, args ...interface{}) *Result {
 	if r.Error != nil {
 		if len(args) == 0 {
@@ -312,7 +312,7 @@ func (v *Validation) setError(err *Error) {
 	}
 }
 
-// SetError Set error message for one field in ValidationError
+// SetError Set error sendMessage for one field in ValidationError
 func (v *Validation) SetError(fieldName string, errMsg string) *Error {
 	err := &Error{Key: fieldName, Field: fieldName, Tmpl: errMsg, Message: errMsg}
 	v.setError(err)

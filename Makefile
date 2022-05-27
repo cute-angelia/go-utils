@@ -10,8 +10,8 @@ up:
 tag:
 	git pull origin master
 	git add .
-	git commit -am "fix toml version"
+	git commit -am "优化企业微信消息通知形式，文本，卡片"
 	git push origin master
-	git tag v1.7.44
+	git tag v1.7.45
 	git push --tags
 	@echo "\n tags 发布中..."

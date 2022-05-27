@@ -2,7 +2,9 @@ package wework
 
 import (
 	"fmt"
+	"github.com/cute-angelia/go-utils/components/wework/sendMessage"
 	"github.com/fastwego/wxwork/corporation"
+	apiMessage "github.com/fastwego/wxwork/corporation/apis/message"
 	"github.com/go-redis/redis/v8"
 	"log"
 	"sync"
@@ -10,7 +12,6 @@ import (
 
 type Component struct {
 	config *config
-	app    *corporation.App
 }
 
 var Pools sync.Map
@@ -50,5 +51,22 @@ func GetApp(agentId string) (*corporation.App, error) {
 		return v.(*corporation.App), nil
 	} else {
 		return nil, fmt.Errorf("%s: App不存在,请初始化配置", agentId)
+	}
+}
+
+// SendMessage 发送消息
+// https://developer.work.weixin.qq.com/document/path/90236
+func SendMessage(agentId string, msg sendMessage.IMessage) error {
+	if weworkApp, err := GetApp(agentId); err != nil {
+		return err
+	} else {
+		if resp, err := apiMessage.Send(weworkApp, msg.GetMessage()); err != nil {
+			log.Println("企业微信发送消息错误❌", err)
+			return err
+		} else {
+			log.Println("企业微信发送消息成功", string(resp))
+			return nil
+		}
+
 	}
 }

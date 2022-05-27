@@ -9,7 +9,7 @@ type Error struct {
 	Code    Code
 }
 
-// New returns an error object for the code, message.
+// New returns an error object for the code, sendMessage.
 func New(code Code, message string) error {
 	return &Error{
 		Code:    code,

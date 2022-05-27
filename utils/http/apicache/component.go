@@ -47,7 +47,7 @@ func (e *Component) debug(topic string, msg string) {
 
 type response struct {
 	Code int             `json:"code"`
-	Msg  string          `json:"message"`
+	Msg  string          `json:"sendMessage"`
 	Data json.RawMessage `json:"data"`
 }
 

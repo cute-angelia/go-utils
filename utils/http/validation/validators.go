@@ -143,7 +143,7 @@ func (r Required) IsSatisfied(obj interface{}) bool {
 	return true
 }
 
-// DefaultMessage return the default error message
+// DefaultMessage return the default error sendMessage
 func (r Required) DefaultMessage() string {
 	return fmt.Sprint(MessageTmpls["Required"])
 }
@@ -173,7 +173,7 @@ func (m Min) IsSatisfied(obj interface{}) bool {
 	return false
 }
 
-// DefaultMessage return the default min error message
+// DefaultMessage return the default min error sendMessage
 func (m Min) DefaultMessage() string {
 	return fmt.Sprintf(MessageTmpls["Min"], m.Min)
 }
@@ -203,7 +203,7 @@ func (m Max) IsSatisfied(obj interface{}) bool {
 	return false
 }
 
-// DefaultMessage return the default max error message
+// DefaultMessage return the default max error sendMessage
 func (m Max) DefaultMessage() string {
 	return fmt.Sprintf(MessageTmpls["Max"], m.Max)
 }
@@ -230,7 +230,7 @@ func (r Range) IsSatisfied(obj interface{}) bool {
 	return r.Min.IsSatisfied(obj) && r.Max.IsSatisfied(obj)
 }
 
-// DefaultMessage return the default Range error message
+// DefaultMessage return the default Range error sendMessage
 func (r Range) DefaultMessage() string {
 	return fmt.Sprintf(MessageTmpls["Range"], r.Min.Min, r.Max.Max)
 }
@@ -263,7 +263,7 @@ func (m MinSize) IsSatisfied(obj interface{}) bool {
 	return false
 }
 
-// DefaultMessage return the default MinSize error message
+// DefaultMessage return the default MinSize error sendMessage
 func (m MinSize) DefaultMessage() string {
 	return fmt.Sprintf(MessageTmpls["MinSize"], m.Min)
 }
@@ -296,7 +296,7 @@ func (m MaxSize) IsSatisfied(obj interface{}) bool {
 	return false
 }
 
-// DefaultMessage return the default MaxSize error message
+// DefaultMessage return the default MaxSize error sendMessage
 func (m MaxSize) DefaultMessage() string {
 	return fmt.Sprintf(MessageTmpls["MaxSize"], m.Max)
 }
@@ -329,7 +329,7 @@ func (l Length) IsSatisfied(obj interface{}) bool {
 	return false
 }
 
-// DefaultMessage return the default Length error message
+// DefaultMessage return the default Length error sendMessage
 func (l Length) DefaultMessage() string {
 	return fmt.Sprintf(MessageTmpls["Length"], l.N)
 }
@@ -362,7 +362,7 @@ func (a Alpha) IsSatisfied(obj interface{}) bool {
 	return false
 }
 
-// DefaultMessage return the default Length error message
+// DefaultMessage return the default Length error sendMessage
 func (a Alpha) DefaultMessage() string {
 	return fmt.Sprint(MessageTmpls["Alpha"])
 }
@@ -395,7 +395,7 @@ func (n Numeric) IsSatisfied(obj interface{}) bool {
 	return false
 }
 
-// DefaultMessage return the default Length error message
+// DefaultMessage return the default Length error sendMessage
 func (n Numeric) DefaultMessage() string {
 	return fmt.Sprint(MessageTmpls["Numeric"])
 }
@@ -428,7 +428,7 @@ func (a AlphaNumeric) IsSatisfied(obj interface{}) bool {
 	return false
 }
 
-// DefaultMessage return the default Length error message
+// DefaultMessage return the default Length error sendMessage
 func (a AlphaNumeric) DefaultMessage() string {
 	return fmt.Sprint(MessageTmpls["AlphaNumeric"])
 }
@@ -454,7 +454,7 @@ func (m Match) IsSatisfied(obj interface{}) bool {
 	return m.Regexp.MatchString(fmt.Sprintf("%v", obj))
 }
 
-// DefaultMessage return the default Match error message
+// DefaultMessage return the default Match error sendMessage
 func (m Match) DefaultMessage() string {
 	return fmt.Sprintf(MessageTmpls["Match"], m.Regexp.String())
 }
@@ -480,7 +480,7 @@ func (n NoMatch) IsSatisfied(obj interface{}) bool {
 	return !n.Match.IsSatisfied(obj)
 }
 
-// DefaultMessage return the default NoMatch error message
+// DefaultMessage return the default NoMatch error sendMessage
 func (n NoMatch) DefaultMessage() string {
 	return fmt.Sprintf(MessageTmpls["NoMatch"], n.Regexp.String())
 }
@@ -503,7 +503,7 @@ type AlphaDash struct {
 	Key string
 }
 
-// DefaultMessage return the default AlphaDash error message
+// DefaultMessage return the default AlphaDash error sendMessage
 func (a AlphaDash) DefaultMessage() string {
 	return fmt.Sprint(MessageTmpls["AlphaDash"])
 }
@@ -526,7 +526,7 @@ type Email struct {
 	Key string
 }
 
-// DefaultMessage return the default Email error message
+// DefaultMessage return the default Email error sendMessage
 func (e Email) DefaultMessage() string {
 	return fmt.Sprint(MessageTmpls["Email"])
 }
@@ -549,7 +549,7 @@ type IP struct {
 	Key string
 }
 
-// DefaultMessage return the default IP error message
+// DefaultMessage return the default IP error sendMessage
 func (i IP) DefaultMessage() string {
 	return fmt.Sprint(MessageTmpls["IP"])
 }
@@ -572,7 +572,7 @@ type Base64 struct {
 	Key string
 }
 
-// DefaultMessage return the default Base64 error message
+// DefaultMessage return the default Base64 error sendMessage
 func (b Base64) DefaultMessage() string {
 	return fmt.Sprint(MessageTmpls["Base64"])
 }
@@ -596,7 +596,7 @@ type Mobile struct {
 	Key string
 }
 
-// DefaultMessage return the default Mobile error message
+// DefaultMessage return the default Mobile error sendMessage
 func (m Mobile) DefaultMessage() string {
 	return fmt.Sprint(MessageTmpls["Mobile"])
 }
@@ -620,7 +620,7 @@ type Tel struct {
 	Key string
 }
 
-// DefaultMessage return the default Tel error message
+// DefaultMessage return the default Tel error sendMessage
 func (t Tel) DefaultMessage() string {
 	return fmt.Sprint(MessageTmpls["Tel"])
 }
@@ -647,7 +647,7 @@ func (p Phone) IsSatisfied(obj interface{}) bool {
 	return p.Mobile.IsSatisfied(obj) || p.Tel.IsSatisfied(obj)
 }
 
-// DefaultMessage return the default Phone error message
+// DefaultMessage return the default Phone error sendMessage
 func (p Phone) DefaultMessage() string {
 	return fmt.Sprint(MessageTmpls["Phone"])
 }
@@ -671,7 +671,7 @@ type ZipCode struct {
 	Key string
 }
 
-// DefaultMessage return the default Zip error message
+// DefaultMessage return the default Zip error sendMessage
 func (z ZipCode) DefaultMessage() string {
 	return fmt.Sprint(MessageTmpls["ZipCode"])
 }
