@@ -13,7 +13,7 @@ import (
 
 const PackageNameMysql = "component.igorm.mysql"
 
-// 获取 gorm.DB 对象
+// GetGormMysql 获取 gorm.DB 对象
 func GetGormMysql(dbName string) (*gorm.DB, error) {
 	if v, ok := gormPool.Load(dbName); ok {
 		return v.(*gorm.DB), nil

@@ -6,8 +6,8 @@ import (
 	"gorm.io/gorm"
 )
 
+// CreateOrUpdate 创建或者更新
 // ps: interface 全部传指针
-// 创建或者更新
 func CreateOrUpdate(orm *gorm.DB, table string, data map[string]interface{}, id int32) (interface{}, error) {
 	if id > 0 {
 		if orm.Table(table).Where("id= ?", id).Updates(data).RowsAffected == 0 {
@@ -19,7 +19,7 @@ func CreateOrUpdate(orm *gorm.DB, table string, data map[string]interface{}, id 
 	return data, nil
 }
 
-// 查询分页数据
+// GetPageData 查询分页数据
 func GetPageData(orm *gorm.DB, tableName string, page int, prepage int, models interface{}) (interface{}, int64) {
 	count := int64(0)
 	offset := (page - 1) * prepage
@@ -28,13 +28,24 @@ func GetPageData(orm *gorm.DB, tableName string, page int, prepage int, models i
 	return models, count
 }
 
-// 转化数据 dest => &dest
+// GetPageDataV2 查询分页内容
+func GetPageDataV2(orm *gorm.DB, tableName string, conds Conds, page int, perPage int) (interface{}, int64) {
+	total := int64(0)
+	var models interface{}
+	sql, binds := BuildQuery(conds)
+	db := orm.Table(tableName).Where(sql, binds...)
+	db.Count(&total)
+	db.Order("id desc").Offset((page - 1) * perPage).Limit(perPage).Find(&models)
+	return models, total
+}
+
+// Convert 转化数据 dest => &dest
 func Convert(src interface{}, dest interface{}) {
 	temp, _ := json.Marshal(src)
 	json.Unmarshal(temp, dest)
 }
 
-// gorm updates 对 model 为 0 的数据不处理， 这里转化为 map 对象处理
+// ConvertMap gorm updates 对 model 为 0 的数据不处理， 这里转化为 map 对象处理
 func ConvertMap(in interface{}, noKey []string) map[string]interface{} {
 	var inInterface map[string]interface{}
 	inrec, _ := json.Marshal(in)

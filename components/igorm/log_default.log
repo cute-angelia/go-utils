@@ -1,5 +1,0 @@
-
-{"time":"2022-03-22 17:31:33.490","caller":"log.go:184","message":"2022/03/22 17:31:33 logger.go:179: /Users/vanilla/gopath/src/github.com/cute-angelia/go-utils/components/igorm/igorm_test.go:47\n[6.305ms] [rows:1] SELECT * FROM `project` ORDER BY `project`.`id` LIMIT 1"}
-{"time":"2022-03-22 17:31:33.497","caller":"log.go:184","message":"2022/03/22 17:31:33 logger.go:179: /Users/vanilla/gopath/src/github.com/cute-angelia/go-utils/components/igorm/igorm_test.go:52\n[5.767ms] [rows:1] SELECT * FROM `project` ORDER BY id desc,`project`.`id` LIMIT 1"}
-{"time":"2022-03-22 17:32:11.022","caller":"log.go:184","message":"/Users/vanilla/gopath/src/github.com/cute-angelia/go-utils/components/igorm/igorm_test.go:47\n[7.249ms] [rows:1] SELECT * FROM `project` ORDER BY `project`.`id` LIMIT 1"}
-{"time":"2022-03-22 17:32:11.030","caller":"log.go:184","message":"/Users/vanilla/gopath/src/github.com/cute-angelia/go-utils/components/igorm/igorm_test.go:52\n[6.853ms] [rows:1] SELECT * FROM `project` ORDER BY id desc,`project`.`id` LIMIT 1"}
