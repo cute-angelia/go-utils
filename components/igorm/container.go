@@ -2,6 +2,7 @@ package igorm
 
 import (
 	"github.com/cute-angelia/go-utils/syntax/ijson"
+	"github.com/cute-angelia/go-utils/utils/iruntime"
 	"github.com/spf13/viper"
 	"gorm.io/gorm/logger"
 	"io"
@@ -42,6 +43,12 @@ func New(options ...Option) *Component {
 	for _, option := range options {
 		option(c)
 	}
+
+	// windows 处理 dsn
+	if iruntime.IsWindows() {
+		// c.config.Dsn = ""
+	}
+
 	return newComponent(c.config)
 }
 
