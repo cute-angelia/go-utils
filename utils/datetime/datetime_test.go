@@ -22,4 +22,12 @@ func TestToUnix(t *testing.T) {
 	//  获取0点
 	t.Log(tm2.GetTimeZero().GetUnix())
 	t.Log(tm2.GetTimeZero().Format())
+
+	s1 := "2022-05-22 23:33:23"
+	tm4, _ := NewFormat(s1)
+	t.Log(tm4.FormatDate())
+
+	s2 := "2022-05-22"
+	tm5, _ := NewFormatLayout(s2, TIME_FORMAT_DATE)
+	t.Log(tm5.FormatDate())
 }

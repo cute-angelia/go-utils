@@ -42,6 +42,20 @@ func NewFormat(t string) (*theTime, error) {
 	return &theTime{unix: tt.Unix()}, nil
 }
 
+func NewFormatLayout(t string, timeLayout string) (*theTime, error) {
+	// 包含 T
+	if strings.Contains(t, "T") {
+		timeLayout = time.RFC3339
+	}
+
+	loc := time.FixedZone("CST", 8*3600)
+	tt, err := time.ParseInLocation(timeLayout, t, loc)
+	if err != nil {
+		return nil, err
+	}
+	return &theTime{unix: tt.Unix()}, nil
+}
+
 // NewISO8601 return unix timestamp of specified iso8601 time string
 func NewISO8601(iso8601 string) (*theTime, error) {
 	t, err := time.ParseInLocation(time.RFC3339, iso8601, time.UTC)

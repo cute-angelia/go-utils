@@ -4,6 +4,7 @@ import (
 	"github.com/cute-angelia/go-utils/components/loggerV3"
 	"github.com/cute-angelia/go-utils/syntax/ijson"
 	"gorm.io/gorm/logger"
+	"log"
 	"testing"
 )
 
@@ -49,6 +50,24 @@ func TestConnect(t *testing.T) {
 
 	orm2, _ := GetGormMysql(dbName)
 	model2 := Project{} // 不新建数据有问题，和上面一样
-	orm2.Debug().Order("id desc").First(&model2)
+	orm2.Debug().Where("1=1").Order("id desc").First(&model2)
 	t.Log(ijson.Pretty(model2))
+}
+
+func TestQuery(t *testing.T) {
+	t.Log("good")
+
+	sql, v := NewQuery().
+		Where("good1", "=", "hello").
+		Where("good2", "=", 2).
+		Where("good3", "=", 0).
+		Where("good4", "=", 0.).
+		Where("good3", "=", 2).
+		Where("good5", "=", "").
+		Where("good6", "like", "abc").
+		Where("good7", "in", []int{1, 2, 3}).
+		BuildQuery()
+
+	log.Println(sql)
+	log.Println(v)
 }

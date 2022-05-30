@@ -12,6 +12,6 @@ tag:
 	git add .
 	git commit -am "fix struct name"
 	git push origin master
-	git tag v1.7.46
+	git tag v1.7.47
 	git push --tags
 	@echo "\n tags 发布中..."
