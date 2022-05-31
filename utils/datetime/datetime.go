@@ -1,6 +1,7 @@
 package datetime
 
 import (
+	"log"
 	"strings"
 	"time"
 )
@@ -42,18 +43,18 @@ func NewFormat(t string) (*theTime, error) {
 	return &theTime{unix: tt.Unix()}, nil
 }
 
-func NewFormatLayout(t string, timeLayout string) (*theTime, error) {
+// NewFormatLayout 根据模板获取时间 强制+8时区
+func NewFormatLayout(t string, timeLayout string) *theTime {
 	// 包含 T
 	if strings.Contains(t, "T") {
 		timeLayout = time.RFC3339
 	}
-
 	loc := time.FixedZone("CST", 8*3600)
 	tt, err := time.ParseInLocation(timeLayout, t, loc)
 	if err != nil {
-		return nil, err
+		log.Println("NewFormatLayout error", t, timeLayout, err)
 	}
-	return &theTime{unix: tt.Unix()}, nil
+	return &theTime{unix: tt.Unix()}
 }
 
 // NewISO8601 return unix timestamp of specified iso8601 time string

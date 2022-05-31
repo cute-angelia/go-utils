@@ -70,13 +70,24 @@ func IsNotLockedInLimit(dbname string, key string, ttl time.Duration, opt Locker
 		} else {
 			if err := Set(dbname, key, fmt.Sprintf("%d", n+1), ttl); err != nil {
 				log.Println("IsLockedLimit error:", err.Error())
+				return true, err
 			}
 			return true, nil
 		}
 	} else {
 		if err := Set(dbname, key, "1", ttl); err != nil {
 			log.Println("IsLockedLimit error:", err.Error())
+			return true, err
 		}
 		return true, nil
+	}
+}
+
+// IsLockedInLimit 被锁定
+func IsLockedInLimit(dbname string, key string, ttl time.Duration, opt LockerOpts) bool {
+	if b, e := IsNotLockedInLimit(dbname, key, ttl, opt); e != nil {
+		return false
+	} else {
+		return !b
 	}
 }

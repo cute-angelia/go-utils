@@ -10,8 +10,8 @@ up:
 tag:
 	git pull origin master
 	git add .
-	git commit -am "fix struct name"
+	git commit -am "update"
 	git push origin master
-	git tag v1.7.47
+	git tag v1.7.48
 	git push --tags
 	@echo "\n tags 发布中..."
