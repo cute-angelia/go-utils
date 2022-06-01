@@ -24,7 +24,7 @@ func TestLogger(t *testing.T) {
 		WithLevel(1),
 		WithFileJson(false),
 		WithHookError(true),
-	).NewLogger()
+	)
 
 	log.Println("heloe ttttttttttttttttttt")
 

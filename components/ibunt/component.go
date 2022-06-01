@@ -25,10 +25,17 @@ type Component struct {
 func newComponent(config *config) *Component {
 	comp := &Component{}
 	comp.config = config
+
+	//  自动初始化， 有些人经常忘。。。
+	if err := comp.initBuntDb(); err != nil {
+		log.Println(fmt.Sprintf("[%s] 初始化失败", PackageName))
+	}
+
 	return comp
 }
 
-func (c Component) Init() error {
+// initBuntDb 初始化
+func (c Component) initBuntDb() error {
 	if _, ok := BuntCaches.Load(c.config.Name); ok {
 		return nil
 	} else {

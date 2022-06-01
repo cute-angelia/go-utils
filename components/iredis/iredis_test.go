@@ -10,7 +10,7 @@ import (
 
 func startConnectRedis() {
 	conf.LoadConfigFile("./config.toml")
-	Load("redis").Init()
+	Load("redis")
 }
 
 func TestRedis(t *testing.T) {

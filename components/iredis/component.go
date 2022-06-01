@@ -19,10 +19,12 @@ type Component struct {
 func newComponent(config *config) *Component {
 	comp := &Component{}
 	comp.config = config
+	// 初始化 redis
+	comp.initRedis()
 	return comp
 }
 
-func (c Component) Init() *redis.Client {
+func (c Component) initRedis() *redis.Client {
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     c.config.Server,
 		Password: c.config.Password, // no password set

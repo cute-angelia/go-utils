@@ -27,7 +27,7 @@ type Component struct {
 func GetLogger() *zerolog.Logger {
 	if logger == nil {
 		log.Println("日志未初始化，启动默认输出保存为文件log_default.log")
-		logger = newComponent(DefaultConfig()).NewLogger()
+		newComponent(DefaultConfig())
 	}
 
 	return logger
@@ -36,10 +36,14 @@ func GetLogger() *zerolog.Logger {
 func newComponent(config *config) *Component {
 	comp := &Component{}
 	comp.config = config
+
+	// 创建 logger
+	comp.newLogger()
+
 	return comp
 }
 
-func (self *Component) NewLogger() *zerolog.Logger {
+func (self *Component) newLogger() *zerolog.Logger {
 	logOnce.Do(func() {
 		ilog := self.makeMainLogger("/log_" + self.config.Project + ".log")
 
