@@ -19,6 +19,10 @@ var Pools sync.Map
 func newComponent(config *config) *Component {
 	comp := &Component{}
 	comp.config = config
+
+	// init
+	comp.initWeWork(config.redisClient)
+
 	return comp
 }
 
@@ -27,7 +31,7 @@ func (c *Component) String() string {
 }
 
 // InitWeWork 初始化
-func (c *Component) InitWeWork(redisClient *redis.Client) {
+func (c *Component) initWeWork(redisClient *redis.Client) {
 	log.Println(ComponentName, "InitWeWork", c.config.CorpId, c.config.AgentId)
 	Corp := corporation.New(corporation.Config{
 		Corpid: c.config.CorpId,

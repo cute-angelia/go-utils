@@ -2,6 +2,7 @@ package wework
 
 import (
 	"github.com/cute-angelia/go-utils/syntax/ijson"
+	"github.com/go-redis/redis/v8"
 	"github.com/spf13/viper"
 	"log"
 )
@@ -52,5 +53,11 @@ func WithAgentId(agentId string) Option {
 func WithSecret(secret string) Option {
 	return func(c *Container) {
 		c.config.Secret = secret
+	}
+}
+
+func WithRedisClient(redisClient *redis.Client) Option {
+	return func(c *Container) {
+		c.config.redisClient = redisClient
 	}
 }
