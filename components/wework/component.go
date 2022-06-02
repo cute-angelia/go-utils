@@ -5,7 +5,6 @@ import (
 	"github.com/cute-angelia/go-utils/components/wework/sendMessage"
 	"github.com/fastwego/wxwork/corporation"
 	apiMessage "github.com/fastwego/wxwork/corporation/apis/message"
-	"github.com/go-redis/redis/v8"
 	"log"
 	"sync"
 )
@@ -21,7 +20,7 @@ func newComponent(config *config) *Component {
 	comp.config = config
 
 	// init
-	comp.initWeWork(config.redisClient)
+	comp.initWeWork()
 
 	return comp
 }
@@ -31,7 +30,7 @@ func (c *Component) String() string {
 }
 
 // InitWeWork 初始化
-func (c *Component) initWeWork(redisClient *redis.Client) {
+func (c *Component) initWeWork() {
 	log.Println(ComponentName, "InitWeWork", c.config.CorpId, c.config.AgentId)
 	Corp := corporation.New(corporation.Config{
 		Corpid: c.config.CorpId,
@@ -40,7 +39,7 @@ func (c *Component) initWeWork(redisClient *redis.Client) {
 		AgentId: c.config.AgentId,
 		Secret:  c.config.Secret,
 	})
-	App.SetAccessTokenCacheDriver(NewRedis(redisClient))
+	App.SetAccessTokenCacheDriver(NewRedis(c.config.redisClient))
 
 	_, loaded := Pools.LoadOrStore(c.config.AgentId, App)
 	if loaded {
