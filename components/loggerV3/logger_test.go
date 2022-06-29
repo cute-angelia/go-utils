@@ -17,8 +17,8 @@ import (
 //}
 
 func TestLogger(t *testing.T) {
-	logger := New(
-		WithIsOnline(true),
+	New(
+		WithIsOnline(false),
 		WithProject("test.bud"),
 		WithLogPath("/tmp"),
 		WithLevel(1),
@@ -26,11 +26,14 @@ func TestLogger(t *testing.T) {
 		WithHookError(true),
 	)
 
+	loggerTest := GetLogger()
+
 	log.Println("heloe ttttttttttttttttttt")
 
-	logger.Warn().Str("name", "kk").Msg("hello, success")
-	logger.Info().Msg("hello")
-	logger.Info().Msg("cat")
-	logger.Info().Msg("dog")
-	logger.Error().Msg("dog")
+	loggerTest.Warn().Str("name", "kk").Msg("hello, success")
+	loggerTest.Info().Msg("hello")
+	loggerTest.Info().Msg("cat")
+	loggerTest.Info().Msg("dog")
+	loggerTest.Error().Msg("dog")
+	loggerTest.Error().Str("dog", "xiaokeai").Msg("")
 }
