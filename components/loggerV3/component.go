@@ -15,48 +15,47 @@ import (
 	"time"
 )
 
+var component *Component
+
 var logOnce sync.Once
-var logger *zerolog.Logger
 var loggerError *zerolog.Logger
 
 type Component struct {
 	config *config
+	logger *zerolog.Logger
 }
 
 // GetLogger 开放方法
 func GetLogger() *zerolog.Logger {
-	if logger == nil {
+	if component == nil || component.logger == nil {
 		log.Println("日志未初始化，启动默认输出保存为文件log_default.log")
-		newComponent(DefaultConfig())
+		component = newComponent(DefaultConfig())
 	}
 
-	return logger
+	return component.logger
 }
 
 func newComponent(config *config) *Component {
-	comp := &Component{}
-	comp.config = config
+	cpt := &Component{}
+	cpt.config = config
+	cpt.logger = cpt.newLogger(config)
 
-	// 创建 logger
-	comp.newLogger()
-
-	return comp
+	component = cpt
+	return component
 }
 
-func (self *Component) newLogger() *zerolog.Logger {
+func (self *Component) newLogger(config *config) *zerolog.Logger {
 	logOnce.Do(func() {
-		ilog := self.makeMainLogger("/log_" + self.config.Project + ".log")
-
+		ilog := self.makeMainLogger("/log_" + config.Project + ".log")
 		// hook error
-		if self.config.HookError {
+		if config.HookError {
 			ilog = ilog.Hook(ErrorHook{})
-			loge := self.makeErrorLogger("/error/log_error_" + self.config.Project + ".log")
+			loge := self.makeErrorLogger("/error/log_error_" + config.Project + ".log")
 			loggerError = &loge
 		}
-
-		logger = &ilog
+		self.logger = &ilog
 	})
-	return logger
+	return self.logger
 }
 
 // makeMainLoger 主 logger

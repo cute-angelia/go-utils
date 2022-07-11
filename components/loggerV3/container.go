@@ -37,6 +37,7 @@ func New(options ...Option) *Component {
 	for _, option := range options {
 		option(c)
 	}
+
 	return newComponent(c.config)
 }
 
