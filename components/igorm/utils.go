@@ -40,12 +40,17 @@ func GetPageDataV2(orm *gorm.DB, tableName string, conds Conds, page int, perPag
 }
 
 // GetPageDataV3 查询分页内容
-func GetPageDataV3(orm *gorm.DB, tableName string, page int, perPage int) (interface{}, int64) {
+// 例子：总榜数据
+// sql, binds := igorm.NewQuery().Where("type", "=", itype).BuildQuery()
+// db := orm.Table(userScore.TableName()).Order("score desc").Where(sql, binds...)
+//
+// ToplistAllModel := []wwxcUserScore.WwxcUserScoreModel{}
+// list, _ := igorm.GetPageDataV3(db, ToplistAllModel, page, perpage)
+func GetPageDataV3(db *gorm.DB, model interface{}, page int, perPage int) (interface{}, int64) {
 	total := int64(0)
-	var models interface{}
-	orm.Table(tableName).Count(&total)
-	orm.Table(tableName).Order("id desc").Offset((page - 1) * perPage).Limit(perPage).Find(&models)
-	return models, total
+	db.Count(&total)
+	db.Offset((page - 1) * perPage).Limit(perPage).Find(&model)
+	return model, total
 }
 
 // Convert 转化数据 dest => &dest
