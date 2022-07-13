@@ -39,6 +39,15 @@ func GetPageDataV2(orm *gorm.DB, tableName string, conds Conds, page int, perPag
 	return models, total
 }
 
+// GetPageDataV3 查询分页内容
+func GetPageDataV3(orm *gorm.DB, tableName string, page int, perPage int) (interface{}, int64) {
+	total := int64(0)
+	var models interface{}
+	orm.Table(tableName).Count(&total)
+	orm.Table(tableName).Order("id desc").Offset((page - 1) * perPage).Limit(perPage).Find(&models)
+	return models, total
+}
+
 // Convert 转化数据 dest => &dest
 func Convert(src interface{}, dest interface{}) {
 	temp, _ := json.Marshal(src)
