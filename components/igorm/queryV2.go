@@ -7,6 +7,31 @@ import (
 	"strings"
 )
 
+/*
+	how to use this
+    // v2
+	query := NewQuery().Where()
+	db, _ := igorm.GetGormMysql(fileManagerModelDbName)
+	sql, binds := query.BuildQuery()
+	if err = db.Model(FileManagerModel{}).Where(sql, binds...).First(&resp).Error; err != nil {
+		invoker.Logger.Error().Str("InfoX error", "file_manager_model").Err(err)
+		return
+	}
+
+	// v1
+	query := igorm.Conds{}
+	if v := api.Post(r, "id"); v != "" {
+		query["id"] = v
+	}
+	if v := api.Post(r, "username"); v != "" {
+		query["username"] = v
+	}
+
+	sql, binds := igorm.BuildQuery(conds)
+	db = db.Model(User{}).Where(sql, binds...)
+
+*/
+
 type Query struct {
 	subset map[string]subset
 }
