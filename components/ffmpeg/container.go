@@ -31,6 +31,12 @@ func WithFfmpegPath(ffmpegPath string) Option {
 	}
 }
 
+func WithFilesPath(filesPath string) Option {
+	return func(c *Container) {
+		c.config.FilesPath = filesPath
+	}
+}
+
 func WithTimeOut(timeout time.Duration) Option {
 	return func(c *Container) {
 		c.config.Timeout = timeout

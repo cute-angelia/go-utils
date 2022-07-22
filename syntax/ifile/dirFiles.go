@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 )
 
 // 检查是否为空文件夹
@@ -18,9 +19,9 @@ func CheckIsEmptyDir(dirpath string) bool {
 	return false
 }
 
-//获取所有文件和文件夹的路径
-// @param ext 过滤文件，只获取匹配后缀名的文件，示例：.go .jpg
-func GetPaths(dirPath string, exts ...string) (dirPaths []string, filePaths []string, err error) {
+// GetDepthOnePathsAndFilesIncludeExt 只获取 当前文件夹 匹配后缀名 的 文件和文件夹
+// @param ext 示例：.go .jpg
+func GetDepthOnePathsAndFilesIncludeExt(dirPath string, exts ...string) (dirPaths []string, filePaths []string, err error) {
 	// 处理要过滤的后缀名
 	var ext string
 	if len(exts) > 0 {
@@ -40,7 +41,7 @@ func GetPaths(dirPath string, exts ...string) (dirPaths []string, filePaths []st
 		if file.IsDir() {
 			dirPaths = append(dirPaths, filepath.Join(dirPath, file.Name()))
 		} else {
-			if ext != "" && path.Ext(file.Name()) != ext {
+			if ext != "" && strings.ToLower(path.Ext(file.Name())) != strings.ToLower(ext) {
 				continue
 			}
 			filePaths = append(filePaths, filepath.Join(dirPath, file.Name()))
@@ -49,10 +50,10 @@ func GetPaths(dirPath string, exts ...string) (dirPaths []string, filePaths []st
 	return
 }
 
-//获取所有文件和文件夹的路径，包含子文件夹下的文件和文件夹
+// GetAllPaths 获取所有文件和文件夹的路径，包含子文件夹下的文件和文件夹
 // @param ext 过滤文件，只获取匹配后缀名的文件，示例：.go
 func GetAllPaths(dirPath string, exts ...string) (dirPaths []string, filePaths []string, err error) {
-	dirPaths, filePaths, err = GetPaths(dirPath, exts...)
+	dirPaths, filePaths, err = GetDepthOnePathsAndFilesIncludeExt(dirPath, exts...)
 	if err != nil {
 		return
 	}

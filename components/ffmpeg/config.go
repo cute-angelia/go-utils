@@ -8,6 +8,7 @@ var PackageName = "component.utils.ffmpeg"
 type config struct {
 	FfmpegPath string
 	Timeout    time.Duration
+	FilesPath  string // 源文件路径
 }
 
 // DefaultConfig 返回默认配置
