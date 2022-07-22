@@ -23,7 +23,7 @@ func TestDirFiles(t *testing.T) {
 
 	rootPath := "/Users/vanilla/Downloads"
 
-	dirPaths, filePaths, err := GetPaths(rootPath)
+	dirPaths, filePaths, err := GetDepthOnePathsAndFilesIncludeExt(rootPath)
 	log.Println(ijson.Pretty(dirPaths))
 	log.Println(ijson.Pretty(filePaths))
 	log.Println(err)
