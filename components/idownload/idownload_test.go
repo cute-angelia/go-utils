@@ -52,6 +52,16 @@ func TestV3(t *testing.T) {
 	log.Println(err)
 }
 
+func TestHuaBan(t *testing.T) {
+	uri := "https://hbimg.b0.upaiyun.com/55fd47126effca1653ca4a0f1536c020d4f8bb8469016-G9lg4Y"
+	idown := New(
+		WithUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36"),
+	)
+	findo, err := idown.Download(uri, "/tmp/2.jpg")
+	log.Println(ijson.Pretty(findo))
+	log.Println(err)
+}
+
 func TestDownloadDouyin(t *testing.T) {
 	uri := "https://aweme.snssdk.com/aweme/v1/play/?video_id=v0200fg10000c6b2tlrc77ub0qkvip1g&line=0&ratio=1080p&media_type=4&vr_type=0&improve_bitrate=0&is_play_url=1&is_support_h265=0&source=PackSourceEnum_PUBLISH"
 	idown := New()

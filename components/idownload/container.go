@@ -74,15 +74,15 @@ func WithUserAgent(UserAgent string) Option {
 	}
 }
 
-func WithUserAgentRandon(random bool) Option {
+func WithUserAgentRandon() Option {
 	return func(c *Container) {
-		c.config.UseRandomUserAgent = random
+		c.config.UserAgent = RandomUserAgent()
 	}
 }
 
-func WithUserAgentRandonMobile(random bool) Option {
+func WithUserAgentRandonMobile() Option {
 	return func(c *Container) {
-		c.config.UseRandomUserAgentMobile = random
+		c.config.UserAgent = RandomMobileUserAgent()
 	}
 }
 

@@ -293,16 +293,12 @@ func (d *Component) multiDownload(strURL, filename string, contentLen int) (File
 
 //  singleDownload 直接下载
 func (d *Component) singleDownload(strURL, filename string) (FileInfo, error) {
-
-	log.Println("xxx == = == =", strURL, filename)
-
 	var info FileInfo
 	// 需要进度条，更要复用 http.client 这里就不使用原生的 http
 	// resp, err := http.Get(strURL)
 	// Transport: &http.Transport{
 	//	MaxIdleConnsPerHost: 10000,
 	// },
-
 	//d.getGoHttpClient(strURL, "GET").Do()
 
 	iClient := d.getGoHttpClient(strURL, "GET").Client()
