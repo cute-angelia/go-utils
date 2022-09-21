@@ -1,4 +1,4 @@
-package datetime
+package itime
 
 // from https://github.com/gookit/goutil/blob/master/fmtutil/time.go
 

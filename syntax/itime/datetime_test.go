@@ -1,4 +1,4 @@
-package datetime
+package itime
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -28,6 +28,6 @@ func TestToUnix(t *testing.T) {
 	t.Log(tm4.FormatDate())
 
 	s2 := "2022-05-22"
-	tm5, _ := NewFormatLayout(s2, TIME_FORMAT_DATE)
+	tm5 := NewFormatLayout(s2, TIME_FORMAT_DATE)
 	t.Log(tm5.FormatDate())
 }

@@ -1,4 +1,4 @@
-package datetime
+package itime
 
 import (
 	"log"
