@@ -60,6 +60,9 @@ func (d *Component) getHttpHeader() gout.H {
 	if len(d.config.Cookie) > 0 {
 		gh["Cookie"] = d.config.Cookie
 	}
+	if len(d.config.Host) > 0 {
+		gh["Host"] = d.config.Host
+	}
 	if len(d.config.Authorization) > 0 {
 		gh["Authorization"] = "Bearer " + d.config.Authorization
 	}

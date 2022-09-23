@@ -74,6 +74,12 @@ func WithUserAgent(UserAgent string) Option {
 	}
 }
 
+func WithHost(Host string) Option {
+	return func(c *Container) {
+		c.config.Host = Host
+	}
+}
+
 func WithUserAgentRandon() Option {
 	return func(c *Container) {
 		c.config.UserAgent = RandomUserAgent()

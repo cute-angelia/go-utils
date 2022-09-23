@@ -15,6 +15,7 @@ type config struct {
 	// 头部信息
 	Cookie                   string // cookie
 	Referer                  string // Referer
+	Host                     string
 	UserAgent                string // user-agent
 	UseRandomUserAgent       bool
 	UseRandomUserAgentMobile bool
