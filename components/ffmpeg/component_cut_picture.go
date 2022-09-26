@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cute-angelia/go-utils/syntax/icmd"
-	"github.com/cute-angelia/go-utils/utils/datetime"
+	"github.com/cute-angelia/go-utils/syntax/itime"
 	"math/rand"
 	"regexp"
 	"strconv"
@@ -64,7 +64,7 @@ func (c *Component) GetCutPictures(mp4path string, cutsec int, saveDir string) e
 			"-t", "1",
 			"-i", mp4path,
 			"-vframes", "1",
-			saveDir + "/" + strings.Join(datetime.ConvertVideoSecToStr(int64(i)), "-") + ".jpg",
+			saveDir + "/" + strings.Join(itime.ConvertVideoSecToStr(int64(i)), "-") + ".jpg",
 		}, c.config.Timeout)
 
 		// log.Println(ijson.Pretty(status))
