@@ -15,6 +15,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -116,6 +117,8 @@ func (d *Component) GetContentLength(strURL string) int {
 
 // Download 下载文件
 func (d *Component) Download(strURL, filename string) (fileInfo FileInfo, errResp error) {
+	strURL = strings.TrimSpace(strURL)
+
 	if filename == "" {
 		filename = path.Base(strURL)
 	}
@@ -181,6 +184,8 @@ func (d *Component) Download(strURL, filename string) (fileInfo FileInfo, errRes
 
 // DownloadToByteRetry 请求文件，返回 字节
 func (d *Component) DownloadToByteRetry(src string, retry int) ([]byte, error) {
+	src = strings.TrimSpace(src)
+
 	var body []byte
 	err := d.getGoHttpClient(src, "GET").Callback(func(c *dataflow.Context) error {
 		// 进度条
@@ -203,6 +208,8 @@ func (d *Component) DownloadToByteRetry(src string, retry int) ([]byte, error) {
 
 // DownloadToByte 请求文件，返回 字节
 func (d *Component) DownloadToByte(strURL string) ([]byte, error) {
+	strURL = strings.TrimSpace(strURL)
+
 	iClient := d.getGoHttpClient(strURL, "GET").Client()
 	req, err := http.NewRequest("GET", strURL, nil)
 	if err != nil {
