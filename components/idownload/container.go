@@ -110,6 +110,12 @@ func WithDebug(Debug bool) Option {
 	}
 }
 
+func WithProgressbar(Progressbar bool) Option {
+	return func(c *Container) {
+		c.config.Progressbar = Progressbar
+	}
+}
+
 func WithResume(resume bool) Option {
 	return func(c *Container) {
 		c.config.Resume = resume

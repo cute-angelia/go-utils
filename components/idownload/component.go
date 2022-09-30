@@ -227,8 +227,11 @@ func (d *Component) DownloadToByte(strURL string) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	// 进度条
-	d.getBar(int(resp.ContentLength), strURL)
+
+	if d.config.Progressbar {
+		// 进度条
+		d.getBar(int(resp.ContentLength), strURL)
+	}
 
 	var buf bytes.Buffer
 	bufcache := make([]byte, 32*1024)
@@ -330,8 +333,10 @@ func (d *Component) singleDownload(strURL, filename string) (FileInfo, error) {
 	}
 	defer resp.Body.Close()
 
-	// 进度条
-	d.getBar(int(resp.ContentLength), strURL)
+	if d.config.Progressbar {
+		// 进度条
+		d.getBar(int(resp.ContentLength), strURL)
+	}
 
 	f, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {

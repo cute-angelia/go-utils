@@ -33,6 +33,8 @@ type config struct {
 	// 超时
 	Timeout time.Duration // 超时时间
 	Debug   bool          //  debug 日志
+
+	Progressbar bool // 进度条开关
 }
 
 // DefaultConfig 返回默认配置
@@ -51,5 +53,6 @@ func DefaultConfig() *config {
 		Authorization:            "",
 		RetryAttempt:             3,
 		RetryWaitTime:            time.Second * 5,
+		Progressbar:              true,
 	}
 }
