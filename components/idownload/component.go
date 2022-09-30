@@ -237,7 +237,13 @@ func (d *Component) DownloadToByte(strURL string) ([]byte, error) {
 	bufcache := make([]byte, 32*1024)
 	// You don't need use "bufio.NewWriter(&b)" to create an io.Writer. &b is an io.Writer itself.
 	// bufio.NewWriter(&buf)
-	io.CopyBuffer(io.MultiWriter(&buf, d.bar), resp.Body, bufcache)
+
+	if d.config.Progressbar {
+		io.CopyBuffer(io.MultiWriter(&buf, d.bar), resp.Body, bufcache)
+	} else {
+		io.CopyBuffer(&buf, resp.Body, bufcache)
+	}
+
 	return buf.Bytes(), nil
 }
 
@@ -282,7 +288,9 @@ func (d *Component) multiDownload(strURL, filename string, contentLen int) (File
 				if err == nil {
 					downloaded = len(content)
 				}
-				d.bar.Add(downloaded)
+				if d.config.Progressbar {
+					d.bar.Add(downloaded)
+				}
 			}
 
 			d.downloadPartial(strURL, filename, rangeStart+downloaded, rangeEnd, i)
@@ -345,7 +353,12 @@ func (d *Component) singleDownload(strURL, filename string) (FileInfo, error) {
 	defer f.Close()
 
 	buf := make([]byte, 32*1024)
-	_, err = io.CopyBuffer(io.MultiWriter(f, d.bar), resp.Body, buf)
+
+	if d.config.Progressbar {
+		_, err = io.CopyBuffer(io.MultiWriter(f, d.bar), resp.Body, buf)
+	} else {
+		_, err = io.CopyBuffer(f, resp.Body, buf)
+	}
 
 	info.SourceUrl = strURL
 	info.Path = filename
@@ -418,7 +431,13 @@ func (d *Component) downloadPartial(strURL, filename string, rangeStart, rangeEn
 	defer partFile.Close()
 
 	buf := make([]byte, 32*1024)
-	_, err = io.CopyBuffer(io.MultiWriter(partFile, d.bar), resp.Body, buf)
+
+	if d.config.Progressbar {
+		_, err = io.CopyBuffer(io.MultiWriter(partFile, d.bar), resp.Body, buf)
+	} else {
+		_, err = io.CopyBuffer(partFile, resp.Body, buf)
+	}
+
 	if err != nil {
 		if err == io.EOF {
 			return
