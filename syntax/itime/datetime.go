@@ -102,6 +102,16 @@ func (t *theTime) GetMonthEndDay() *theTime {
 	return NewUnix(lastOfMonth.Unix())
 }
 
+// GetWeekDayChinese 中国的周码 （1，2，3，4，5，6，7）
+func (t *theTime) GetWeekDayChinese() int {
+	now := t.GetTime()
+	if now.Weekday() == 0 {
+		return 7
+	} else {
+		return int(now.Weekday())
+	}
+}
+
 // GetWeekStartDay 获得当前周的初始和结束日期
 func (t *theTime) GetWeekStartDay() *theTime {
 	now := t.GetTime()

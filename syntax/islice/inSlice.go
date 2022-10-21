@@ -16,21 +16,21 @@ func NewInSlice(items ...interface{}) *inSlice {
 	return islice
 }
 
-// 添加元素
+// Add 添加元素
 func (s *inSlice) Add(items ...interface{}) {
 	for _, v := range items {
 		s.data.Store(v, true)
 	}
 }
 
-// 删除元素
+// Remove 删除元素
 func (s *inSlice) Remove(items ...interface{}) {
 	for _, v := range items {
 		s.data.Delete(v)
 	}
 }
 
-// 判断元素是否存在
+// Has 判断元素是否存在
 func (s *inSlice) Has(items ...interface{}) bool {
 	for _, v := range items {
 		if _, ok := s.data.Load(v); !ok {
@@ -44,7 +44,7 @@ func (s *inSlice) GetData() sync.Map {
 	return s.data
 }
 
-// 元素个数
+// Count 元素个数
 func (s *inSlice) Count() int {
 	count := 0
 	s.data.Range(func(key, value interface{}) bool {
@@ -54,17 +54,17 @@ func (s *inSlice) Count() int {
 	return count
 }
 
-// 清空集合
+// Clear 清空集合
 func (s *inSlice) Clear() {
 	s.data = sync.Map{}
 }
 
-// 空集合判断
+// Empty 空集合判断
 func (s *inSlice) Empty() bool {
 	return s.Count() == 0
 }
 
-// 无序列表
+// List 无序列表
 func (s *inSlice) List() []interface{} {
 	var list []interface{}
 	s.data.Range(func(key, value interface{}) bool {
