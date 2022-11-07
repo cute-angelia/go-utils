@@ -8,6 +8,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
@@ -45,7 +46,7 @@ type QQwry struct {
 // IPData IP库的数据
 var IPData fileData
 
-// InitIPData 初始化ip库数据到内存中
+// InitIPData 初始化ip库数据到内存中fccf
 func (f *fileData) InitIPData() (rs interface{}) {
 	var tmpData []byte
 
@@ -53,6 +54,13 @@ func (f *fileData) InitIPData() (rs interface{}) {
 	_, err := os.Stat(f.FilePath)
 	if err != nil && os.IsNotExist(err) {
 		log.Println("文件不存在，尝试从网络获取最新纯真 IP 库")
+
+		startTime := time.Now().UnixNano()
+		IPData.FilePath = "/tmp/qqwry.dat"
+		IPData.OnlineUrl = "https://best-ecology.oss-cn-hangzhou.aliyuncs.com/tool/ip/qqwry.dat"
+
+		endTime := time.Now().UnixNano()
+		log.Printf("IP 库加载完成 共加载:%d 条 IP 记录, 所花时间:%.1f ms\n", IPData.IPNum, float64(endTime-startTime)/1000000)
 
 		filename := file.NewFileName(f.OnlineUrl).GetNameOrigin()
 		if _, err := file.DownloadFileWithSrc(f.OnlineUrl, "/tmp", filename); err == nil {
