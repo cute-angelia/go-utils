@@ -368,6 +368,18 @@ func (e *Component) GetBucketAndObjectName(objectNameWithBucket string) (string,
 	}
 }
 
+// ContentType 类型
+type ContentType string
+
+const (
+	TypeMp4 ContentType = "video/mp4,video/webm,video/ogg"
+	TypeJpg ContentType = "image/jpeg,image/png"
+)
+
+func (e *Component) GetPutObjectOptionByFlag(contentType ContentType) minio.PutObjectOptions {
+	return minio.PutObjectOptions{ContentType: string(contentType)}
+}
+
 // GetPutObjectOptions 获取默认PutObjectOptions
 // video/mp4,video/webm,video/ogg
 func (e *Component) GetPutObjectOptions(contentType string) minio.PutObjectOptions {
@@ -378,7 +390,13 @@ func (e *Component) GetPutObjectOptions(contentType string) minio.PutObjectOptio
 }
 
 // GetPutObjectOptionByExt 根据类型获取对象
-func (e *Component) GetPutObjectOptionByExt(fileExt string) minio.PutObjectOptions {
+func (e *Component) GetPutObjectOptionByExt(uri string) minio.PutObjectOptions {
+
+	fileExt := path.Ext(uri)
+	if len(uri) == 0 {
+		fileExt = ".jpg"
+	}
+
 	contentType := ""
 	switch fileExt {
 	case ".png":
@@ -389,7 +407,8 @@ func (e *Component) GetPutObjectOptionByExt(fileExt string) minio.PutObjectOptio
 	case ".gif":
 		contentType = "image/gif"
 	case ".mp4":
-		contentType = "audio/mp4"
+		// contentType = "audio/mp4"
+		contentType = "video/mp4,video/webm,video/ogg"
 	case ".avi":
 		contentType = "video/avi"
 	case ".mp3":

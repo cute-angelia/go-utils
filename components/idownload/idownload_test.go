@@ -14,6 +14,19 @@ type datas struct {
 	Socket string
 }
 
+func TestRosemm(t *testing.T) {
+	uri := "http://rs.jinyemimi.com/jpg/3981-BJLdDOGQ/033.rosi"
+	idown := New(
+		WithReferer("rs.jinyemimi.com"),
+		WithHost("rs.jinyemimi.com"),
+		WithUserAgent("rosi app 1.0.3"),
+	)
+	// findo, err := idown.DownloadToByte(uri)
+	findo, err := idown.Download(uri, "/tmp/1.jpg")
+	log.Println(ijson.Pretty(findo))
+	log.Println(err)
+}
+
 func TestToptoon(t *testing.T) {
 	uri := "https://twattraction.akamaized.net/www_v1/imgComic/ep_content/1281_36208_1606901405.7415.jpg?__token__=exp=1651743096~acl=/*~hmac=1017ea8986e6e1b249f03bf06805f39be74c00ef091fbeaf2c172d0d55b618e9"
 	idown := New(
