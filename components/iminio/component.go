@@ -376,6 +376,7 @@ const (
 	TypeJpg ContentType = "image/jpeg,image/png"
 )
 
+// 快速
 func (e *Component) GetPutObjectOptionByFlag(contentType ContentType) minio.PutObjectOptions {
 	return minio.PutObjectOptions{ContentType: string(contentType)}
 }
