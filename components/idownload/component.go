@@ -375,6 +375,7 @@ func (d *Component) getBar(length int, name string) {
 		progressbar.OptionShowBytes(true),
 		progressbar.OptionSetWidth(50),
 		progressbar.OptionShowCount(),
+		progressbar.OptionUseANSICodes(true),
 		progressbar.OptionOnCompletion(func() {
 			fmt.Print("\n")
 		}),
