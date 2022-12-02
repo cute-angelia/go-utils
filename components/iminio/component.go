@@ -53,6 +53,11 @@ func newComponent(compName string, config *config, logger *elog.Component) *Comp
 	}
 }
 
+// SignUrlPublic iminio.SignUrlPublic("blog-station/1669965002139224000.jpg")
+func (e *Component) SignUrlPublic(key string) string {
+	return e.Client.EndpointURL().String() + "/" + key
+}
+
 // SignUrlWithCache 获取链接 不带bucket
 func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration) (string, error) {
 	hashkey := e.GenerateHashKey(1, bucket, key)
@@ -71,6 +76,11 @@ func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration)
 		ibunt.Set("cache", hashkey, presignedURL.String(), t)
 		return presignedURL.String(), nil
 	}
+}
+
+// SignKeyWithCache 获取链接
+func (e *Component) SignKeyWithCache(key string, t time.Duration) string {
+	return e.SignCoverWithCache(key, t)
 }
 
 // SignCoverWithCache 获取链接 链接带 bucket

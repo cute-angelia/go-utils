@@ -2,7 +2,6 @@ package iminio
 
 import (
 	"log"
-	"path"
 	"strings"
 	"testing"
 )
@@ -16,17 +15,19 @@ func TestMinioUpload(t *testing.T) {
 		WithUseSSL(false),
 	)
 
-	fileinput := "/Users/vanilla/gopath/src/github.com/cute-angelia/go-utils/Makefile"
-	if info, err := iminio.FPutObject(
-		"comic",
-		"test.txt",
-		fileinput,
-		iminio.GetPutObjectOptionByExt(path.Ext(fileinput)),
-	); err != nil {
-		log.Println(err)
-	} else {
-		log.Println(info)
-	}
+	log.Println(iminio.SignUrlPublic("blog-station/1669965002139224000.jpg"))
+
+	//fileinput := "/Users/vanilla/gopath/src/github.com/cute-angelia/go-utils/Makefile"
+	//if info, err := iminio.FPutObject(
+	//	"comic",
+	//	"test.txt",
+	//	fileinput,
+	//	iminio.GetPutObjectOptionByExt(path.Ext(fileinput)),
+	//); err != nil {
+	//	log.Println(err)
+	//} else {
+	//	log.Println(info)
+	//}
 }
 
 func TestMinioUploadBase64(t *testing.T) {
