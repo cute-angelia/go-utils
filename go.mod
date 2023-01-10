@@ -7,6 +7,7 @@ require (
 	github.com/anthonynsimon/bild v0.13.0
 	github.com/astaxie/beego v1.12.3
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dustin/go-humanize v1.0.0
 	github.com/faabiosr/cachego v0.16.3
 	github.com/fastwego/wxwork v1.0.0-beta.8
@@ -15,7 +16,7 @@ require (
 	github.com/go-chi/chi v1.5.4
 	github.com/go-cmd/cmd v1.3.0
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
-	github.com/go-redis/redis/v8 v8.11.3
+	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.1.0 // indirect
@@ -54,6 +55,7 @@ require (
 	github.com/subosito/gotenv v1.3.0 // indirect
 	github.com/tidwall/buntdb v1.2.6
 	github.com/xujiajun/nutsdb v0.6.0
+	github.com/yitter/idgenerator-go v1.3.1 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
 	golang.org/x/net v0.0.0-20220412020605-290c469a71a5
