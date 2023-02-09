@@ -9,7 +9,7 @@ require (
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dustin/go-humanize v1.0.0
-	github.com/faabiosr/cachego v0.16.3
+	github.com/faabiosr/cachego v0.17.0
 	github.com/fastwego/wxwork v1.0.0-beta.8
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/garyburd/redigo v1.6.2
@@ -55,7 +55,7 @@ require (
 	github.com/subosito/gotenv v1.3.0 // indirect
 	github.com/tidwall/buntdb v1.2.6
 	github.com/xujiajun/nutsdb v0.6.0
-	github.com/yitter/idgenerator-go v1.3.1 // indirect
+	github.com/yitter/idgenerator-go v1.3.1
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
 	golang.org/x/net v0.0.0-20220412020605-290c469a71a5
