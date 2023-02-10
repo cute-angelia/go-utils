@@ -47,3 +47,7 @@ func (self *Jwt) Decode(token string) (*jwt.Claims, error) {
 		return loadedClaims, nil
 	}
 }
+
+func (self *Jwt) Get(name string, claims *jwt.Claims) (interface{}, error) {
+	return claims.Get("Role")
+}

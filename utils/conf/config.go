@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/viper"
 	"io"
 	"log"
+	"path"
 )
 
 func LoadConfigFile(cfgFile string) error {
@@ -62,6 +63,7 @@ func MergeConfig(byteCfg io.Reader) error {
 
 // MergeConfigWithPath 合并配置 文件路径 cfgPath 文件夹路径
 func MergeConfigWithPath(cfgPath string) error {
+	cfgPath = path.Base(cfgPath)
 	// 追加一份配置
 	viper.AddConfigPath(cfgPath)
 	err := viper.MergeInConfig() // Find and read the config file
@@ -69,6 +71,16 @@ func MergeConfigWithPath(cfgPath string) error {
 		return fmt.Errorf("Fatal error config file: %w \n", err)
 	} else {
 		return nil
+	}
+}
+
+func MustMergeConfigWithPath(cfgPath string) {
+	cfgPath = path.Base(cfgPath)
+	// 追加一份配置
+	viper.AddConfigPath(cfgPath)
+	err := viper.MergeInConfig() // Find and read the config file
+	if err != nil {              // Handle errors reading the config file
+		panic(fmt.Errorf("Fatal error config file: %w \n", err))
 	}
 }
 
