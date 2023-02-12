@@ -1,9 +1,9 @@
 package redis
 
 import (
+	"context"
 	"fmt"
 	redigo "github.com/garyburd/redigo/redis"
-	"context"
 	"log"
 )
 

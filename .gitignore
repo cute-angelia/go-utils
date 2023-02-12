@@ -19,3 +19,4 @@ vendor/
 *.db
 .dat
 .DS_Store
+badger

@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/cute-angelia/go-utils/components/ibunt"
+	"github.com/cute-angelia/go-utils/components/cache"
 	"github.com/cute-angelia/go-utils/components/idownload"
 	"github.com/cute-angelia/go-utils/syntax/ifile"
 	"github.com/cute-angelia/go-utils/utils/encrypt/hash"
@@ -59,32 +59,32 @@ func (e *Component) SignUrlPublic(key string) string {
 }
 
 // SignUrlWithCache 获取链接 不带bucket
-func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration) (string, error) {
+func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration, cacheObj cache.Cache) (string, error) {
 	hashkey := e.GenerateHashKey(1, bucket, key)
-	cachedata := ibunt.Get("cache", hashkey)
-
-	if len(cachedata) > 3 {
+	if cachedata, err := cacheObj.Get(hashkey); err == nil && len(cachedata) > 3 {
+		//if e.config.Debug {
+		//log.Println(PackageName, hashkey, "Successfully URL: ", cachedata)
+		//}
 		return cachedata, nil
-	}
-
-	reqParams := make(url.Values)
-	if presignedURL, err := e.Client.PresignedGetObject(context.Background(), bucket, key, t, reqParams); err != nil {
-		e.logger.Info(err.Error())
-		return "", err
 	} else {
-		log.Println(PackageName, "Successfully URL: ", presignedURL)
-		ibunt.Set("cache", hashkey, presignedURL.String(), t)
-		return presignedURL.String(), nil
+		reqParams := make(url.Values)
+		if presignedURL, err := e.Client.PresignedGetObject(context.Background(), bucket, key, t, reqParams); err != nil {
+			e.logger.Info(err.Error())
+			return "", err
+		} else {
+			log.Println(PackageName, hashkey, "Successfully URL: ", presignedURL)
+			return presignedURL.String(), cacheObj.Set(hashkey, presignedURL.String(), t)
+		}
 	}
 }
 
 // SignKeyWithCache 获取链接
-func (e *Component) SignKeyWithCache(key string, t time.Duration) string {
-	return e.SignCoverWithCache(key, t)
+func (e *Component) SignKeyWithCache(key string, t time.Duration, cacheObj cache.Cache) string {
+	return e.SignCoverWithCache(key, t, cacheObj)
 }
 
 // SignCoverWithCache 获取链接 链接带 bucket
-func (e *Component) SignCoverWithCache(cover string, t time.Duration) string {
+func (e *Component) SignCoverWithCache(cover string, t time.Duration, cacheObj cache.Cache) string {
 	if strings.Contains(cover, "http") {
 		return cover
 	}
@@ -93,7 +93,7 @@ func (e *Component) SignCoverWithCache(cover string, t time.Duration) string {
 		cover = strings.TrimLeft(cover, "/")
 		temp := strings.Split(cover, "/")
 		objkey := temp[1:len(temp)]
-		icover, _ := e.SignUrlWithCache(temp[0], strings.Join(objkey, "/"), t)
+		icover, _ := e.SignUrlWithCache(temp[0], strings.Join(objkey, "/"), t, cacheObj)
 		return icover
 	} else {
 		return ""

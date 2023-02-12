@@ -1,8 +1,8 @@
 package redis
 
 import (
-	"testing"
 	"github.com/garyburd/redigo/redis"
+	"testing"
 )
 
 func TestDo(t *testing.T) {

@@ -1,8 +1,8 @@
 package redis
 
 import (
-	"testing"
 	"log"
+	"testing"
 )
 
 func TestCmd(t *testing.T) {

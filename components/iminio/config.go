@@ -29,6 +29,7 @@ const (
 func DefaultConfig() *config {
 	return &config{
 		UseSSL:      false,
+		Debug:       false,
 		ReplaceMode: 2,
 	}
 }

@@ -1,6 +1,7 @@
 package ibunt
 
 import (
+	"errors"
 	"fmt"
 	"github.com/cute-angelia/go-utils/syntax/ijson"
 	"github.com/tidwall/buntdb"
@@ -12,13 +13,18 @@ import (
 )
 
 var BuntCaches sync.Map
+var iComponent *Component
 
 const PackageName = "component.ibunt"
 
-var RedisPools sync.Map
-
 type Component struct {
 	config *config
+	dbname string
+}
+
+func GetComponent(dbname string) *Component {
+	iComponent.dbname = dbname
+	return iComponent
 }
 
 // newComponent ...
@@ -31,11 +37,14 @@ func newComponent(config *config) *Component {
 		log.Println(fmt.Sprintf("[%s] 初始化失败", PackageName))
 	}
 
+	// 赋值
+	iComponent = comp
+
 	return comp
 }
 
 // initBuntDb 初始化
-func (c Component) initBuntDb() error {
+func (c *Component) initBuntDb() error {
 	if _, ok := BuntCaches.Load(c.config.Name); ok {
 		return nil
 	} else {
@@ -167,6 +176,31 @@ func Get(dbname string, key string) string {
 	}
 }
 
+func ShowTttl(dbname string, key string) string {
+	if db := GetDb(dbname); db != nil {
+		val := ""
+		db.View(func(tx *buntdb.Tx) error {
+			val, _ = tx.Get(key)
+
+			itemTTL, err := tx.TTL(key)
+			if err == nil {
+				exat := time.Now().Add(itemTTL)
+				val = exat.Format(time.RFC3339)
+			}
+			return nil
+		})
+
+		if len(val) == 0 {
+			return ""
+		} else {
+			return val
+		}
+	} else {
+		log.Println(fmt.Errorf("无法找到 db" + dbname))
+		return ""
+	}
+}
+
 func Delete(dbname string, key string) error {
 	if db := GetDb(dbname); db != nil {
 		return db.Update(func(tx *buntdb.Tx) error {
@@ -177,4 +211,51 @@ func Delete(dbname string, key string) error {
 		log.Println(fmt.Errorf("无法找到 db" + dbname))
 		return fmt.Errorf("无法找到 db" + dbname)
 	}
+}
+
+func (c *Component) Get(key string) (string, error) {
+	return Get(c.dbname, key), nil
+}
+
+func (c *Component) GetMulti(keys []string) map[string]string {
+	result := make(map[string]string)
+	for _, key := range keys {
+		result[key] = Get(c.dbname, key)
+	}
+	return result
+}
+
+func (c *Component) Set(key string, value string, ttl time.Duration) error {
+	return Set(c.dbname, key, value, ttl)
+}
+
+func (c *Component) Contains(key string) bool {
+	v, _ := c.Get(key)
+	return len(v) > 0
+}
+
+func (c *Component) Delete(key string) error {
+	return Delete(c.dbname, key)
+}
+
+func (c *Component) Flush() error {
+	return GetDb(c.dbname).Shrink()
+}
+
+func (c *Component) Scan(prefix string, f func(key string) error) (err error) {
+	if db := GetDb(c.dbname); db != nil {
+		return db.View(func(tx *buntdb.Tx) error {
+			err := tx.Ascend(prefix, func(key, value string) bool {
+				f(key)
+				return true
+			})
+			return err
+		})
+	} else {
+		return errors.New(fmt.Sprintf("无法找到 db" + c.dbname))
+	}
+}
+
+func (c *Component) Fold(f func(key string) error) (err error) {
+	panic("implement me")
 }

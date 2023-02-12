@@ -57,8 +57,8 @@ func NewLRUWithOptions(maxSize int, opts *Options) *LRU {
 	}
 }
 
-// Get retrieves the value stored under the given key
-func (c *LRU) Get(key string) interface{} {
+// GetInterface retrieves the value stored under the given key
+func (c *LRU) GetInterface(key string) interface{} {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 
@@ -82,8 +82,8 @@ func (c *LRU) Get(key string) interface{} {
 	return cacheEntry.value
 }
 
-// Put puts a new value associated with a given key, returning the existing value (if present)
-func (c *LRU) Put(key string, value interface{}) interface{} {
+// PutInterface puts a new value associated with a given key, returning the existing value (if present)
+func (c *LRU) PutInterface(key string, value interface{}) interface{} {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	elt := c.byKey[key]
@@ -148,7 +148,7 @@ func (c *LRU) putWithMutexHold(key string, value interface{}, elt *list.Element)
 }
 
 // Delete deletes a key, value pair associated with a key
-func (c *LRU) Delete(key string) {
+func (c *LRU) Delete(key string) error {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 
@@ -160,6 +160,8 @@ func (c *LRU) Delete(key string) {
 		}
 		delete(c.byKey, key)
 	}
+
+	return nil
 }
 
 // Size returns the number of entries currently in the lru, useful if cache is not full
@@ -174,4 +176,41 @@ type cacheEntry struct {
 	key        string
 	expiration time.Time
 	value      interface{}
+}
+
+func (c *LRU) Get(key string) (string, error) {
+	v := c.GetInterface(key)
+	return v.(string), nil
+}
+
+func (c *LRU) GetMulti(keys []string) map[string]string {
+	result := make(map[string]string)
+	for _, key := range keys {
+		if value, err := c.Get(key); err == nil {
+			result[key] = string(value)
+		}
+	}
+	return result
+}
+
+func (c *LRU) Set(key string, value string, ttl time.Duration) error {
+	c.PutInterface(key, value)
+	return nil
+}
+
+func (c *LRU) Contains(key string) bool {
+	v := c.GetInterface(key)
+	return len(v.(string)) > 0
+}
+
+func (c *LRU) Flush() error {
+	return nil
+}
+
+func (c *LRU) Scan(prefix string, f func(key string) error) (err error) {
+	return nil
+}
+
+func (c *LRU) Fold(f func(key string) error) (err error) {
+	return nil
 }

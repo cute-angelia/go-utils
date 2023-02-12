@@ -3,6 +3,7 @@ package store
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/cute-angelia/go-utils/components/cache/mem"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -12,7 +13,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"github.com/astaxie/beego/logs"
-	"github.com/cute-angelia/go-utils/utils/cache/mem"
 	"github.com/pkg/errors"
 	"hash/crc32"
 	"log"
@@ -170,8 +170,8 @@ func (s *Weibo) Login(name string, pass string) interface{} {
 //获取新浪图床 Cookie
 func (s *Weibo) getCookies(durl string, data map[string]string) interface{} {
 	//尝试从缓存里面获取 Cookie
-	if memcache.Get("SinaCookies") != nil {
-		return memcache.Get("SinaCookies")
+	if memcache.GetInterface("SinaCookies") != nil {
+		return memcache.GetInterface("SinaCookies")
 	}
 
 	postData := make(url.Values)
@@ -215,7 +215,7 @@ func (s *Weibo) getCookies(durl string, data map[string]string) interface{} {
 	defer resp.Body.Close()
 	cookie := resp.Cookies()
 	//缓存 Cookie 缓存一个小时
-	memcache.Put("SinaCookies", cookie)
+	memcache.PutInterface("SinaCookies", cookie)
 	return cookie
 }
 
