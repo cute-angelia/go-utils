@@ -72,7 +72,6 @@ func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration,
 			e.logger.Info(err.Error())
 			return "", err
 		} else {
-			log.Println(PackageName, hashkey, "Successfully URL: ", presignedURL)
 			return presignedURL.String(), cacheObj.Set(hashkey, presignedURL.String(), t)
 		}
 	}
