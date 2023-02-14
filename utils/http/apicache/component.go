@@ -4,11 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/cute-angelia/go-utils/components/cache/ibunt"
 	"github.com/gotomicro/ego/core/elog"
-	"log"
 	"net/http"
-	"strings"
 	"sync"
 	"time"
 )
@@ -21,11 +18,10 @@ type Component struct {
 }
 
 // newComponent ...
-func newComponent(compName string, config *config, logger *elog.Component) *Component {
+func newComponent(compName string, config *config) *Component {
 	return &Component{
 		name:   compName,
 		config: config,
-		logger: logger,
 	}
 }
 
@@ -38,20 +34,13 @@ func (e *Component) getSelfCacheKey() string {
 	return gCacheKey
 }
 
-// DEBUG
-func (e *Component) debug(topic string, msg string) {
-	if e.config.Debug {
-		e.logger.Info(msg, elog.FieldKey(topic))
-	}
-}
-
 type response struct {
 	Code int             `json:"code"`
 	Msg  string          `json:"message"`
 	Data json.RawMessage `json:"data"`
 }
 
-func (e Component) resp(w http.ResponseWriter, code int, msg string, cacheData string) {
+func (e *Component) resp(w http.ResponseWriter, code int, msg string, cacheData string) {
 	rdata := response{
 		Code: code,
 		Msg:  msg,
@@ -66,10 +55,9 @@ func (e Component) resp(w http.ResponseWriter, code int, msg string, cacheData s
 	}
 }
 
-// get cache
+// GetCache 获取缓存
 func (e *Component) GetCache() string {
-	e.debug("===Get Cache===", e.getSelfCacheKey())
-	data := ibunt.Get(e.config.DbName, e.getSelfCacheKey())
+	data, _ := e.config.Cache.Get(e.getSelfCacheKey())
 	if len(data) > 6 {
 		return data
 	} else {
@@ -77,13 +65,10 @@ func (e *Component) GetCache() string {
 	}
 }
 
-// get cache and write
+// GetCacheAndWriter get cache and write
 func (e *Component) GetCacheAndWriter(w http.ResponseWriter, msg string) (string, error) {
-	e.debug(e.getSelfCacheKey()+"get cache", "start get cache")
-	data := ibunt.Get(e.config.DbName, e.getSelfCacheKey())
+	data, _ := e.config.Cache.Get(e.getSelfCacheKey())
 	if len(data) > 6 {
-		log.Println(e.getSelfCacheKey() + "get cache -> got")
-		e.debug(e.getSelfCacheKey()+"get cache -> got", data)
 		e.resp(w, 0, msg, data)
 		return data, nil
 	}
@@ -91,42 +76,14 @@ func (e *Component) GetCacheAndWriter(w http.ResponseWriter, msg string) (string
 }
 
 func (e *Component) SetCache(data interface{}) error {
-	// prefix cache
-	defer func() {
-		if len(e.config.Prefix) > 0 {
-			cacheData := ibunt.Get(e.config.DbName, e.config.Prefix)
-			if len(cacheData) > 0 {
-				cacheDatas := strings.Split(cacheData, "|")
-				if len(cacheDatas) >= e.config.PrefixMaxNum {
-					cacheDatas = cacheDatas[len(cacheDatas)-e.config.PrefixMaxNum : len(cacheDatas)]
-				}
-				cacheDatas = append(cacheDatas, e.getSelfCacheKey())
-				ibunt.Set(e.config.DbName, e.config.Prefix, strings.Join(cacheDatas, "|"), e.config.Timeout)
-			} else {
-				ibunt.Set(e.config.DbName, e.config.Prefix, e.getSelfCacheKey(), e.config.Timeout)
-			}
-		}
-	}()
-
 	ds, _ := json.Marshal(data)
-	e.debug("===Set Cache===", e.getSelfCacheKey()+" -> "+string(ds))
-	return ibunt.Set(e.config.DbName, e.getSelfCacheKey(), string(ds), e.config.Timeout)
+	return e.config.Cache.Set(e.getSelfCacheKey(), string(ds), e.config.Timeout)
 }
 
 func (e *Component) DeleteCache() error {
-	return ibunt.Delete(e.config.DbName, e.getSelfCacheKey())
+	return e.config.Cache.Delete(e.getSelfCacheKey())
 }
 
 func (e *Component) DeleteCacheAll() error {
-	if len(e.config.Prefix) > 0 {
-		cacheData := ibunt.Get(e.config.DbName, e.config.Prefix)
-		if len(cacheData) > 0 {
-			cacheDatas := strings.Split(cacheData, "|")
-			for _, i2 := range cacheDatas {
-				ibunt.Delete(e.config.DbName, i2)
-			}
-		}
-		ibunt.Delete(e.config.DbName, e.config.Prefix)
-	}
-	return nil
+	return e.config.Cache.Flush()
 }

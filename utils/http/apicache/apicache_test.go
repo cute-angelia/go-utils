@@ -7,8 +7,6 @@ import (
 )
 
 func TestCache(t *testing.T) {
-	ibunt.New()
-
 	u := struct {
 		Id    int32
 		Title string `valid:"Required;"`
@@ -21,7 +19,9 @@ func TestCache(t *testing.T) {
 		Uid:   3,
 	}
 
-	apiCache := Load("").MustBuild("cache", "test-", WithDebug(true), WithGenerateCacheKey(u, []string{"Uid"}), WithPrefixMaxNum(5))
+	ibunt.New()
+
+	apiCache := New(ibunt.GetComponent("cache")).MustBuild("cache", "test-", WithDebug(true), WithGenerateCacheKey(u, []string{"Uid"}), WithPrefixMaxNum(5))
 
 	log.Println("设置缓存")
 	apiCache.SetCache("hello")
