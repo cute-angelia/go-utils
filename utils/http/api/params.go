@@ -1,7 +1,9 @@
 package api
 
 import (
+	"github.com/cute-angelia/go-utils/utils/encrypt/hash"
 	"github.com/go-chi/chi"
+	jsoniter "github.com/json-iterator/go"
 	"net/http"
 	"strconv"
 )
@@ -90,4 +92,20 @@ func GetUserUidInt64(r *http.Request) int64 {
 // GetJwtHeader 获取 jwt 里面数据
 func GetJwtHeader(r *http.Request, key string) interface{} {
 	return r.Header.Get(key)
+}
+
+// GenerateCacheKey 缓存key
+func GenerateCacheKey(params interface{}, filtes []string, prefix string) string {
+	json := jsoniter.ConfigCompatibleWithStandardLibrary
+	bparms, _ := json.Marshal(params)
+	m := make(map[string]interface{})
+	json.Unmarshal(bparms, &m)
+
+	for _, filte := range filtes {
+		if _, ok := m[filte]; ok {
+			delete(m, filte)
+		}
+	}
+	cacheKey, _ := json.Marshal(m)
+	return prefix + "_" + hash.Hash(hash.AlgoMD5, string(cacheKey))
 }
