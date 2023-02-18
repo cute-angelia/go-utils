@@ -2,8 +2,8 @@ package ifile
 
 import (
 	"fmt"
+	"github.com/cute-angelia/go-utils/utils/generator/random"
 	"github.com/cute-angelia/go-utils/utils/generator/snowflake"
-	"github.com/cute-angelia/go-utils/utils/random"
 	"path"
 	"strings"
 	"time"

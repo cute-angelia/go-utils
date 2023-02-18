@@ -1,12 +1,12 @@
-package ibunt
+package ibuntV2
 
 import (
 	"errors"
 	"fmt"
-	"github.com/cute-angelia/go-utils/syntax/ijson"
 	"github.com/tidwall/buntdb"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -19,6 +19,10 @@ const PackageName = "component.ibunt"
 
 type Component struct {
 	config *config
+}
+
+func (c *Component) GenerateCacheKey(bucket string, key string) string {
+	return fmt.Sprintf("%s:%s", bucket, key)
 }
 
 func GetComponent(dbname string) *Component {
@@ -48,28 +52,30 @@ func (c *Component) initBuntDb() error {
 		return nil
 	} else {
 		// dbname
-		db := c.config.DbFile
-		if !strings.Contains(db, ".db") {
-			db = db + ".db"
+		dbfile := c.config.DbFile
+		if !strings.Contains(dbfile, ".db") {
+			dbfile = dbfile + ".db"
 		}
 		// 无法创建
-		if cache, err := buntdb.Open(db); err != nil {
+		if cache, err := buntdb.Open(dbfile); err != nil {
 			// 移除异常 db
-			if _, e := os.Stat(db); e == nil {
-				os.Remove(db)
+			if _, e := os.Stat(dbfile); e == nil {
+				os.Remove(dbfile)
 
 				// retry 重新打开一次
-				if cache, err := buntdb.Open(db); err != nil {
+				if dbopen, err := buntdb.Open(dbfile); err != nil {
 					panic(err)
 				} else {
-					cache.SetConfig(buntdb.Config{
+					dbopen.SetConfig(buntdb.Config{
 						AutoShrinkDisabled:   true,
 						AutoShrinkMinSize:    40,
 						AutoShrinkPercentage: 30,
 					})
-					cache.Shrink()
-					SetDb(c.config.Name, cache)
+					dbopen.Shrink()
+					SetDb(c.config.Name, dbopen)
 				}
+			} else {
+				log.Println("error:", dbfile, e)
 			}
 		} else {
 			cache.SetConfig(buntdb.Config{
@@ -81,7 +87,7 @@ func (c *Component) initBuntDb() error {
 			SetDb(c.config.Name, cache)
 		}
 		// 初始化日志
-		log.Println(fmt.Sprintf("[%s] Name:%s, dbFile=%s 初始化",
+		log.Println(fmt.Sprintf("[%s] 初始化成功 Name:%s, dbFile=%s",
 			PackageName,
 			c.config.Name,
 			c.config.DbFile,
@@ -131,50 +137,6 @@ func SetDb(name string, db *buntdb.DB) {
 	BuntCaches.Store(name, db)
 }
 
-func Set(dbname string, key string, val string, ttl time.Duration) error {
-	if db := GetDb(dbname); db != nil {
-		db.Update(func(tx *buntdb.Tx) error {
-			tx.Set(key, val, &buntdb.SetOptions{Expires: true, TTL: ttl})
-			return nil
-		})
-		return nil
-	} else {
-		return fmt.Errorf("无法找到 db")
-	}
-}
-
-// GetOrSet 获取数据或者存储数据
-func GetOrSet(dbname string, key string, function func() interface{}, ttl time.Duration) (string, error) {
-	cacheData := Get(dbname, key)
-	if len(cacheData) > 10 {
-		return cacheData, nil
-	} else {
-		byteJson, _ := ijson.Marshal(function())
-		strJson := string(byteJson)
-		err := Set(dbname, key, strJson, ttl)
-		return strJson, err
-	}
-}
-
-func Get(dbname string, key string) string {
-	if db := GetDb(dbname); db != nil {
-		val := ""
-		db.View(func(tx *buntdb.Tx) error {
-			val, _ = tx.Get(key)
-			return nil
-		})
-
-		if len(val) == 0 {
-			return ""
-		} else {
-			return val
-		}
-	} else {
-		log.Println(fmt.Errorf("无法找到 db" + dbname))
-		return ""
-	}
-}
-
 func ShowTttl(dbname string, key string) string {
 	if db := GetDb(dbname); db != nil {
 		val := ""
@@ -212,28 +174,70 @@ func Delete(dbname string, key string) error {
 	}
 }
 
-func (c *Component) GenerateCacheKey(bucket string, key string) string {
-	return fmt.Sprintf("%s:%s", bucket, key)
-}
-
 func (c *Component) Get(key string) (string, error) {
-	return Get(c.config.Name, key), nil
+	if db := GetDb(c.config.Name); db != nil {
+		val := ""
+		db.View(func(tx *buntdb.Tx) error {
+			val, _ = tx.Get(key)
+			return nil
+		})
+		if len(val) == 0 {
+			return "", nil
+		} else {
+			if len(val) <= 10 {
+				return "", nil
+			} else {
+				endTime := val[:10]
+				vv := val[len(val)-10:]
+				endTimeInt, _ := strconv.Atoi(endTime)
+				if time.Now().Before(time.Unix(int64(endTimeInt), 0)) {
+					return vv, nil
+				} else {
+					return "", nil
+				}
+			}
+		}
+	} else {
+		log.Println(fmt.Errorf("无法找到 db" + c.config.Name))
+		return "", nil
+	}
 }
 
 func (c *Component) GetMulti(keys []string) map[string]string {
 	result := make(map[string]string)
 	for _, key := range keys {
-		result[key] = Get(c.config.Name, key)
+		result[key], _ = c.Get(key)
 	}
 	return result
 }
 
 func (c *Component) Set(key string, value string, ttl time.Duration) error {
-	return Set(c.config.Name, key, value, ttl)
+	endTime := time.Now().Add(ttl)
+	value = fmt.Sprintf("%d%s", endTime.Unix(), value)
+	if db := GetDb(c.config.Name); db != nil {
+		db.Update(func(tx *buntdb.Tx) error {
+			tx.Set(key, value, &buntdb.SetOptions{Expires: true, TTL: ttl})
+			return nil
+		})
+		return nil
+	} else {
+		return fmt.Errorf("无法找到 db")
+	}
 }
 
 func (c *Component) SetWithBucket(bucket string, key string, value string, ttl time.Duration) error {
-	return Set(c.config.Name, key, value, ttl)
+	endTime := time.Now().Add(ttl)
+	value = fmt.Sprintf("%d%s", endTime.Unix(), value)
+	if db := GetDb(c.config.Name); db != nil {
+		db.CreateIndex(bucket, bucket+":*", buntdb.IndexString)
+		db.Update(func(tx *buntdb.Tx) error {
+			tx.Set(key, value, &buntdb.SetOptions{Expires: true, TTL: ttl})
+			return nil
+		})
+		return nil
+	} else {
+		return fmt.Errorf("无法找到 db")
+	}
 }
 
 func (c *Component) Contains(key string) bool {
@@ -249,10 +253,10 @@ func (c *Component) Flush() error {
 	return GetDb(c.config.Name).Shrink()
 }
 
-func (c *Component) Scan(prefix string, f func(key string) error) (err error) {
+func (c *Component) Scan(bucket string, f func(key string) error) (err error) {
 	if db := GetDb(c.config.Name); db != nil {
 		return db.View(func(tx *buntdb.Tx) error {
-			err := tx.Ascend(prefix, func(key, value string) bool {
+			err := tx.Ascend(bucket, func(key, value string) bool {
 				f(key)
 				return true
 			})
