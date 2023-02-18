@@ -6,10 +6,10 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/cute-angelia/go-utils/components/cache"
-	"github.com/cute-angelia/go-utils/components/idownload"
-	"github.com/cute-angelia/go-utils/syntax/ifile"
-	"github.com/cute-angelia/go-utils/utils/encrypt/hash"
+	"github.com/cute-angelia/go-utils/v2/components/cache"
+	"github.com/cute-angelia/go-utils/v2/components/generator/ihash"
+	"github.com/cute-angelia/go-utils/v2/components/idownload"
+	"github.com/cute-angelia/go-utils/v2/components/ifile"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/gotomicro/ego/core/elog"
 	progress "github.com/markity/minio-progress"
@@ -84,7 +84,7 @@ func (e *Component) SignKeyWithCache(key string, t time.Duration, cacheObj cache
 
 // SignCoverWithCache 获取链接 链接带 bucket
 func (e *Component) SignCoverWithCache(cover string, t time.Duration, cacheObj cache.Cache) string {
-	if strings.Contains(cover, "http") {
+	if strings.Contains(cover, "iweb") {
 		return cover
 	}
 
@@ -101,7 +101,7 @@ func (e *Component) SignCoverWithCache(cover string, t time.Duration, cacheObj c
 
 // GenerateHashKey 生成缓存
 func (e *Component) GenerateHashKey(bucketType int32, bucket string, prefix string) string {
-	return hash.NewEncodeMD5(fmt.Sprintf("%d%s%s", bucketType, bucket, prefix))
+	return ihash.NewEncodeMD5(fmt.Sprintf("%d%s%s", bucketType, bucket, prefix))
 }
 
 // GetObjectsByPage minio 获取分页对象数据
@@ -275,10 +275,10 @@ func (e *Component) PutObjectBase64(bucket string, objectNameIn string, base64Fi
 }
 
 // PutObjectWithSrc 提供链接，上传到 minio
-// return key & hash sha1 & error
+// return key & ihash sha1 & error
 func (e *Component) PutObjectWithSrc(dnComponent *idownload.Component, uri string, bucket string, objectName string, objopt minio.PutObjectOptions) (string, error) {
-	// http 不处理
-	if !strings.Contains(uri, "http") {
+	// iweb 不处理
+	if !strings.Contains(uri, "iweb") {
 		return uri, errors.New("非链接地址:" + uri)
 	}
 

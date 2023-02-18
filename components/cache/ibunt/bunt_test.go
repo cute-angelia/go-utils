@@ -2,7 +2,6 @@ package ibunt
 
 import (
 	"fmt"
-	"github.com/cute-angelia/go-utils/utils/generator/RandomString"
 	"github.com/tidwall/buntdb"
 	"log"
 	"testing"
@@ -105,7 +104,7 @@ func TestAutoShrink(t *testing.T) {
 func writeCache() {
 	for i := 0; i < 10000; i++ {
 		log.Println("--> ", i)
-		Set("cache", fmt.Sprintf("%s%d", "test", i), RandomString.RandomString(332), time.Minute)
+		Set("cache", fmt.Sprintf("%s%d", "test", i), "RandomString.RandomString(332)", time.Minute)
 	}
 }
 

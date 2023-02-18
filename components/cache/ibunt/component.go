@@ -3,7 +3,7 @@ package ibunt
 import (
 	"errors"
 	"fmt"
-	"github.com/cute-angelia/go-utils/syntax/ijson"
+	"github.com/cute-angelia/go-utils/v2/components/ijson"
 	"github.com/tidwall/buntdb"
 	"log"
 	"os"

@@ -193,7 +193,7 @@ func (d *Component) DownloadToByteRetry(src string, retry int) ([]byte, error) {
 		case 200:
 			c.BindBody(&body)
 			return nil
-		case 404: //http code为404时，服务端返回是html 字符串
+		case 404: //iweb code为404时，服务端返回是html 字符串
 			return ErrorNotFound
 		default:
 			return fmt.Errorf(src+" error: %d", c.Code)
@@ -312,12 +312,12 @@ func (d *Component) multiDownload(strURL, filename string, contentLen int) (File
 	}
 }
 
-//  singleDownload 直接下载
+// singleDownload 直接下载
 func (d *Component) singleDownload(strURL, filename string) (FileInfo, error) {
 	var info FileInfo
-	// 需要进度条，更要复用 http.client 这里就不使用原生的 http
-	// resp, err := http.Get(strURL)
-	// Transport: &http.Transport{
+	// 需要进度条，更要复用 iweb.client 这里就不使用原生的 iweb
+	// resp, err := iweb.Get(strURL)
+	// Transport: &iweb.Transport{
 	//	MaxIdleConnsPerHost: 10000,
 	// },
 	//d.getGoHttpClient(strURL, "GET").Do()

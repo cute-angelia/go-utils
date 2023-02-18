@@ -27,7 +27,7 @@ func newComponent(config *config) *Component {
 func (c Component) initRedis() *redis.Client {
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     c.config.Server,
-		Password: c.config.Password, // no password set
+		Password: c.config.Password, // no ipassword set
 		DB:       c.config.DbIndex,  // use default DB
 	})
 	_, loaded := RedisPools.LoadOrStore(c.config.Name, redisClient)

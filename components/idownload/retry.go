@@ -43,9 +43,9 @@ func (r *Retry) Do(ctx context.Context) (err error) {
 	defer tk.Stop()
 
 	for i := 0; i < r.attempt; i++ {
-		// 这里只要调用Func方法，且回调函数返回ErrRetry 会生成新的*http.Request对象
+		// 这里只要调用Func方法，且回调函数返回ErrRetry 会生成新的*iweb.Request对象
 		// 不使用DataFlow.Do()方法原因基于两方面考虑
-		// 1.为了效率只需经过一次编码器得到*http.Request,如果需要重试几次后面是多次使用解码器.Bind()函数
+		// 1.为了效率只需经过一次编码器得到*iweb.Request,如果需要重试几次后面是多次使用解码器.Bind()函数
 		// 2.为了更灵活的控制
 		if r.cb != nil {
 			if err = r.cb(); err != nil {

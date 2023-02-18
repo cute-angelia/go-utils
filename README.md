@@ -4,6 +4,13 @@
 
 go开发工具包，因很多项目都要重复写一些包，如日志，Gorm池，缓存组件
 
+> ps: v2 支持 go version 1.19 及以上
+
+```shell
+go get github.com/cute-angelia/go-utils/v2
+```
+
+
 包说明：
 
 1. components (功能模块，是工具类的升级版)

@@ -3,8 +3,8 @@ package ffmpeg
 import (
 	"errors"
 	"fmt"
-	"github.com/cute-angelia/go-utils/syntax/icmd"
-	"github.com/cute-angelia/go-utils/syntax/itime"
+	"github.com/cute-angelia/go-utils/v2/components/icmd"
+	"github.com/cute-angelia/go-utils/v2/components/itime"
 	"math/rand"
 	"regexp"
 	"strconv"
