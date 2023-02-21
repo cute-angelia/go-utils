@@ -1,8 +1,8 @@
 package apicache
 
 import (
-	"github.com/cute-angelia/go-utils/components/cache"
-	"github.com/cute-angelia/go-utils/utils/encrypt/hash"
+	"github.com/cute-angelia/go-utils/components/caches"
+	"github.com/cute-angelia/go-utils/utils/generator/hash"
 	jsoniter "github.com/json-iterator/go"
 	"time"
 )
@@ -20,7 +20,7 @@ func DefaultContainer() *Container {
 	}
 }
 
-func New(cache cache.Cache) *Container {
+func New(cache caches.Cache) *Container {
 	c := DefaultContainer()
 	c.config.Cache = cache
 	return c

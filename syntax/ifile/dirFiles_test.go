@@ -3,7 +3,7 @@ package ifile
 import (
 	"fmt"
 	"github.com/cute-angelia/go-utils/syntax/ijson"
-	"github.com/cute-angelia/go-utils/utils/pool"
+	pool "github.com/cute-angelia/go-utils/utils/pool/antspool"
 	"io/fs"
 	"io/ioutil"
 	"log"

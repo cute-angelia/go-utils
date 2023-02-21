@@ -2,7 +2,7 @@ package iminio
 
 import (
 	"github.com/gotomicro/ego/core/econf"
-	"github.com/gotomicro/ego/core/elog"
+	"log"
 	"strings"
 	"time"
 )
@@ -12,13 +12,11 @@ type Option func(c *Container)
 type Container struct {
 	config *config
 	name   string
-	logger *elog.Component
 }
 
 func DefaultContainer() *Container {
 	return &Container{
 		config: DefaultConfig(),
-		logger: elog.EgoLogger.With(elog.FieldComponent(PackageName)),
 	}
 }
 
@@ -26,11 +24,10 @@ func Load(key string) *Container {
 	c := DefaultContainer()
 	// 两种方式，一种是 ego 的 config 加载，一种是option with 加载
 	if err := econf.UnmarshalKey(key, &c.config); err != nil {
-		c.logger.Panic("parse config error", elog.FieldErr(err), elog.FieldKey(key))
+		panic("error parse config file")
 		return c
 	}
 
-	c.logger = c.logger.With(elog.FieldComponentName(key))
 	c.name = key
 	return c
 }
@@ -92,9 +89,9 @@ func (c *Container) Build(options ...Option) *Component {
 	}
 
 	if len(c.config.Endpoint) == 0 {
-		c.logger.Error("请初始化配置， 未能获取到配置信息")
+		log.Println("请初始化配置， 未能获取到配置信息")
 	}
 
 	// log.Println(PackageName, fmt.Sprintf("%+v", c.config))
-	return newComponent(c.name, c.config, c.logger)
+	return newComponent(c.name, c.config)
 }

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gotomicro/ego/core/elog"
 	"net/http"
 	"sync"
 	"time"
@@ -13,7 +12,6 @@ import (
 type Component struct {
 	name   string
 	config *config
-	logger *elog.Component
 	locker sync.Mutex
 }
 

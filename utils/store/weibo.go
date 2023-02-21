@@ -3,7 +3,7 @@ package store
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/cute-angelia/go-utils/components/cache/mem"
+	"github.com/cute-angelia/go-utils/components/caches/mem"
 	"io/ioutil"
 	"net/http"
 	"net/url"

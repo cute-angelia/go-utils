@@ -6,12 +6,11 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/cute-angelia/go-utils/components/cache"
+	"github.com/cute-angelia/go-utils/components/caches"
 	"github.com/cute-angelia/go-utils/components/idownload"
 	"github.com/cute-angelia/go-utils/syntax/ifile"
-	"github.com/cute-angelia/go-utils/utils/encrypt/hash"
+	"github.com/cute-angelia/go-utils/utils/generator/hash"
 	humanize "github.com/dustin/go-humanize"
-	"github.com/gotomicro/ego/core/elog"
 	progress "github.com/markity/minio-progress"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -31,24 +30,22 @@ const PackageName = "component.store.iminio"
 type Component struct {
 	name   string
 	config *config
-	logger *elog.Component
 	locker sync.Mutex
 	Client *minio.Client
 }
 
 // newComponent ...
-func newComponent(compName string, config *config, logger *elog.Component) *Component {
+func newComponent(compName string, config *config) *Component {
 	minioClient, err := minio.New(config.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(config.AccesskeyId, config.SecretaccessKey, ""),
 		Secure: config.UseSSL,
 	})
 	if err != nil {
-		logger.Error("发生错误" + err.Error())
+		log.Println("发生错误" + err.Error())
 	}
 	return &Component{
 		name:   compName,
 		config: config,
-		logger: logger,
 		Client: minioClient,
 	}
 }
@@ -59,7 +56,7 @@ func (e *Component) SignUrlPublic(key string) string {
 }
 
 // SignUrlWithCache 获取链接 不带bucket
-func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration, cacheObj cache.Cache) (string, error) {
+func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration, cacheObj caches.Cache) (string, error) {
 	hashkey := e.GenerateHashKey(1, bucket, key)
 	if cachedata, err := cacheObj.Get(hashkey); err == nil && len(cachedata) > 3 {
 		//if e.config.Debug {
@@ -69,7 +66,7 @@ func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration,
 	} else {
 		reqParams := make(url.Values)
 		if presignedURL, err := e.Client.PresignedGetObject(context.Background(), bucket, key, t, reqParams); err != nil {
-			e.logger.Info(err.Error())
+			log.Println(err)
 			return "", err
 		} else {
 			return presignedURL.String(), cacheObj.Set(hashkey, presignedURL.String(), t)
@@ -78,12 +75,12 @@ func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration,
 }
 
 // SignKeyWithCache 获取链接
-func (e *Component) SignKeyWithCache(key string, t time.Duration, cacheObj cache.Cache) string {
+func (e *Component) SignKeyWithCache(key string, t time.Duration, cacheObj caches.Cache) string {
 	return e.SignCoverWithCache(key, t, cacheObj)
 }
 
 // SignCoverWithCache 获取链接 链接带 bucket
-func (e *Component) SignCoverWithCache(cover string, t time.Duration, cacheObj cache.Cache) string {
+func (e *Component) SignCoverWithCache(cover string, t time.Duration, cacheObj caches.Cache) string {
 	if strings.Contains(cover, "http") {
 		return cover
 	}

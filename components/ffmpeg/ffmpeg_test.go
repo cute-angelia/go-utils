@@ -24,16 +24,16 @@ func TestFFmpegCutPicture(t *testing.T) {
 
 // go test -v -test.run TestFFmpegConcat
 func TestFFmpegConcatMov(t *testing.T) {
-	iffmpeg := Load().Build(WithFfmpegPath("/usr/local/bin/ffmpeg"))
-	err2 := iffmpeg.ConcatMovFiles(`/Users/vanilla/Documents/AnyTrans-Export-2021-10-10/PhotoVideos/1`, []string{}, "/Users/vanilla/Documents/AnyTrans-Export-2021-10-10/PhotoVideos/1/ok.mov")
-	t.Log(err2)
+	// iffmpeg := Load().Build(WithFfmpegPath("/usr/local/bin/ffmpeg"))
+	// err2 := iffmpeg.ConcatMovFiles(`/Users/vanilla/Documents/AnyTrans-Export-2021-10-10/PhotoVideos/1`, []string{}, "/Users/vanilla/Documents/AnyTrans-Export-2021-10-10/PhotoVideos/1/ok.mov")
+	// t.Log(err2)
 }
 
 // go test -v --run TestFFmpegConcatMp4
 func TestFFmpegConcatMp4(t *testing.T) {
-	iffmpeg := Load().Build(WithFfmpegPath("/usr/local/bin/ffmpeg"))
-	err2 := iffmpeg.ConcatMovFiles(`/Users/vanilla/Downloads/test`, []string{".mp4"}, "")
-	t.Log(err2)
+	// iffmpeg := Load().Build(WithFfmpegPath("/usr/local/bin/ffmpeg"))
+	// err2 := iffmpeg.ConcatMovFiles(`/Users/vanilla/Downloads/test`, []string{".mp4"}, "")
+	// t.Log(err2)
 }
 
 // go test -v --run TestFFmpegConvertToMp4

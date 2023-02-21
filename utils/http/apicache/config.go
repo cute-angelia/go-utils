@@ -1,7 +1,7 @@
 package apicache
 
 import (
-	"github.com/cute-angelia/go-utils/components/cache"
+	"github.com/cute-angelia/go-utils/components/caches"
 	"time"
 )
 
@@ -22,7 +22,7 @@ type config struct {
 	OnlyToday bool // 是否凌晨刷新
 	Debug     bool
 
-	Cache cache.Cache
+	Cache caches.Cache
 }
 
 // DefaultConfig 返回默认配置

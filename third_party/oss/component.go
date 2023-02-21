@@ -83,8 +83,8 @@ func (e Component) FPutObject(objectNameIn string, filePath string) (string, err
 
 // PutObjectWithSrc 提供链接，上传, 返回key， filehash, error
 func (e Component) PutObjectWithSrc(uri string, objectName string) (string, string, error) {
-	// http 不处理
-	if !strings.Contains(uri, "http") {
+	// iweb 不处理
+	if !strings.Contains(uri, "iweb") {
 		return "", "", errors.New("链接提供不正确：" + uri)
 	}
 	// 更换图片到本地

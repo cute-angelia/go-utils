@@ -1,8 +1,0 @@
-{"lv":"info","ts":1632207285,"msg":"test-cc2ff5cb494a80f9a55d4109af7d2bf0 -> \"hello\"","comp":"component.http.apicache","compName":"","key":"===Set Cache==="}
-{"lv":"info","ts":1632207286,"msg":"test-cc2ff5cb494a80f9a55d4109af7d2bf0 -> \"hello2\"","comp":"component.http.apicache","compName":"","key":"===Set Cache==="}
-{"lv":"info","ts":1632207287,"msg":"test-cc2ff5cb494a80f9a55d4109af7d2bf0 -> \"hello3\"","comp":"component.http.apicache","compName":"","key":"===Set Cache==="}
-{"lv":"info","ts":1632207288,"msg":"test-cc2ff5cb494a80f9a55d4109af7d2bf0","comp":"component.http.apicache","compName":"","key":"===Get Cache==="}
-{"lv":"info","ts":1632207288,"msg":"test-cc2ff5cb494a80f9a55d4109af7d2bf0 -> \"hello3\"","comp":"component.http.apicache","compName":"","key":"===Get Cache==="}
-{"lv":"info","ts":1632207288,"msg":"test-cc2ff5cb494a80f9a55d4109af7d2bf0","comp":"component.http.apicache","compName":"","key":"===Get Cache==="}
-{"lv":"info","ts":1632207288,"msg":"test-cc2ff5cb494a80f9a55d4109af7d2bf0 -> 数据不存在","comp":"component.http.apicache","compName":"","key":"===Get Cache==="}
-{"lv":"info","ts":1632207288,"msg":"test-cc2ff5cb494a80f9a55d4109af7d2bf0 -> \"hello\"","comp":"component.http.apicache","compName":"","key":"===Set Cache==="}
