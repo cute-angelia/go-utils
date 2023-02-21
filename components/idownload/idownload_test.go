@@ -2,8 +2,8 @@ package idownload
 
 import (
 	"context"
-	"github.com/cute-angelia/go-utils/v2/components/ifile"
-	"github.com/cute-angelia/go-utils/v2/components/ijson"
+	"github.com/cute-angelia/go-utils/syntax/ifile"
+	"github.com/cute-angelia/go-utils/syntax/ijson"
 	"log"
 	"testing"
 	"time"

@@ -3,7 +3,7 @@ package ibunt
 import (
 	"errors"
 	"fmt"
-	"github.com/cute-angelia/go-utils/v2/components/ijson"
+	"github.com/cute-angelia/go-utils/syntax/ijson"
 	"github.com/tidwall/buntdb"
 	"log"
 	"os"
@@ -19,11 +19,10 @@ const PackageName = "component.ibunt"
 
 type Component struct {
 	config *config
-	dbname string
 }
 
 func GetComponent(dbname string) *Component {
-	iComponent.dbname = dbname
+	iComponent.config.Name = dbname
 	return iComponent
 }
 
@@ -213,20 +212,28 @@ func Delete(dbname string, key string) error {
 	}
 }
 
+func (c *Component) GenerateCacheKey(bucket string, key string) string {
+	return fmt.Sprintf("%s:%s", bucket, key)
+}
+
 func (c *Component) Get(key string) (string, error) {
-	return Get(c.dbname, key), nil
+	return Get(c.config.Name, key), nil
 }
 
 func (c *Component) GetMulti(keys []string) map[string]string {
 	result := make(map[string]string)
 	for _, key := range keys {
-		result[key] = Get(c.dbname, key)
+		result[key] = Get(c.config.Name, key)
 	}
 	return result
 }
 
 func (c *Component) Set(key string, value string, ttl time.Duration) error {
-	return Set(c.dbname, key, value, ttl)
+	return Set(c.config.Name, key, value, ttl)
+}
+
+func (c *Component) SetWithBucket(bucket string, key string, value string, ttl time.Duration) error {
+	return Set(c.config.Name, key, value, ttl)
 }
 
 func (c *Component) Contains(key string) bool {
@@ -235,15 +242,15 @@ func (c *Component) Contains(key string) bool {
 }
 
 func (c *Component) Delete(key string) error {
-	return Delete(c.dbname, key)
+	return Delete(c.config.Name, key)
 }
 
 func (c *Component) Flush() error {
-	return GetDb(c.dbname).Shrink()
+	return GetDb(c.config.Name).Shrink()
 }
 
 func (c *Component) Scan(prefix string, f func(key string) error) (err error) {
-	if db := GetDb(c.dbname); db != nil {
+	if db := GetDb(c.config.Name); db != nil {
 		return db.View(func(tx *buntdb.Tx) error {
 			err := tx.Ascend(prefix, func(key, value string) bool {
 				f(key)
@@ -252,7 +259,7 @@ func (c *Component) Scan(prefix string, f func(key string) error) (err error) {
 			return err
 		})
 	} else {
-		return errors.New(fmt.Sprintf("无法找到 db" + c.dbname))
+		return errors.New(fmt.Sprintf("无法找到 db" + c.config.Name))
 	}
 }
 

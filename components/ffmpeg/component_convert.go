@@ -2,7 +2,7 @@ package ffmpeg
 
 import (
 	"errors"
-	"github.com/cute-angelia/go-utils/v2/components/icmd"
+	"github.com/cute-angelia/go-utils/syntax/icmd"
 	"strings"
 )
 

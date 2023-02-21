@@ -1,7 +1,7 @@
 package iredis
 
 import (
-	"github.com/cute-angelia/go-utils/v2/components/ijson"
+	"github.com/cute-angelia/go-utils/syntax/ijson"
 	"github.com/spf13/viper"
 	"log"
 )

@@ -2,7 +2,7 @@ package iredis
 
 import (
 	"context"
-	"github.com/cute-angelia/go-utils/v2/components/conf"
+	"github.com/cute-angelia/go-utils/utils/conf"
 	"log"
 	"testing"
 	"time"

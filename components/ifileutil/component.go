@@ -1,7 +1,7 @@
 package ifileutil
 
 import (
-	"github.com/cute-angelia/go-utils/v2/components/istring"
+	"github.com/cute-angelia/go-utils/syntax/istrings"
 	"io/ioutil"
 	"path"
 	"path/filepath"
@@ -21,11 +21,11 @@ func newComponent(config *config) *Component {
 func (self *Component) isBlackDir(filePath string) bool {
 	blacked := false
 	// 排除文件夹
-	if len(self.config.DirDeclude) > 0 && istring.StringInSlice(filePath, self.config.DirDeclude) {
+	if len(self.config.DirDeclude) > 0 && istrings.StringInSlice(filePath, self.config.DirDeclude) {
 		blacked = true
 	}
 	// 选中文件夹
-	if len(self.config.DirInclude) > 0 && !istring.StringInSlice(filePath, self.config.DirInclude) {
+	if len(self.config.DirInclude) > 0 && !istrings.StringInSlice(filePath, self.config.DirInclude) {
 		blacked = true
 	}
 	return blacked
@@ -35,11 +35,11 @@ func (self *Component) isBlackExt(ext string) bool {
 	blacked := false
 	fileExt := strings.ToLower(ext)
 	// 排除后缀
-	if len(self.config.ExtDeclude) > 0 && istring.StringInSlice(fileExt, self.config.ExtDeclude) {
+	if len(self.config.ExtDeclude) > 0 && istrings.StringInSlice(fileExt, self.config.ExtDeclude) {
 		blacked = true
 	}
 	// 包含后缀
-	if len(self.config.ExtInclude) > 0 && !istring.StringInSlice(fileExt, self.config.ExtInclude) {
+	if len(self.config.ExtInclude) > 0 && !istrings.StringInSlice(fileExt, self.config.ExtInclude) {
 		blacked = true
 	}
 	return blacked

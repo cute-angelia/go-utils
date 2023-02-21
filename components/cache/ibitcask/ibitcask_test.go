@@ -2,7 +2,7 @@ package ibitcask
 
 import (
 	"git.mills.io/prologic/bitcask"
-	"github.com/cute-angelia/go-utils/v2/components/ijson"
+	"github.com/cute-angelia/go-utils/syntax/ijson"
 	"log"
 	"testing"
 	"time"

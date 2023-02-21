@@ -4,10 +4,10 @@
 
 go开发工具包，因很多项目都要重复写一些包，如日志，Gorm池，缓存组件
 
-> ps: v2 支持 go version 1.19 及以上
+> ps: v1 版本，支持 go version 1.16 及以下
 
 ```shell
-go get github.com/cute-angelia/go-utils/v2
+go get github.com/cute-angelia/go-utils@v1
 ```
 
 

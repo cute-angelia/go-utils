@@ -1,5 +1,11 @@
 ## 组件库
 
+* 下载
+* minio
+* gorm 新版： igorm
+* gorm 旧版： umysql
+
+
 ### k/v store db
 
 1. ibitcake (市场很多基于bitcake的封装，比较厉害的库)

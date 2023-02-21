@@ -16,6 +16,7 @@ package mem
 
 import (
 	"container/list"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -178,6 +179,10 @@ type cacheEntry struct {
 	value      interface{}
 }
 
+func (c *LRU) GenerateCacheKey(bucket string, key string) string {
+	return fmt.Sprintf("%s:%s", bucket, key)
+}
+
 func (c *LRU) Get(key string) (string, error) {
 	v := c.GetInterface(key)
 	return v.(string), nil
@@ -194,6 +199,11 @@ func (c *LRU) GetMulti(keys []string) map[string]string {
 }
 
 func (c *LRU) Set(key string, value string, ttl time.Duration) error {
+	c.PutInterface(key, value)
+	return nil
+}
+
+func (c *LRU) SetWithBucket(bucket string, key string, value string, ttl time.Duration) error {
 	c.PutInterface(key, value)
 	return nil
 }

@@ -1,10 +1,10 @@
 .PHONY: up tag
 
 up:
-	git pull origin master
+	git pull origin v1
 	git add .
 	git commit -am "update"
-	git push origin master
+	git push origin v1
 	@echo "\n 发布中..."
 
 tag:
@@ -12,6 +12,6 @@ tag:
 	git add .
 	git commit -am "update"
 	git push origin master
-	git tag v2.0.0
+	git tag v1.7.71
 	git push --tags
 	@echo "\n tags 发布中..."

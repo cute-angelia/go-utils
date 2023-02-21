@@ -3,9 +3,9 @@ package ffmpeg
 import (
 	"errors"
 	"fmt"
-	"github.com/cute-angelia/go-utils/v2/components/icmd"
-	ifile2 "github.com/cute-angelia/go-utils/v2/components/ifile"
-	"github.com/cute-angelia/go-utils/v2/components/ijson"
+	"github.com/cute-angelia/go-utils/syntax/icmd"
+	"github.com/cute-angelia/go-utils/syntax/ifile"
+	"github.com/cute-angelia/go-utils/syntax/ijson"
 	"log"
 	"os"
 	"strings"
@@ -21,19 +21,19 @@ func (c *Component) getTempText() string {
 	if len(c.config.FilesPath) > 0 {
 		return c.config.FilesPath + "/" + TempConcatTxt
 	} else {
-		return fmt.Sprintf("%s/%s", ifile2.GetHomeDir(), TempConcatTxt)
+		return fmt.Sprintf("%s/%s", ifile.GetHomeDir(), TempConcatTxt)
 	}
 }
 
 func (c *Component) generateText(ext []string) (tempText string, err error) {
 	text := c.getTempText()
-	if ifile2.IsExist(text) {
+	if ifile.IsExist(text) {
 		// 删除旧文件
-		ifile2.DeleteFile(text)
+		ifile.DeleteFile(text)
 	}
 
 	// 获取文件夹
-	if _, files, err := ifile2.GetDepthOnePathsAndFilesIncludeExt(c.config.FilesPath, ext...); err != nil {
+	if _, files, err := ifile.GetDepthOnePathsAndFilesIncludeExt(c.config.FilesPath, ext...); err != nil {
 		log.Println("get path", c.config.FilesPath, ext, err)
 		return "", err
 	} else {
@@ -42,7 +42,7 @@ func (c *Component) generateText(ext []string) (tempText string, err error) {
 		// log.Println(c.getTempText())
 		log.Println(ijson.Pretty(files))
 
-		if itempText, err := ifile2.OpenLocalFile(text); err != nil {
+		if itempText, err := ifile.OpenLocalFile(text); err != nil {
 			return "", err
 		} else {
 			defer itempText.Close()
@@ -71,8 +71,8 @@ func (c *Component) ConcatMovFiles(ext []string, saveName string) error {
 		log.Println(err)
 		return err
 	} else {
-		if !ifile2.IsDir(c.config.FilesPath + "/success/") {
-			ifile2.Mkdir(c.config.FilesPath+"/success/", 0755)
+		if !ifile.IsDir(c.config.FilesPath + "/success/") {
+			ifile.Mkdir(c.config.FilesPath+"/success/", 0755)
 		}
 
 		status := icmd.Exec(c.config.FfmpegPath, []string{

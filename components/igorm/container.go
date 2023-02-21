@@ -1,7 +1,8 @@
 package igorm
 
 import (
-	"github.com/cute-angelia/go-utils/v2/components/ijson"
+	"github.com/cute-angelia/go-utils/syntax/ijson"
+	"github.com/cute-angelia/go-utils/utils/iruntime"
 	"github.com/spf13/viper"
 	"gorm.io/gorm/logger"
 	"io"
@@ -44,9 +45,9 @@ func New(options ...Option) *Component {
 	}
 
 	// windows 处理 dsn
-	//if systemIs.IsWindows() {
-	// c.config.Dsn = ""
-	//}
+	if iruntime.IsWindows() {
+		// c.config.Dsn = ""
+	}
 
 	return newComponent(c.config)
 }

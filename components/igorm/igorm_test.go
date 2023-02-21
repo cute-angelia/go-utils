@@ -1,8 +1,8 @@
 package igorm
 
 import (
-	"github.com/cute-angelia/go-utils/v2/components/ijson"
-	"github.com/cute-angelia/go-utils/v2/components/logger/loggerV3"
+	"github.com/cute-angelia/go-utils/components/loggerV3"
+	"github.com/cute-angelia/go-utils/syntax/ijson"
 	"gorm.io/gorm/logger"
 	"log"
 	"testing"

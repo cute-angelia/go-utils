@@ -96,8 +96,20 @@ func (d *Component) Close() error {
 	return iComponent.db.Close()
 }
 
+func (c *Component) GenerateCacheKey(bucket string, key string) string {
+	return fmt.Sprintf("%s:%s", bucket, key)
+}
+
 // Set 保存数据
 func (d *Component) Set(key string, value string, ttl time.Duration) error {
+	if d.closed {
+		return ErrClosed
+	}
+	return d.db.PutWithTTL([]byte(key), []byte(value), ttl)
+}
+
+// SetWithBucket 保存数据
+func (d *Component) SetWithBucket(bucket string, key string, value string, ttl time.Duration) error {
 	if d.closed {
 		return ErrClosed
 	}
