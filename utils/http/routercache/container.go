@@ -1,0 +1,83 @@
+package routercache
+
+import (
+	"github.com/cute-angelia/go-utils/components/caches"
+	"time"
+)
+
+type Option func(c *Container)
+
+type Container struct {
+	config *config
+}
+
+func DefaultContainer() *Container {
+	return &Container{
+		config: DefaultConfig(),
+	}
+}
+
+// New options 模式
+func New(options ...Option) *Component {
+	c := &Container{
+		config: DefaultConfig(),
+	}
+	for _, option := range options {
+		option(c)
+	}
+
+	if c.config.StatusCodeFilter == nil {
+		c.config.StatusCodeFilter = func(code int) bool { return code < 400 }
+	}
+
+	return newComponent(c.config)
+}
+
+// WithTtl 过期时间
+func WithTtl(ttl time.Duration) Option {
+	return func(c *Container) {
+		c.config.Ttl = ttl
+	}
+}
+
+func WithStore(store caches.Cache) Option {
+	return func(c *Container) {
+		c.config.Store = store
+	}
+}
+
+func WithRefreshKey(refreshKey string) Option {
+	return func(c *Container) {
+		c.config.RefreshKey = refreshKey
+	}
+}
+
+func WithMethods(methods []string) Option {
+	return func(c *Container) {
+		c.config.Methods = methods
+	}
+}
+
+func WithStatusCodeFilter(a func(int) bool) Option {
+	return func(c *Container) {
+		c.config.StatusCodeFilter = a
+	}
+}
+
+func WithWriteExpiresHeader(writeExpiresHeader bool) Option {
+	return func(c *Container) {
+		c.config.WriteExpiresHeader = writeExpiresHeader
+	}
+}
+
+func WithCustomKey(customKey string) Option {
+	return func(c *Container) {
+		c.config.CustomKey = customKey
+	}
+}
+
+func WithPrintLog(printLog bool) Option {
+	return func(c *Container) {
+		c.config.PrintLog = printLog
+	}
+}
