@@ -53,7 +53,7 @@ func (e *Component) resp(w http.ResponseWriter, code int, msg string, cacheData 
 	}
 }
 
-// GetCache 获取缓存
+// Deprecated: GetCache 获取缓存
 func (e *Component) GetCache() string {
 	data, _ := e.config.Cache.Get(e.getSelfCacheKey())
 	if len(data) > 6 {
@@ -63,7 +63,7 @@ func (e *Component) GetCache() string {
 	}
 }
 
-// GetCacheAndWriter get cache and write
+// Deprecated: GetCacheAndWriter get cache and write
 func (e *Component) GetCacheAndWriter(w http.ResponseWriter, msg string) (string, error) {
 	data, _ := e.config.Cache.Get(e.getSelfCacheKey())
 	if len(data) > 6 {
@@ -73,15 +73,18 @@ func (e *Component) GetCacheAndWriter(w http.ResponseWriter, msg string) (string
 	return data, errors.New("读取缓存数据，数据不存在")
 }
 
+// Deprecated: SetCache
 func (e *Component) SetCache(data interface{}) error {
 	ds, _ := json.Marshal(data)
 	return e.config.Cache.Set(e.getSelfCacheKey(), string(ds), e.config.Timeout)
 }
 
+// Deprecated: DeleteCache
 func (e *Component) DeleteCache() error {
 	return e.config.Cache.Delete(e.getSelfCacheKey())
 }
 
+// Deprecated: DeleteCacheAll
 func (e *Component) DeleteCacheAll() error {
 	return e.config.Cache.Flush()
 }

@@ -22,6 +22,8 @@ type Component struct {
 	bar    *progressbar.ProgressBar
 }
 
+const customerPrefix = "customerkeyprefix_"
+
 // newComponent ...
 func newComponent(config *config) *Component {
 	comp := &Component{}
@@ -124,7 +126,7 @@ func (c *Component) NewMiddleware(next http.Handler) http.Handler {
 
 // DeleteCustomKey 删除自定义key缓存
 func (c *Component) DeleteCustomKey(key string) {
-	c.config.Store.Delete(key)
+	c.config.Store.Delete(customerPrefix + key)
 }
 
 func (c *Component) cacheableMethod(method string) bool {
@@ -148,24 +150,29 @@ func (c *Component) sortURLParams(URL *url.URL) {
 
 func (c *Component) generateKey(r *http.Request) string {
 	hash := fnv.New64a()
-	if len(c.config.CustomKey) > 0 {
-		hash.Write([]byte(c.config.CustomKey))
-	} else {
-		hash.Write([]byte(r.URL.String() + r.Header.Get("Authorization")))
-	}
+	hash.Write([]byte(r.URL.String() + r.Header.Get("Authorization")))
+	cachekey := hex.EncodeToString(hash.Sum(nil))
 
-	return hex.EncodeToString(hash.Sum(nil))
+	// 引入 CustomKey 概念，方便清理 CustomKey 缓存，如： 列表自定义key，删除列表某一项的时候可以联动删除CustomKey
+	if len(c.config.CustomKey) > 0 {
+		c.config.Store.Set(customerPrefix+c.config.CustomKey, cachekey, c.config.Ttl)
+	}
+	return cachekey
 }
 
 func (c *Component) generateKeyWithBody(r *http.Request, body []byte) string {
 	hash := fnv.New64a()
-	if len(c.config.CustomKey) > 0 {
-		body = []byte(c.config.CustomKey)
-	} else {
-		body = append([]byte(r.URL.String()+r.Header.Get("Authorization")), body...)
-	}
+
+	body = append([]byte(r.URL.String()+r.Header.Get("Authorization")), body...)
 	hash.Write(body)
-	return hex.EncodeToString(hash.Sum(nil))
+
+	cachekey := hex.EncodeToString(hash.Sum(nil))
+
+	if len(c.config.CustomKey) > 0 {
+		c.config.Store.Set(customerPrefix+c.config.CustomKey, cachekey, c.config.Ttl)
+	}
+
+	return cachekey
 }
 
 // BytesToResponse converts bytes array into Response data structure.
