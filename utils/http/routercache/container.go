@@ -30,6 +30,10 @@ func New(options ...Option) *Component {
 		c.config.StatusCodeFilter = func(code int) bool { return code < 400 }
 	}
 
+	if c.config.Store == nil {
+		panic(PackageName + "need store")
+	}
+
 	return newComponent(c.config)
 }
 
