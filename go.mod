@@ -8,14 +8,15 @@ require (
 	github.com/anthonynsimon/bild v0.13.0
 	github.com/astaxie/beego v1.12.3
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
+	github.com/bytedance/sonic v1.8.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dustin/go-humanize v1.0.0
 	github.com/faabiosr/cachego v0.17.0
 	github.com/fastwego/wxwork v1.0.0-beta.8
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
+	github.com/gin-gonic/gin v1.9.0 // indirect
 	github.com/go-chi/chi v1.5.4
 	github.com/go-cmd/cmd v1.3.0
-	github.com/go-playground/validator/v10 v10.10.0 // indirect
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/google/go-github v17.0.0+incompatible
@@ -27,6 +28,7 @@ require (
 	github.com/jonboulle/clockwork v0.2.2 // indirect
 	github.com/json-iterator/go v1.1.12
 	github.com/k0kubun/go-ansi v0.0.0-20180517002512-3bf9e2903213
+	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/lestrrat-go/strftime v1.0.5 // indirect
 	github.com/lib/pq v1.3.0 // indirect
@@ -51,18 +53,19 @@ require (
 	github.com/sony/sonyflake v1.0.0
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/viper v1.11.0
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.8.1
 	github.com/subosito/gotenv v1.3.0 // indirect
 	github.com/tidwall/buntdb v1.2.9
+	github.com/ugorji/go/codec v1.2.10 // indirect
 	github.com/yitter/idgenerator-go v1.3.1
-	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
+	golang.org/x/arch v0.2.0 // indirect
+	golang.org/x/crypto v0.6.0
 	golang.org/x/image v0.5.0
 	golang.org/x/net v0.7.0
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
 	golang.org/x/text v0.7.0
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
-	gopkg.in/yaml.v3 v3.0.0 // indirect
 	gorm.io/driver/mysql v1.3.2
 	gorm.io/driver/sqlserver v1.3.1
 	gorm.io/gorm v1.23.3
