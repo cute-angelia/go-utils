@@ -126,6 +126,8 @@ func (c *Component) NewMiddleware(next http.Handler) http.Handler {
 
 // DeleteCustomKey 删除自定义key缓存
 func (c *Component) DeleteCustomKey(key string) {
+	v, _ := c.config.Store.Get("customerPrefix + key")
+	c.config.Store.Delete(v)
 	c.config.Store.Delete(customerPrefix + key)
 }
 
