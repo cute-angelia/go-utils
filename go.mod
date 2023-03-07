@@ -10,6 +10,7 @@ require (
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/bytedance/sonic v1.8.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
+	github.com/denisenkom/go-mssqldb v0.12.0 // indirect
 	github.com/dustin/go-humanize v1.0.0
 	github.com/faabiosr/cachego v0.17.0
 	github.com/fastwego/wxwork v1.0.0-beta.8
@@ -18,13 +19,11 @@ require (
 	github.com/go-chi/chi v1.5.4
 	github.com/go-cmd/cmd v1.3.0
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gotomicro/ego v0.6.2
 	github.com/guonaihong/gout v0.2.11
 	github.com/jinzhu/gorm v1.9.16
-	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jonboulle/clockwork v0.2.2 // indirect
 	github.com/json-iterator/go v1.1.12
 	github.com/k0kubun/go-ansi v0.0.0-20180517002512-3bf9e2903213
@@ -33,6 +32,7 @@ require (
 	github.com/lestrrat-go/strftime v1.0.5 // indirect
 	github.com/lib/pq v1.3.0 // indirect
 	github.com/markity/minio-progress v0.0.0-20200201094755-8dec4f4191f2
+	github.com/microsoft/go-mssqldb v0.20.0 // indirect
 	github.com/minio/minio-go/v7 v7.0.13
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
@@ -59,16 +59,16 @@ require (
 	github.com/ugorji/go/codec v1.2.10 // indirect
 	github.com/yitter/idgenerator-go v1.3.1
 	golang.org/x/arch v0.2.0 // indirect
-	golang.org/x/crypto v0.6.0
+	golang.org/x/crypto v0.7.0
 	golang.org/x/image v0.5.0
-	golang.org/x/net v0.7.0
+	golang.org/x/net v0.8.0
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
-	golang.org/x/text v0.7.0
+	golang.org/x/text v0.8.0
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
-	gorm.io/driver/mysql v1.3.2
-	gorm.io/driver/sqlserver v1.3.1
-	gorm.io/gorm v1.23.3
+	gorm.io/driver/mysql v1.4.7
+	gorm.io/driver/sqlserver v1.4.2
+	gorm.io/gorm v1.24.6
 )
 
 replace github.com/tidwall/gjson => github.com/tidwall/gjson v1.9.3
