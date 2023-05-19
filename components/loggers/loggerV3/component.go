@@ -91,7 +91,7 @@ func (self *Component) makeMainLogger(logName string) zerolog.Logger {
 	// 配置
 	zerolog.SetGlobalLevel(self.config.Level)
 	zerolog.TimeFieldFormat = "2006-01-02 15:04:05.000"
-	zerolog.CallerMarshalFunc = func(file string, line int) string {
+	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
 		var buffer bytes.Buffer
 		buffer.WriteString(path.Base(file))
 		buffer.WriteString(":")
@@ -128,7 +128,7 @@ func (self *Component) makeErrorLogger(logName string) zerolog.Logger {
 	// 配置
 	zerolog.SetGlobalLevel(self.config.Level)
 	zerolog.TimeFieldFormat = "2006-01-02 15:04:05.000"
-	zerolog.CallerMarshalFunc = func(file string, line int) string {
+	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
 		var buffer bytes.Buffer
 		buffer.WriteString(path.Base(file))
 		buffer.WriteString(":")

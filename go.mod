@@ -32,6 +32,8 @@ require (
 	github.com/lestrrat-go/strftime v1.0.5 // indirect
 	github.com/lib/pq v1.3.0 // indirect
 	github.com/markity/minio-progress v0.0.0-20200201094755-8dec4f4191f2
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.18 // indirect
 	github.com/microsoft/go-mssqldb v0.20.0 // indirect
 	github.com/minio/minio-go/v7 v7.0.13
 	github.com/mitchellh/go-homedir v1.1.0
@@ -45,7 +47,7 @@ require (
 	github.com/qiniu/go-sdk/v7 v7.9.8
 	github.com/robbert229/jwt v2.0.0+incompatible
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/rs/zerolog v1.26.1
+	github.com/rs/zerolog v1.29.1
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/schollz/progressbar/v3 v3.8.6
 	github.com/sirupsen/logrus v1.8.1
@@ -63,6 +65,7 @@ require (
 	golang.org/x/image v0.5.0
 	golang.org/x/net v0.8.0
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
+	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/text v0.8.0
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
