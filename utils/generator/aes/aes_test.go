@@ -21,8 +21,8 @@ func TestEncrypt(t *testing.T) {
 	// cbc
 	cipherstring2 := iaes.EncryptCBC(msg, PaddingPkcs7).ToStringBase64()
 	log.Println("EncryptCBC", cipherstring2)
-	//decodestring2, _ := base.Base64Decode(cipherstring2)
-	//log.Println("DecryptCBC", iaes.DecryptCBC(decodestring2, PaddingPkcs7).ToString())
+	cbcstr, _ := base.Base64Decode(cipherstring2)
+	log.Println("DecryptCBC", iaes.DecryptCBC(cbcstr, iaes.CurrentCipher, PaddingPkcs7).ToString())
 }
 
 func TestJsDecrypt(t *testing.T) {
