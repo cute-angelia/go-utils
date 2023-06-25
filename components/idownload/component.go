@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	humanize "github.com/dustin/go-humanize"
 	"github.com/guonaihong/gout"
 	"github.com/guonaihong/gout/dataflow"
 	"github.com/k0kubun/go-ansi"
@@ -101,7 +102,22 @@ func (d *Component) getGoHttpClient(uri string, method string) *dataflow.DataFlo
 		igout = igout.SetProxy(d.config.ProxyHttp)
 	}
 
+	if d.config.Debug {
+		igout = igout.Debug(true)
+	}
+
 	return igout.SetHeader(d.getHttpHeader()).Debug(d.config.Debug)
+}
+
+func (d *Component) validFileContentLength(strURL string) error {
+	if d.config.FileMax != -1 {
+		length := d.GetContentLength(strURL)
+		if length > d.config.FileMax {
+			return errors.New(fmt.Sprintf("链接：%s 未下载，大小：%s, 超过设置大小: %s", strURL, humanize.Bytes(uint64(length)), humanize.Bytes(uint64(d.config.FileMax))))
+		}
+	}
+
+	return nil
 }
 
 // GetContentLength 获取文件长度
@@ -111,6 +127,8 @@ func (d *Component) GetContentLength(strURL string) int {
 	var statusCode int
 	if err := d.getGoHttpClient(strURL, "HEAD").BindHeader(&header).Code(&statusCode).Do(); err == nil {
 		contentLength, _ = strconv.Atoi(header.Get("Content-Length"))
+	} else {
+		log.Println("err:", err)
 	}
 	return contentLength
 }
@@ -118,6 +136,11 @@ func (d *Component) GetContentLength(strURL string) int {
 // Download 下载文件
 func (d *Component) Download(strURL, filename string) (fileInfo FileInfo, errResp error) {
 	strURL = strings.TrimSpace(strURL)
+
+	// valid
+	if err := d.validFileContentLength(strURL); err != nil {
+		return fileInfo, err
+	}
 
 	if filename == "" {
 		filename = path.Base(strURL)
@@ -186,6 +209,11 @@ func (d *Component) Download(strURL, filename string) (fileInfo FileInfo, errRes
 func (d *Component) DownloadToByteRetry(src string, retry int) ([]byte, error) {
 	src = strings.TrimSpace(src)
 
+	// valid
+	if err := d.validFileContentLength(src); err != nil {
+		return []byte{}, err
+	}
+
 	var body []byte
 	err := d.getGoHttpClient(src, "GET").Callback(func(c *dataflow.Context) error {
 		// 进度条
@@ -209,6 +237,11 @@ func (d *Component) DownloadToByteRetry(src string, retry int) ([]byte, error) {
 // DownloadToByte 请求文件，返回 字节
 func (d *Component) DownloadToByte(strURL string) ([]byte, error) {
 	strURL = strings.TrimSpace(strURL)
+
+	// valid
+	if err := d.validFileContentLength(strURL); err != nil {
+		return []byte{}, err
+	}
 
 	iClient := d.getGoHttpClient(strURL, "GET").Client()
 	req, err := http.NewRequest("GET", strURL, nil)

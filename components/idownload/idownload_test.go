@@ -187,3 +187,21 @@ func TestRetryFuc(t *testing.T) {
 		return ErrRetry
 	}).Do(ctx)
 }
+
+//TestTwitter go test -v --run TestTwitter
+func TestTwitter(t *testing.T) {
+	log.SetFlags(log.Lshortfile)
+	idownloader := New(
+		WithTimeout(time.Minute),
+		WithProxySocks5("socks5://23.56.107.58:38153"),
+		WithHost("twitter.com"),
+		WithUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"),
+		WithFileMax(300*1024*1024),
+	)
+
+	// info, err := idownloader.Download("https://video.twimg.com/ext_tz_video/1671201090497576960/pu/vid/1280x720/LAtCzKi_8NkCMZ_0.mp4?tag=12", "/tmp/1.mp4")
+	info, err := idownloader.Download("https://video.twimg.com/amplixy_video/1669825038521110528/vid/1920x1080/4Z3t98204cgh06Qo.mp4?tag=16", "/tmp/1.mp4")
+
+	log.Println(ijson.Pretty(info))
+	log.Println(err)
+}

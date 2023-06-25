@@ -128,6 +128,12 @@ func WithAuthorization(authorization string) Option {
 	}
 }
 
+func WithFileMax(fileMax int) Option {
+	return func(c *Container) {
+		c.config.FileMax = fileMax
+	}
+}
+
 func WithConcurrency(concurrency int) Option {
 	return func(c *Container) {
 		c.config.Concurrency = concurrency

@@ -25,6 +25,8 @@ type config struct {
 	RetryAttempt  int           // 重试次数
 	RetryWaitTime time.Duration // 重试间隔
 
+	FileMax int
+
 	// 并发数量
 	Concurrency int
 	// 分片下载
@@ -54,5 +56,6 @@ func DefaultConfig() *config {
 		RetryAttempt:             3,
 		RetryWaitTime:            time.Second * 5,
 		Progressbar:              true,
+		FileMax:                  -1,
 	}
 }
