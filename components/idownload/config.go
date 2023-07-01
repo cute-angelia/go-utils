@@ -55,7 +55,7 @@ func DefaultConfig() *config {
 		Authorization:            "",
 		RetryAttempt:             3,
 		RetryWaitTime:            time.Second * 5,
-		Progressbar:              true,
+		Progressbar:              false,
 		FileMax:                  -1,
 	}
 }

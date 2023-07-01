@@ -18,6 +18,7 @@ func TestUrl(t *testing.T) {
 	t.Log(Decode(Encode(uri)))
 
 	u, _ := url.Parse(uri)
+
 	t.Log(u.Host)
 
 	t.Log(Decode("http://home.shixinyi.cn:38095/photo-station/douyin/img/stars-Ai%E5%B9%BB%E6%83%B3%E8%80%851667814109703008333.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=admin%2F20221111%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20221111T070857Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=a7eaefefd77d9c4def9251f688c743df70cb669668264bd1aa113776acf7de46"))
