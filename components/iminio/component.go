@@ -10,7 +10,6 @@ import (
 	"github.com/cute-angelia/go-utils/components/idownload"
 	"github.com/cute-angelia/go-utils/syntax/ifile"
 	"github.com/cute-angelia/go-utils/utils/generator/hash"
-	humanize "github.com/dustin/go-humanize"
 	progress "github.com/markity/minio-progress"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -282,10 +281,11 @@ func (e *Component) PutObjectWithSrc(dnComponent *idownload.Component, uri strin
 	objectName = strings.Replace(objectName, "//", "/", -1)
 
 	// 得判断文件大小，过大文件下载后上传
-	// dnComponent.GetContentLength()
-	limitMax, _ := humanize.ParseBytes("43 MB")
-	fileSize := uint64(dnComponent.GetContentLength(uri))
-	if fileSize > limitMax || fileSize == 0 {
+	// limitMax, _ := humanize.ParseBytes("43 MB")
+	// fileSize := uint64(dnComponent.GetContentLength(uri))
+	// log.Println(fileSize > limitMax || fileSize == 0, " xx")
+
+	if true {
 		tempname := ifile.NewFileName(uri).GetNameSnowFlow()
 		if _, err := dnComponent.Download(uri, tempname); err == nil {
 			defer os.Remove(tempname)
@@ -328,7 +328,7 @@ func (e *Component) PutObjectWithSrc(dnComponent *idownload.Component, uri strin
 		} else {
 			// 打印日志
 			if e.config.Debug {
-				log.Printf("获取图片: %s, 代理：%s", uri, e.config.ProxySocks5)
+				log.Printf("获取地址: %s, 代理：%s", uri, e.config.ProxySocks5)
 			}
 			if info, err := e.Client.PutObject(context.TODO(), bucket, objectName, bytes.NewReader(filebyte), int64(len(filebyte)), objopt); err != nil {
 				if e.config.Debug {
