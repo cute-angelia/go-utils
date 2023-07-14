@@ -89,6 +89,16 @@ func GetUserUidInt64(r *http.Request) int64 {
 	return int64(uid)
 }
 
+func GetAppId(r *http.Request) string {
+	appid := r.Header.Get("jwt_appid")
+	return appid
+}
+
+func GetCid(r *http.Request) int32 {
+	jwt_cid, _ := strconv.Atoi(r.Header.Get("jwt_cid"))
+	return int32(jwt_cid)
+}
+
 // GetJwtHeader 获取 jwt 里面数据
 func GetJwtHeader(r *http.Request, key string) interface{} {
 	return r.Header.Get(key)
