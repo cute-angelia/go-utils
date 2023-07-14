@@ -56,6 +56,11 @@ func (e *Component) SignUrlPublic(key string) string {
 
 // SignUrlWithCache 获取链接 不带bucket
 func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration, cacheObj caches.Cache) (string, error) {
+
+	if key == "" {
+		return "", errors.New("key is empty")
+	}
+
 	hashkey := e.GenerateHashKey(1, bucket, key)
 	if cachedata, err := cacheObj.Get(hashkey); err == nil && len(cachedata) > 3 {
 		//if e.config.Debug {
@@ -88,8 +93,16 @@ func (e *Component) SignCoverWithCache(cover string, t time.Duration, cacheObj c
 		cover = strings.TrimLeft(cover, "/")
 		temp := strings.Split(cover, "/")
 		objkey := temp[1:len(temp)]
-		icover, _ := e.SignUrlWithCache(temp[0], strings.Join(objkey, "/"), t, cacheObj)
-		return icover
+
+		if len(objkey) == 1 {
+			// 避免空切片
+			icover, _ := e.SignUrlWithCache(temp[0], objkey[0], t, cacheObj)
+			return icover
+		} else {
+			icover, _ := e.SignUrlWithCache(temp[0], strings.Join(objkey[1:len(objkey)], "/"), t, cacheObj)
+			return icover
+		}
+
 	} else {
 		return ""
 	}
