@@ -39,7 +39,7 @@ require (
 	github.com/spf13/viper v1.11.0
 	github.com/stretchr/testify v1.8.3
 	github.com/tidwall/buntdb v1.2.9
-	github.com/yitter/idgenerator-go v1.3.1
+	github.com/yitter/idgenerator-go v1.3.3
 	golang.org/x/crypto v0.9.0
 	golang.org/x/image v0.5.0
 	golang.org/x/net v0.10.0
