@@ -63,17 +63,21 @@ func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration,
 
 	hashkey := e.GenerateHashKey(1, bucket, key)
 	if cachedata, err := cacheObj.Get(hashkey); err == nil && len(cachedata) > 3 {
+		log.Println("cachedata", cachedata)
 		//if e.config.Debug {
 		//log.Println(PackageName, hashkey, "Successfully URL: ", cachedata)
 		//}
 		return cachedata, nil
 	} else {
-		reqParams := make(url.Values)
-		if presignedURL, err := e.Client.PresignedGetObject(context.Background(), bucket, key, t, reqParams); err != nil {
-			log.Println(err)
-			return "", err
+		if err == nil {
+			reqParams := make(url.Values)
+			if presignedURL, err := e.Client.PresignedGetObject(context.Background(), bucket, key, t, reqParams); err != nil {
+				return "", err
+			} else {
+				return presignedURL.String(), cacheObj.Set(hashkey, presignedURL.String(), t)
+			}
 		} else {
-			return presignedURL.String(), cacheObj.Set(hashkey, presignedURL.String(), t)
+			return "", err
 		}
 	}
 }
@@ -93,13 +97,12 @@ func (e *Component) SignCoverWithCache(cover string, t time.Duration, cacheObj c
 		cover = strings.TrimLeft(cover, "/")
 		temp := strings.Split(cover, "/")
 		objkey := temp[1:len(temp)]
-
 		if len(objkey) == 1 {
 			// 避免空切片
 			icover, _ := e.SignUrlWithCache(temp[0], objkey[0], t, cacheObj)
 			return icover
 		} else {
-			icover, _ := e.SignUrlWithCache(temp[0], strings.Join(objkey[1:len(objkey)], "/"), t, cacheObj)
+			icover, _ := e.SignUrlWithCache(temp[0], strings.Join(objkey, "/"), t, cacheObj)
 			return icover
 		}
 

@@ -27,6 +27,9 @@ type Component struct {
 }
 
 func GetComponent() *Component {
+	if iComponent == nil {
+		panic("ibitcask is need init")
+	}
 	return iComponent
 }
 
@@ -118,9 +121,15 @@ func (d *Component) SetWithBucket(bucket string, key string, value string, ttl t
 
 // Get 获取数据
 func (d *Component) Get(key string) (string, error) {
+
 	if d.closed {
 		return "", ErrClosed
 	}
+
+	if key == "" {
+		return "", errors.New("empty key")
+	}
+
 	v, err := d.db.Get([]byte(key))
 	return string(v), err
 }
