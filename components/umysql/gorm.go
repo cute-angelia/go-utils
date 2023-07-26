@@ -5,6 +5,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/smacker/opentracing-gorm"
 	"log"
+	"regexp"
 	"sync"
 	"time"
 )
@@ -76,7 +77,11 @@ func initDB(opts GormOptions) *gorm.DB {
 	}
 
 	for db, err = gorm.Open(dbType, connectString); err != nil; {
-		log.Println("数据库连接异常", dbName, err)
+		re := regexp.MustCompile(`tcp\((.*?)\)`)
+		match := re.FindStringSubmatch(connectString)
+		if len(match) > 1 {
+			log.Println("数据库连接异常", match[1], dbName, err)
+		}
 		time.Sleep(5 * time.Second)
 		db, err = gorm.Open(dbType, connectString)
 	}

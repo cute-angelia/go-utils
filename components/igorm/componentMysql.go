@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm/logger"
 	"log"
 	"os"
+	"regexp"
 	"time"
 )
 
@@ -68,7 +69,11 @@ func (c *Component) initMysqlDb() *gorm.DB {
 	}
 
 	for db, err = gorm.Open(mysql.Open(c.config.Dsn), &gconfig); err != nil; {
-		log.Println(packageName, "❌数据库连接异常", c.config.DbName, err)
+		re := regexp.MustCompile(`tcp\((.*?)\)`)
+		match := re.FindStringSubmatch(c.config.Dsn)
+		if len(match) > 1 {
+			log.Println(packageName, "❌数据库连接异常", match[1], c.config.DbName, err)
+		}
 		time.Sleep(5 * time.Second)
 		db, err = gorm.Open(mysql.Open(c.config.Dsn), &gconfig)
 	}
