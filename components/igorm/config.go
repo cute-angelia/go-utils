@@ -18,6 +18,7 @@ type config struct {
 	LoggerWriter io.Writer        // 外部 io.writer， 输出日志到外部
 	LogLevel     logger.LogLevel  // 内部日志等级，GORM 定义了这些日志级别：Silent、Error、Warn、Info
 	Logger       logger.Interface // 内部日志初始化,传递
+	Debug        bool
 }
 
 // DefaultConfig 返回默认配置

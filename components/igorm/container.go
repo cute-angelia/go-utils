@@ -96,6 +96,12 @@ func WithLogLevel(logLevel logger.LogLevel) Option {
 	}
 }
 
+func WithDebug(debug bool) Option {
+	return func(c *Container) {
+		c.config.Debug = debug
+	}
+}
+
 // Build ...
 func (c *Container) Build(options ...Option) *Component {
 	for _, option := range options {
