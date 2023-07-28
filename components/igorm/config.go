@@ -11,6 +11,7 @@ const packageName = "component.db.gorm"
 // config options
 type config struct {
 	DbName       string
+	DbFile       string // DbFile db数据存放路径
 	Dsn          string
 	MaxIdleConns int              // SetMaxIdleConns 用于设置连接池中空闲连接的最大数量(10)
 	MaxOpenConns int              // SetMaxOpenConns 设置打开数据库连接的最大数量(100)

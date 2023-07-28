@@ -6,7 +6,6 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
-	"path"
 	"sync"
 )
 
@@ -24,12 +23,14 @@ func GetGormSQLite(dbName string) (*gorm.DB, error) {
 }
 
 // MustInitSqlite 初始化  dir
-func (c *Component) MustInitSqlite(dir string) *Component {
-	if len(dir) == 0 {
-		dir = "./"
-	}
+func (c *Component) MustInitSqlite() *Component {
 
-	pathdb := fmt.Sprintf(fmt.Sprintf(path.Clean(dir)+"/%s_SQLite.db", c.config.DbName))
+	var pathdb string
+	if len(c.config.DbFile) > 0 {
+		pathdb = c.config.DbFile
+	} else {
+		pathdb = fmt.Sprintf("/%s_SQLite.db", c.config.DbName)
+	}
 
 	if c.config.Debug {
 		log.Println("sqlite path:", pathdb)
