@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"log"
+	"os"
 	"sync"
+	"time"
 )
 
 var gormPoolSQLite sync.Map
@@ -36,8 +39,29 @@ func (c *Component) MustInitSqlite() *Component {
 		log.Println("sqlite path:", pathdb)
 	}
 
+	// log
+	var vlog = new(log.Logger)
+	if c.config.LoggerWriter == nil {
+		vlog = log.New(os.Stdout, "\r\n", log.LstdFlags|log.Lshortfile)
+	} else {
+		vlog = log.New(c.config.LoggerWriter, "", 0)
+	}
+
+	newLogger := logger.New(
+		vlog, // io writer
+		logger.Config{
+			SlowThreshold: time.Second,       // Slow SQL threshold
+			LogLevel:      c.config.LogLevel, // Log level
+			Colorful:      true,
+		},
+	)
+
+	gconfig := gorm.Config{
+		Logger: newLogger,
+	}
+
 	// github.com/mattn/go-sqlite3
-	if db, err := gorm.Open(sqlite.Open(pathdb), &gorm.Config{}); err != nil {
+	if db, err := gorm.Open(sqlite.Open(pathdb), &gconfig); err != nil {
 		panic(err)
 	} else {
 		if _, ok := gormPool.Load(c.config.DbName); !ok {
