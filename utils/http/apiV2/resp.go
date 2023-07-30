@@ -2,9 +2,11 @@ package apiV2
 
 import (
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -142,9 +144,16 @@ func Error(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 func logr(r *http.Request, response interface{}, msg string) {
-	// 打印日志
+	// 从context获取body
 	go func() {
-		z, _ := json.Marshal(r.PostForm)
+		var z []byte
+		if r.Header.Get("Content-Type") == ContentTypeWWWForm {
+			z, _ = json.Marshal(r.PostForm)
+		}
+		if r.Header.Get("Content-Type") == ContentTypeJson || strings.Contains(r.Header.Get("Content-Type"), ContentTypeJson) {
+			z, _ = io.ReadAll(r.Body)
+		}
+
 		z2, _ := json.Marshal(response)
 		zuid := r.Header.Get("jwt_uid")
 

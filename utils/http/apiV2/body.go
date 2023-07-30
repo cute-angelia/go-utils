@@ -1,7 +1,11 @@
 package apiV2
 
 import (
+	"bytes"
+	"encoding/json"
 	jsoniter "github.com/json-iterator/go"
+	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -20,29 +24,42 @@ type body struct {
 	dataWWWForm url.Values
 }
 
+var jsonLib = jsoniter.ConfigCompatibleWithStandardLibrary
+
 func NewBody(r *http.Request) *body {
 	b := body{
 		r: r,
 	}
-
 	if r.Header.Get("Content-Type") == ContentTypeWWWForm {
 		if r.PostForm == nil {
 			r.ParseMultipartForm(32 << 20) // 32MB
 		}
 		b.dataWWWForm = r.Form
 	}
-
 	if r.Header.Get("Content-Type") == ContentTypeJson || strings.Contains(r.Header.Get("Content-Type"), ContentTypeJson) {
 		b.isJson = true
-		json := jsoniter.ConfigCompatibleWithStandardLibrary
-		// 2. 解析json
-		json.NewDecoder(r.Body).Decode(&b.dataJson)
-	}
 
+		buf, _ := io.ReadAll(r.Body)
+
+		d := jsonLib.NewDecoder(bytes.NewReader(buf))
+		d.UseNumber()
+		d.Decode(&b.dataJson)
+
+		r.Body = io.NopCloser(bytes.NewReader(buf))
+	}
 	return &b
 }
 
 // from post
+func (b *body) PostBody() (val string) {
+	if b.isJson {
+		val1, _ := jsonLib.Marshal(b.dataJson)
+		return string(val1)
+	} else {
+		val2, _ := jsonLib.Marshal(b.dataWWWForm)
+		return string(val2)
+	}
+}
 
 func (b *body) PostString(key string) (val string) {
 	if b.isJson {
@@ -56,11 +73,41 @@ func (b *body) PostString(key string) (val string) {
 	}
 	return val
 }
+
+func (b *body) PostStringSlice(key string) (val []string) {
+	if b.isJson {
+		if value, ok := b.dataJson[key]; ok {
+			log.Println(value.([]string))
+			if strValue, ok := value.([]string); ok {
+				val = strValue
+			}
+		}
+	} else {
+		val = append(val, b.dataWWWForm.Get(key))
+	}
+	return val
+}
+
+func (b *body) PostBool(key string) (val bool) {
+	if b.isJson {
+		if value, ok := b.dataJson[key]; ok {
+			if strValue, ok := value.(bool); ok {
+				val = strValue
+			}
+		}
+	} else {
+		val, _ = strconv.ParseBool(b.dataWWWForm.Get(key))
+	}
+	return val
+}
+
 func (b *body) PostInt(key string) (val int) {
 	if b.isJson {
 		if value, ok := b.dataJson[key]; ok {
-			if strValue, ok := value.(int); ok {
-				val = strValue
+			if strValue, err := value.(json.Number).Int64(); err == nil {
+				val = int(strValue)
+			} else {
+				log.Println(err)
 			}
 		}
 	} else {
@@ -72,8 +119,10 @@ func (b *body) PostInt(key string) (val int) {
 func (b *body) PostInt32(key string) (val int32) {
 	if b.isJson {
 		if value, ok := b.dataJson[key]; ok {
-			if strValue, ok := value.(int32); ok {
-				val = strValue
+			if strValue, err := value.(json.Number).Int64(); err == nil {
+				val = int32(strValue)
+			} else {
+				log.Println(err)
 			}
 		}
 	} else {
@@ -85,8 +134,10 @@ func (b *body) PostInt32(key string) (val int32) {
 func (b *body) PostInt64(key string) (val int64) {
 	if b.isJson {
 		if value, ok := b.dataJson[key]; ok {
-			if strValue, ok := value.(int64); ok {
+			if strValue, err := value.(json.Number).Int64(); err == nil {
 				val = strValue
+			} else {
+				log.Println(err)
 			}
 		}
 	} else {
@@ -98,7 +149,7 @@ func (b *body) PostInt64(key string) (val int64) {
 func (b *body) PostFloat64(key string) (val float64) {
 	if b.isJson {
 		if value, ok := b.dataJson[key]; ok {
-			if strValue, ok := value.(float64); ok {
+			if strValue, err := value.(json.Number).Float64(); err == nil {
 				val = strValue
 			}
 		}
@@ -107,40 +158,6 @@ func (b *body) PostFloat64(key string) (val float64) {
 		val = ageInt
 	}
 	return val
-}
-
-// from header
-
-func (b *body) GetUserUid() int32 {
-	uid, _ := strconv.Atoi(b.r.Header.Get("jwt_uid"))
-	return int32(uid)
-}
-func (b *body) GetUserUidInt64() int64 {
-	uid, _ := strconv.Atoi(b.r.Header.Get("jwt_uid"))
-	return int64(uid)
-}
-func (b *body) GetAppId() string {
-	appid := b.r.Header.Get("jwt_appid")
-	return appid
-}
-func (b *body) GetCid() int32 {
-	cid, _ := strconv.Atoi(b.r.Header.Get("jwt_cid"))
-	return int32(cid)
-}
-
-// from query
-
-// QueryString Query will get a query parameter by key.
-func (b *body) QueryString(key string) string {
-	return b.r.URL.Query().Get(key)
-}
-
-// QueryStringInt32 QueryInt will get a query parameter by key and convert it to an int or return an error.
-// user?user_id=
-func (b *body) QueryStringInt32(key string) int32 {
-	v := b.r.URL.Query().Get(key)
-	val, _ := strconv.Atoi(v)
-	return int32(val)
 }
 
 // from upload

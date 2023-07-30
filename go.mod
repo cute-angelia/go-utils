@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	git.mills.io/prologic/bitcask v1.0.2
+	github.com/ajg/form v1.5.1
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible
 	github.com/anthonynsimon/bild v0.13.0
 	github.com/astaxie/beego v1.12.3
