@@ -13,17 +13,16 @@ func Dir(fpath string) string {
 
 // Name get file/dir name
 func Name(fpath string) string {
-	// return path.Base(fpath)
 	return filepath.Base(fpath)
 }
 
-//获取文件路径中的文件名（包括扩展名）
+// 获取文件路径中的文件名（包括扩展名）
 func Name2(filePath string) string {
 	_, fileName := filepath.Split(filePath)
 	return fileName
 }
 
-//获取文件路径中的文件名（不包括扩展名）
+// 获取文件路径中的文件名（不包括扩展名）
 func NameNoExt(filePath string) string {
 	fileName := Name(filePath)
 	ext := filepath.Ext(fileName)
