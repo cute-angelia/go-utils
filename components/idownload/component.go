@@ -31,6 +31,7 @@ func init() {
 var (
 	ErrorNotFound = errors.New("404 file not found")
 	ErrorHead     = errors.New("error head")
+	ErrorUrl      = errors.New("url 不合法")
 )
 
 type FileInfo struct {
@@ -137,6 +138,15 @@ func (d *Component) GetContentLength(strURL string) int {
 func (d *Component) Download(strURL, filename string) (fileInfo FileInfo, errResp error) {
 	strURL = strings.TrimSpace(strURL)
 
+	if !strings.Contains(strURL, "http") {
+		return fileInfo, errors.New("Url 不合法：" + strURL)
+	}
+
+	// debug
+	if d.config.Debug {
+		log.Println("下载地址：", strURL, "保存地址：", filename)
+	}
+
 	// valid
 	if err := d.validFileContentLength(strURL); err != nil {
 		return fileInfo, err
@@ -153,7 +163,7 @@ func (d *Component) Download(strURL, filename string) (fileInfo FileInfo, errRes
 
 	err := d.getGoHttpClient(strURL, "HEAD").BindHeader(&header).Code(&statusCode).Do()
 	if err != nil {
-		return FileInfo{}, ErrorHead
+		return FileInfo{}, errors.New("Url 不合法：" + strURL)
 	}
 
 	if statusCode == http.StatusNotFound {
@@ -345,7 +355,7 @@ func (d *Component) multiDownload(strURL, filename string, contentLen int) (File
 	}
 }
 
-//  singleDownload 直接下载
+// singleDownload 直接下载
 func (d *Component) singleDownload(strURL, filename string) (FileInfo, error) {
 	var info FileInfo
 	// 需要进度条，更要复用 http.client 这里就不使用原生的 http
