@@ -163,7 +163,8 @@ func (d *Component) Download(strURL, filename string) (fileInfo FileInfo, errRes
 
 	err := d.getGoHttpClient(strURL, "HEAD").BindHeader(&header).Code(&statusCode).Do()
 	if err != nil {
-		return FileInfo{}, errors.New("Url 不合法：" + strURL)
+		log.Println("Head", err.Error())
+		//return FileInfo{}, errors.New("HEAD 失败：" + strURL + err.Error())
 	}
 
 	if statusCode == http.StatusNotFound {
