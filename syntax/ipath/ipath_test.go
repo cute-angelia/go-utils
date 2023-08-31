@@ -16,6 +16,10 @@ func TestPath(t *testing.T) {
 	}
 
 	for _, path := range testPaths {
+		//log.Println(path)
+		//log.Println(Clean(path))
+		//log.Println(filepath.Ext(path))
 		log.Println(GetFileName(path))
+		// log.Println(GetFileExt(path))
 	}
 }
