@@ -145,37 +145,42 @@ func Error(w http.ResponseWriter, r *http.Request, err error) {
 
 func logr(r *http.Request, response interface{}, msg string) {
 	// 从context获取body
-	go func() {
-		var z []byte
-		if r.Header.Get("Content-Type") == ContentTypeWWWForm {
+	var z []byte
+	if r.Header.Get("Content-Type") == ContentTypeWWWForm {
+		if len(r.PostForm) > 0 {
+			z, _ = json.Marshal(r.PostForm)
+		} else {
+			if err := r.ParseForm(); err != nil {
+				log.Println(err)
+			}
 			z, _ = json.Marshal(r.PostForm)
 		}
-		if r.Header.Get("Content-Type") == ContentTypeJson || strings.Contains(r.Header.Get("Content-Type"), ContentTypeJson) {
-			z, _ = io.ReadAll(r.Body)
+	}
+	if r.Header.Get("Content-Type") == ContentTypeJson || strings.Contains(r.Header.Get("Content-Type"), ContentTypeJson) {
+		z, _ = io.ReadAll(r.Body)
+	}
+
+	z2, _ := json.Marshal(response)
+	zuid := r.Header.Get("jwt_uid")
+
+	log.Println("------------------------------------------------------------------------------")
+	jwt_app_start_time := r.Header.Get("jwt_app_start_time")
+	if len(jwt_app_start_time) > 0 {
+		un, _ := strconv.Atoi(jwt_app_start_time)
+		t2 := time.Unix(int64(un), 0)
+		tc := time.Since(t2)
+
+		flags := "Millisecond"
+		if tc < time.Second {
+			tc = tc / 10
+		} else {
+			flags = "Second"
 		}
 
-		z2, _ := json.Marshal(response)
-		zuid := r.Header.Get("jwt_uid")
+		log.Printf("用户: %s, TimeCost: %v %s", zuid, tc, flags)
+	}
 
-		log.Println("------------------------------------------------------------------------------")
-		jwt_app_start_time := r.Header.Get("jwt_app_start_time")
-		if len(jwt_app_start_time) > 0 {
-			un, _ := strconv.Atoi(jwt_app_start_time)
-			t2 := time.Unix(int64(un), 0)
-			tc := time.Since(t2)
-
-			flags := "Millisecond"
-			if tc < time.Second {
-				tc = tc / 10
-			} else {
-				flags = "Second"
-			}
-
-			log.Printf("用户: %s, TimeCost: %v %s", zuid, tc, flags)
-		}
-
-		log.Printf("%s 用户: %s, 请求地址: %s, 请求参数: %s, 请求数据: %s,", msg, zuid, r.URL.Path, r.URL.RawQuery, z)
-		log.Printf("%s 用户: %s, 请求地址: %s, 响应数据: %s", msg, zuid, r.URL.Path, z2)
-		log.Println("------------------------------------------------------------------------------")
-	}()
+	log.Printf("%s 用户: %s, 请求地址: %s, 请求参数: %s, 请求数据: %s,", msg, zuid, r.URL.Path, r.URL.RawQuery, z)
+	log.Printf("%s 用户: %s, 请求地址: %s, 响应数据: %s", msg, zuid, r.URL.Path, z2)
+	log.Println("------------------------------------------------------------------------------")
 }
