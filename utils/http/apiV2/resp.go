@@ -97,22 +97,6 @@ func SuccessCache(w http.ResponseWriter, code int, msg string, cacheData interfa
 	}
 }
 
-type ApiError struct {
-	Code    int
-	Message string
-}
-
-func (e *ApiError) Error() string {
-	return e.Message
-}
-
-func NewApiError(code int, message string) *ApiError {
-	return &ApiError{
-		Code:    code,
-		Message: message,
-	}
-}
-
 // Error 错误
 func Error(w http.ResponseWriter, r *http.Request, err error) {
 	response := Res{
