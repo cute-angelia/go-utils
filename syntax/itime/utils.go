@@ -5,43 +5,36 @@ import (
 	"time"
 )
 
-// GetMonthDay 获得当前月的初始和结束日期
-func GetMonthDay() (string, string) {
+// GetMonthDate 获得当前月的初始和结束日期
+func GetMonthDate() (*TheTime, *TheTime) {
 	now := time.Now()
 	currentYear, currentMonth, _ := now.Date()
 	currentLocation := now.Location()
-
 	firstOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation)
 	lastOfMonth := firstOfMonth.AddDate(0, 1, -1)
-	f := firstOfMonth.Unix()
-	l := lastOfMonth.Unix()
-	return time.Unix(f, 0).Format("2006-01-02") + " 00:00:00", time.Unix(l, 0).Format("2006-01-02") + " 23:59:59"
+	return &TheTime{unix: firstOfMonth.Unix()}, &TheTime{unix: lastOfMonth.Unix()}
 }
 
-// GetWeekDay 获得当前周的初始和结束日期
-func GetWeekDay() (string, string) {
+// GetWeekDate 获得当前周的初始和结束日期
+func GetWeekDate() (*TheTime, *TheTime) {
 	now := time.Now()
 	offset := int(time.Monday - now.Weekday())
 	//周日做特殊判断 因为time.Monday = 0
 	if offset > 0 {
 		offset = -6
 	}
-
 	lastoffset := int(time.Saturday - now.Weekday())
 	//周日做特殊判断 因为time.Monday = 0
 	if lastoffset == 6 {
 		lastoffset = -1
 	}
-
 	firstOfWeek := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, offset)
 	lastOfWeeK := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, lastoffset+1)
-	f := firstOfWeek.Unix()
-	l := lastOfWeeK.Unix()
-	return time.Unix(f, 0).Format("2006-01-02") + " 00:00:00", time.Unix(l, 0).Format("2006-01-02") + " 23:59:59"
+	return &TheTime{unix: firstOfWeek.Unix()}, &TheTime{unix: lastOfWeeK.Unix()}
 }
 
-// GetQuarterDay 获得当前季度的初始和结束日期
-func GetQuarterDay() (string, string, int) {
+// GetQuarterDate 获得当前季度的初始和结束日期
+func GetQuarterDate() (*TheTime, *TheTime, int) {
 	year := time.Now().Format("2006")
 	month := int(time.Now().Month())
 	var firstOfQuarter string
@@ -66,19 +59,17 @@ func GetQuarterDay() (string, string, int) {
 		lastOfQuarter = year + "-12-31 23:59:59"
 		quarter = 4
 	}
-	return firstOfQuarter, lastOfQuarter, quarter
+	return NewFormatLayout(firstOfQuarter, TIME_FORMAT), NewFormatLayout(lastOfQuarter, TIME_FORMAT), quarter
 }
 
-func GetYearDay() (string, string) {
+func GetYearDate() (*TheTime, *TheTime) {
 	now := time.Now()
 	currentYear, _, _ := now.Date()
 	currentLocation := now.Location()
 
 	first := time.Date(currentYear, 1, 1, 0, 0, 0, 0, currentLocation)
 	last := first.AddDate(1, 0, -1)
-	f := first.Unix()
-	l := last.Unix()
-	return time.Unix(f, 0).Format("2006-01-02") + " 00:00:00", time.Unix(l, 0).Format("2006-01-02") + " 23:59:59"
+	return &TheTime{unix: first.Unix()}, &TheTime{unix: last.Unix()}
 }
 
 // GetBetweenDates 根据开始日期和结束日期计算出时间段内所有日期
