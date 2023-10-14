@@ -26,4 +26,8 @@ func TestUrl(t *testing.T) {
 	v, _ := url.Parse("http://home.shixinyi.cn:38095/photo-station/douyin/img/一只天涯涯1667823109304367889.jpeg")
 
 	log.Println(ijson.Pretty(v))
+
+	uri2 := "https://baidu.com/"
+	t.Log(CleanUrlWithoutParam(uri2))
+	t.Log(GetDomainWithOutSlant(uri2))
 }

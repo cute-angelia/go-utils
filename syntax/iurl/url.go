@@ -7,8 +7,25 @@ import (
 	"strings"
 )
 
-// CleanUrlWithoutParm 获得一个干净的不带参数的地址
-func CleanUrlWithoutParm(uri string) string {
+// GetDomainWithOutSlant 检查域名最后是否存在斜线并返回无斜线域名
+func GetDomainWithOutSlant(domain string) string {
+	// 是否为空
+	if domain == "" {
+		return ""
+	}
+
+	// 获取最后一个字符
+	last := domain[len(domain)-1:]
+	// 如果是斜线
+	if last == "/" {
+		domain = domain[:len(domain)-1]
+	}
+
+	return domain
+}
+
+// CleanUrlWithoutParam 获得一个干净的不带参数的地址
+func CleanUrlWithoutParam(uri string) string {
 	clearUrl, _ := url.QueryUnescape(uri)
 	if uriInfo, err := url.Parse(clearUrl); err == nil {
 		if len(uriInfo.Scheme) == 0 {
@@ -48,8 +65,11 @@ func RemoveParam(uri string, removes []string) (string, error) {
 /*
 Encode 文本编码
 one ->
+
 	url.QueryEscape(text)
+
 multi ->
+
 	params := url.Values{}
 	params.Add("q", "1 + 2")
 	params.Add("s", "example for GoLang.com")
