@@ -74,14 +74,11 @@ func (b *body) PostString(key string) (val string) {
 	return val
 }
 
-func (b *body) PostStringSlice(key string) (val []string) {
+// PostSlice 数组，组合可能很多，有map ，strings ，int
+func (b *body) PostSlice(key string) (val []interface{}) {
 	if b.isJson {
-		if value, ok := b.dataJson[key]; ok {
-			log.Println(value.([]string))
-			if strValue, ok := value.([]string); ok {
-				val = strValue
-			}
-		}
+		val = b.dataJson[key].([]interface{})
+		log.Println(val)
 	} else {
 		val = append(val, b.dataWWWForm.Get(key))
 	}

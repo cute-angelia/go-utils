@@ -1,18 +1,22 @@
 package ifile
 
 import (
+	"log"
 	"path"
 	"testing"
 )
 
-/**
+/*
+*
 === RUN   TestName
-    name_test.go:8: a.jpg
-    name_test.go:9: 1624955091917581000.jpg
-    name_test.go:10: 361424000968063865.jpg
-    name_test.go:13: test_a.jpg
-    name_test.go:14: test_1624955091917614000.jpg
-    name_test.go:15: test_361424000968129401.jpg
+
+	name_test.go:8: a.jpg
+	name_test.go:9: 1624955091917581000.jpg
+	name_test.go:10: 361424000968063865.jpg
+	name_test.go:13: test_a.jpg
+	name_test.go:14: test_1624955091917614000.jpg
+	name_test.go:15: test_361424000968129401.jpg
+
 --- PASS: TestName (0.00s)
 */
 func TestName(t *testing.T) {
@@ -49,4 +53,10 @@ func TestName(t *testing.T) {
 	t.Log(NewFileName(iurl).GetNameSnowFlow())
 	t.Log(NewFileName(iurl).GetNameSnowFlow())
 	t.Log(NewFileName(iurl).GetNameSnowFlow())
+}
+
+func TestF(t *testing.T) {
+	iurl := "https://pbs.twimg.com/media/Eq3Ilp6XYAItcSw.jpg?format=jpg&name=orig"
+	log.Println(NewFileName(iurl).SetExt(".mp4").GetNameTimelineReverse(true))
+	log.Println(NewFileName(iurl).GetExt())
 }

@@ -22,22 +22,40 @@ func NewFileName(uri string) *fileName {
 	}
 }
 
-// 后缀
+// SetSuffix 后缀
 func (f *fileName) SetSuffix(suffix string) *fileName {
 	f.suffix = suffix
 	return f
 }
 
-// 前缀
+// SetPrefix 前缀
 func (f *fileName) SetPrefix(prefix string) *fileName {
 	f.prefix = prefix
 	return f
 }
 
-// 自定义 ext
+// SetExt 自定义 ext
 func (f *fileName) SetExt(ext string) *fileName {
+	if strings.Contains(ext, "?") {
+		ext, _, _ = strings.Cut(ext, "?")
+	}
+	if len(ext) == 0 {
+		ext = f.GetExt()
+	}
 	f.ext = ext
 	return f
+}
+
+// GetExt 获取后缀，带点 如：.jpg
+func (f *fileName) GetExt() string {
+	if len(f.ext) > 0 {
+		return f.ext
+	}
+	ext := path.Ext(f.uri)
+	if strings.Contains(ext, "?") {
+		ext, _, _ = strings.Cut(ext, "?")
+	}
+	return strings.ToLower(ext)
 }
 
 func (f fileName) GetDir() string {
@@ -55,37 +73,18 @@ func (f fileName) CleanUrl() string {
 // name 保持原有名字
 func (f fileName) GetNameOrigin() string {
 	uri := f.CleanUrl()
-
-	// ext
-	ext := path.Ext(uri)
-	if len(f.ext) > 0 {
-		ext = f.ext
-	}
-
-	return fmt.Sprintf("%s%s%s%s", f.prefix, NameNoExt(uri), f.suffix, ext)
+	return fmt.Sprintf("%s%s%s%s", f.prefix, NameNoExt(uri), f.suffix, f.GetExt())
 }
 
 // name 按时间戳
 func (f fileName) GetNameTimeline() string {
-	uri := f.CleanUrl()
-
-	// ext
-	ext := path.Ext(uri)
-	if len(f.ext) > 0 {
-		ext = f.ext
-	}
-
-	return fmt.Sprintf("%s%d%s%s", f.prefix, time.Now().UnixNano(), f.suffix, ext)
+	return fmt.Sprintf("%s%d%s%s", f.prefix, time.Now().UnixNano(), f.suffix, f.GetExt())
 }
 
 // name 按时间戳 反序：minio 文件获取按文件名排序，需要反序时间戳
 // 算法：未来时间减去当前时间， 为了防止串号，增加 nano 长度
 func (f fileName) GetNameTimelineReverse(withDate bool) string {
-	newName := f.CleanUrl()
-	ext := path.Ext(newName)
-	if len(f.ext) > 0 {
-		ext = f.ext
-	}
+	ext := f.GetExt()
 	/* 自定义算法，未来时间相减
 	// 3021-01-01 01:01:01
 	etime := int64(3152944195300000000)
@@ -113,29 +112,14 @@ func (f fileName) GetNameTimelineReverse(withDate bool) string {
 
 // name 按时间格式
 func (f fileName) GetNameTimeDate() string {
-	newName := f.CleanUrl()
-
-	// ext
-	ext := path.Ext(newName)
-	if len(f.ext) > 0 {
-		ext = f.ext
-	}
-
 	dname := time.Now().Format("20060102-150405") + "-" + random.RandString(10, random.LetterAbcLower)
-	return fmt.Sprintf("%s%s%s%s", f.prefix, dname, f.suffix, ext)
+	return fmt.Sprintf("%s%s%s%s", f.prefix, dname, f.suffix, f.GetExt())
 }
 
 // name 按雪花算法
 func (f fileName) GetNameSnowFlow() string {
 	newName := f.CleanUrl()
-
-	// ext
-	ext := path.Ext(newName)
-	if len(f.ext) > 0 {
-		ext = f.ext
-	}
-
 	n, _ := snowflake.NewSnowId(1)
-	newName = fmt.Sprintf("%s%s%s%s", f.prefix, n.String(), f.suffix, ext)
+	newName = fmt.Sprintf("%s%s%s%s", f.prefix, n.String(), f.suffix, f.GetExt())
 	return newName
 }
