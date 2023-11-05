@@ -17,6 +17,11 @@ import (
 	"time"
 )
 
+const (
+	KeyCachedKey = "Cached-Key"
+	KeyCachedUrl = "Cached-Url"
+)
+
 type Component struct {
 	config *config
 	bar    *progressbar.ProgressBar
@@ -29,6 +34,10 @@ func newComponent(config *config) *Component {
 	comp := &Component{}
 	comp.config = config
 	return comp
+}
+
+func (c *Component) DeleteCache(key string) error {
+	return c.config.Store.Delete(key)
 }
 
 // NewMiddleware is the HTTP cache middleware handler.
@@ -50,6 +59,10 @@ func (c *Component) NewMiddleware(next http.Handler) http.Handler {
 			} else {
 				key = c.generateKey(r)
 			}
+
+			// add some header
+			r.Header.Set(KeyCachedKey, key)
+			r.Header.Set(KeyCachedUrl, r.URL.String())
 
 			params := r.URL.Query()
 			if _, ok := params[c.config.RefreshKey]; ok {
@@ -92,9 +105,9 @@ func (c *Component) NewMiddleware(next http.Handler) http.Handler {
 			next.ServeHTTP(rec, r)
 			result := rec.Result()
 
-			// add some str
-			result.Header.Set("Cached-Key", key)
-			result.Header.Set("Cached-Url", r.URL.String())
+			// add some header
+			result.Header.Set(KeyCachedKey, key)
+			result.Header.Set(KeyCachedUrl, r.URL.String())
 
 			statusCode := result.StatusCode
 			value := rec.Body.Bytes()
