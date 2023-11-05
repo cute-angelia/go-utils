@@ -36,7 +36,7 @@ func (c *Component) NewMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if c.cacheableMethod(r.Method) {
 			c.sortURLParams(r.URL)
-			key := c.generateKey(r)
+			key := ""
 			if r.Method == http.MethodPost && r.Body != nil {
 				body, err := ioutil.ReadAll(r.Body)
 				defer r.Body.Close()
@@ -47,15 +47,14 @@ func (c *Component) NewMiddleware(next http.Handler) http.Handler {
 				reader := ioutil.NopCloser(bytes.NewBuffer(body))
 				key = c.generateKeyWithBody(r, body)
 				r.Body = reader
+			} else {
+				key = c.generateKey(r)
 			}
 
 			params := r.URL.Query()
 			if _, ok := params[c.config.RefreshKey]; ok {
 				delete(params, c.config.RefreshKey)
-
 				r.URL.RawQuery = params.Encode()
-				key = c.generateKey(r)
-
 				c.config.Store.Delete(key)
 			} else {
 				b, err := c.config.Store.Get(key)
@@ -82,17 +81,20 @@ func (c *Component) NewMiddleware(next http.Handler) http.Handler {
 							log.Printf("%s 用户: %s, 请求地址: %s, 请求参数: %s, 请求数据: %s,", "[success cache]", zuid, r.URL.Path, r.URL.RawQuery, z)
 							log.Printf("%s 用户: %s, 请求地址: %s, 响应数据: %s", "[success cache]", zuid, r.URL.Path, z2)
 						}
-
 						return
+					} else {
+						c.config.Store.Delete(key)
 					}
-
-					c.config.Store.Delete(key)
 				}
 			}
 
 			rec := httptest.NewRecorder()
 			next.ServeHTTP(rec, r)
 			result := rec.Result()
+
+			// add some str
+			result.Header.Set("Cached-Key", key)
+			result.Header.Set("Cached-Url", r.URL.String())
 
 			statusCode := result.StatusCode
 			value := rec.Body.Bytes()
