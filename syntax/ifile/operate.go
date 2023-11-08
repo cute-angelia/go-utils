@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"time"
 )
 
@@ -20,8 +21,15 @@ import (
 一般赋予目录0755权限，文件0644权限。
 */
 
+func filterFilename(name string) string {
+	base := filepath.Base(name)
+	regex := regexp.MustCompile(`[|&;$%@"<>()+,?]`)
+	return regex.ReplaceAllString(base, "")
+}
+
 // Mkdir alias of os.MkdirAll()
 func Mkdir(dirPath string, perm os.FileMode) error {
+	dirPath = filterFilename(dirPath)
 	return os.MkdirAll(dirPath, perm)
 }
 
@@ -42,7 +50,6 @@ func MkParentDir(fpath string) error {
 
 // OpenFile like os.OpenFile, but will auto create dir.
 // flag:
-//
 func OpenFile(filepath string, flag int, perm os.FileMode) (*os.File, error) {
 	fileDir := path.Dir(filepath)
 
@@ -62,8 +69,8 @@ func OpenFile(filepath string, flag int, perm os.FileMode) (*os.File, error) {
 // 打开已经存在的文件， 不存在会新建一个， 返回 *os.File
 // open file in read-write mode
 // path, os.O_RDWR, 0666) || 0644
-func OpenLocalFile(filepath string)(*os.File, error) {
-	return  OpenFile(filepath, os.O_RDWR|os.O_CREATE, DefaultFilePerm)
+func OpenLocalFile(filepath string) (*os.File, error) {
+	return OpenFile(filepath, os.O_RDWR|os.O_CREATE, DefaultFilePerm)
 }
 
 // 打开已经存在的文件， 不新建， 返回 *os.File
