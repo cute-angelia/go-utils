@@ -22,9 +22,8 @@ import (
 */
 
 func filterFilename(name string) string {
-	base := filepath.Base(name)
 	regex := regexp.MustCompile(`[|&;$%@"<>()+,?]`)
-	return regex.ReplaceAllString(base, "")
+	return regex.ReplaceAllString(name, "")
 }
 
 // Mkdir alias of os.MkdirAll()
