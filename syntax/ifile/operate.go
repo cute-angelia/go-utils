@@ -21,14 +21,14 @@ import (
 一般赋予目录0755权限，文件0644权限。
 */
 
-func filterFilename(name string) string {
-	regex := regexp.MustCompile(`[|&;$%@"<>()+,?]`)
+func FilterFilename(name string) string {
+	regex := regexp.MustCompile(`[|&;$%@"<>()+,?\s]`)
 	return regex.ReplaceAllString(name, "")
 }
 
 // Mkdir alias of os.MkdirAll()
 func Mkdir(dirPath string, perm os.FileMode) error {
-	dirPath = filterFilename(dirPath)
+	dirPath = FilterFilename(dirPath)
 	return os.MkdirAll(dirPath, perm)
 }
 
