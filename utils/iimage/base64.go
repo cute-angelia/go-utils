@@ -58,6 +58,11 @@ func Base64ToLocalFile(base64Str string, localfile string) error {
 	}
 	// 1. 从base64中解析出mime类型
 	index := strings.IndexByte(base64Str, ',')
+
+	if index == -1 {
+		return errors.New("base64为空")
+	}
+
 	mime := base64Str[0:index]
 	mime = strings.Replace(mime, "data:", "", 1)
 	mime = strings.Replace(mime, ";base64", "", 1)
