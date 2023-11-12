@@ -75,8 +75,7 @@ func Base64ToLocalFile(base64Str string, localfile string) error {
 	// 4. 解码base64字符串获取图片数据
 	imgData, err := base.Base64Decode(base64Data)
 	if err != nil {
-		log.Println(base64Data)
-		log.Println(len(base64Data))
+		log.Println(err)
 		return err
 	}
 
@@ -111,7 +110,7 @@ func Base64ToLocalFile(base64Str string, localfile string) error {
 	case "image/tiff":
 		tiff.Encode(out, img, &tiff.Options{})
 	default:
-		jpeg.Encode(out, img, &jpeg.Options{Quality: 100})
+		return errors.New("base64不合法 mime")
 	}
 	return nil
 }
