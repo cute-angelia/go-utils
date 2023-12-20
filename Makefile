@@ -10,8 +10,8 @@ up:
 tag:
 	git pull origin master
 	git add .
-	git commit -am "update"
+	git commit -am "增加位权限操作，方便压缩数据"
 	git push origin master
-	git tag v1.8.32
+	git tag v1.8.33
 	git push --tags
 	@echo "\n tags 发布中..."
