@@ -56,6 +56,14 @@ func Decode(json []byte, v interface{}) error {
 	return parser.Unmarshal(json, v)
 }
 
+func UnmarshalSlice[T any](data []byte, v *[]T) error {
+	err := json.Unmarshal(data, &v)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // Pretty get pretty JSON string
 func Pretty(v interface{}) (string, error) {
 	out, err := json.MarshalIndent(v, "", "    ")
@@ -96,4 +104,3 @@ func StripComments(src string) string {
 
 	return buf.String()
 }
-

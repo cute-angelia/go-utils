@@ -24,4 +24,12 @@ func TestJson(t *testing.T) {
 	err2 := json.Unmarshal([]byte(str), &params2)
 	log.Println(err2)
 	log.Println(Pretty(params2))
+
+	var numpool []int
+	log.Println(UnmarshalSlice([]byte("[2,3,4]"), &numpool))
+	log.Println(numpool)
+
+	var numpool2 []string
+	log.Println(UnmarshalSlice([]byte(`["gold","exp","coinMinting1","coinMinting2","soulStone1","soulStone2"]`), &numpool2))
+	log.Println(numpool2)
 }
