@@ -10,7 +10,7 @@ up:
 tag:
 	git pull origin master
 	git add .
-	git commit -am "增加权重slice 操作"
+	git commit -am "slice"
 	git push origin master
 	git tag v1.8.34
 	git push --tags
