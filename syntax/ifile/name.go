@@ -51,10 +51,8 @@ func (f *fileName) GetExt() string {
 	if len(f.ext) > 0 {
 		return f.ext
 	}
-	ext := path.Ext(f.uri)
-	if strings.Contains(ext, "?") {
-		ext, _, _ = strings.Cut(ext, "?")
-	}
+	cleanz := f.CleanUrl()
+	ext := path.Ext(cleanz)
 	return strings.ToLower(ext)
 }
 

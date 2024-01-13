@@ -34,7 +34,10 @@ func NameNoExt(filePath string) string {
 
 // FileExt get filename ext. alias of path.Ext()
 func FileExt(fpath string) string {
-	return path.Ext(fpath)
+	if strings.Contains(fpath, "?") {
+		fpath = strings.Split(fpath, "?")[0]
+	}
+	return strings.ToLower(path.Ext(fpath))
 }
 
 // Suffix get filename ext. alias of path.Ext()
