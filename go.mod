@@ -41,8 +41,8 @@ require (
 	github.com/stretchr/testify v1.8.3
 	github.com/tidwall/buntdb v1.3.0
 	github.com/yitter/idgenerator-go v1.3.3
-	golang.org/x/crypto v0.14.0
-	golang.org/x/image v0.5.0
+	golang.org/x/crypto v0.17.0
+	golang.org/x/image v0.10.0
 	golang.org/x/net v0.17.0
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
 	golang.org/x/text v0.13.0
