@@ -50,9 +50,9 @@ func WithStore(store caches.Cache) Option {
 	}
 }
 
-func WithRefreshKey(refreshKey string) Option {
+func WithHeadReqRefreshKey(refreshKey string) Option {
 	return func(c *Container) {
-		c.config.RefreshKey = refreshKey
+		c.config.HeadReqRefreshKey = refreshKey
 	}
 }
 
@@ -68,9 +68,9 @@ func WithStatusCodeFilter(a func(int) bool) Option {
 	}
 }
 
-func WithWriteExpiresHeader(writeExpiresHeader bool) Option {
+func WithHeadRespExpire(headRespExpire bool) Option {
 	return func(c *Container) {
-		c.config.WriteExpiresHeader = writeExpiresHeader
+		c.config.HeadRespExpire = headRespExpire
 	}
 }
 

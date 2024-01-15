@@ -27,7 +27,8 @@ type Component struct {
 	bar    *progressbar.ProgressBar
 }
 
-const customerPrefix = "customerkeyprefix_"
+// routeCachePrefix 前缀，防止缓存窜号
+const routeCachePrefix = "routeCP_"
 
 // newComponent ...
 func newComponent(config *config) *Component {
@@ -65,8 +66,8 @@ func (c *Component) NewMiddleware(next http.Handler) http.Handler {
 			r.Header.Set(KeyCachedUrl, r.URL.String())
 
 			params := r.URL.Query()
-			if _, ok := params[c.config.RefreshKey]; ok {
-				delete(params, c.config.RefreshKey)
+			if _, ok := params[c.config.HeadReqRefreshKey]; ok {
+				delete(params, c.config.HeadReqRefreshKey)
 				r.URL.RawQuery = params.Encode()
 				c.config.Store.Delete(key)
 			} else {
@@ -81,7 +82,7 @@ func (c *Component) NewMiddleware(next http.Handler) http.Handler {
 						for k, v := range response.Header {
 							w.Header().Set(k, strings.Join(v, ","))
 						}
-						if c.config.WriteExpiresHeader {
+						if c.config.HeadRespExpire {
 							w.Header().Set("Expires", response.Expiration.UTC().Format(http.TimeFormat))
 						}
 						w.WriteHeader(response.StatusCode)
@@ -128,7 +129,7 @@ func (c *Component) NewMiddleware(next http.Handler) http.Handler {
 			for k, v := range result.Header {
 				w.Header().Set(k, strings.Join(v, ","))
 			}
-			if c.config.WriteExpiresHeader {
+			if c.config.HeadRespExpire {
 				w.Header().Set("Expires", expires.UTC().Format(http.TimeFormat))
 			}
 			w.WriteHeader(statusCode)
@@ -140,10 +141,10 @@ func (c *Component) NewMiddleware(next http.Handler) http.Handler {
 }
 
 // DeleteCustomKey 删除自定义key缓存
-func (c *Component) DeleteCustomKey(key string) {
-	v, _ := c.config.Store.Get(customerPrefix + key)
+func (c *Component) DeleteCustomKey(customKey string) {
+	v, _ := c.config.Store.Get(c.generateCustomKey(customKey))
 	c.config.Store.Delete(v)
-	c.config.Store.Delete(customerPrefix + key)
+	c.config.Store.Delete(c.generateCustomKey(customKey))
 }
 
 func (c *Component) cacheableMethod(method string) bool {
@@ -165,6 +166,10 @@ func (c *Component) sortURLParams(URL *url.URL) {
 	URL.RawQuery = params.Encode()
 }
 
+func (c *Component) generateCustomKey(customKey string) string {
+	return routeCachePrefix + customKey
+}
+
 func (c *Component) generateKey(r *http.Request) string {
 	hash := fnv.New64a()
 	hash.Write([]byte(r.URL.String() + r.Header.Get("Authorization")))
@@ -172,7 +177,7 @@ func (c *Component) generateKey(r *http.Request) string {
 
 	// 引入 CustomKey 概念，方便清理 CustomKey 缓存，如： 列表自定义key，删除列表某一项的时候可以联动删除CustomKey
 	if len(c.config.CustomKey) > 0 {
-		c.config.Store.Set(customerPrefix+c.config.CustomKey, cachekey, c.config.Ttl)
+		c.config.Store.Set(routeCachePrefix+c.config.CustomKey, cachekey, c.config.Ttl)
 	}
 	return cachekey
 }
@@ -186,7 +191,7 @@ func (c *Component) generateKeyWithBody(r *http.Request, body []byte) string {
 	cachekey := hex.EncodeToString(hash.Sum(nil))
 
 	if len(c.config.CustomKey) > 0 {
-		c.config.Store.Set(customerPrefix+c.config.CustomKey, cachekey, c.config.Ttl)
+		c.config.Store.Set(routeCachePrefix+c.config.CustomKey, cachekey, c.config.Ttl)
 	}
 
 	return cachekey
