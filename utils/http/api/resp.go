@@ -29,8 +29,6 @@ type Res struct {
 	Msg string `json:"msg"`
 	// Data 响应的具体数据
 	Data interface{} `json:"data"`
-	// Crypto 加密 Key：使用AES-GCM模式,处理密钥、认证、加密一次完成
-	Crypto string `json:"crypto"`
 }
 
 // ResPage 带分页的标准JSON输出格式
@@ -56,17 +54,18 @@ func SuccessEncrypt(w http.ResponseWriter, r *http.Request, data interface{}, ms
 	//	cryptoId = random.RandString(16, random.LetterAll)
 	//}
 	crypto := r.URL.Query().Get("crypto")
-	if crypto == "crypto" {
+
+	// Crypto 加密 Key：使用AES-GCM模式,处理密钥、认证、加密一次完成
+	if crypto == "crypto" && len(cryptoKey) == 16 {
 		// 调试参数
 		var randomKey = random.RandString(16, random.LetterAll)
 		cryptoId := fmt.Sprintf("%s%s", cryptoKey, randomKey)
 		datam, _ := json.Marshal(data)
 		EncryptData, _ := Encrypt(datam, []byte(cryptoId))
 		response := Res{
-			Code:   0,
-			Msg:    msg,
-			Data:   base64.StdEncoding.EncodeToString(EncryptData),
-			Crypto: randomKey,
+			Code: 0,
+			Msg:  msg,
+			Data: randomKey + base64.StdEncoding.EncodeToString(EncryptData),
 		}
 		doResp(w, r, response)
 	} else {
