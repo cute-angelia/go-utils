@@ -19,3 +19,9 @@ func RemoveStringWithoutOrder(s []string, i int) []string {
 	s[i] = s[len(s)-1]
 	return s[:len(s)-1]
 }
+
+// RemoveElement 不介意顺序 性能高效 替换索引值为最后内容
+func RemoveElement[T any](s []T, index int) []T {
+	s[index] = s[len(s)-1]
+	return s[:len(s)-1]
+}
