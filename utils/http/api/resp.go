@@ -1,7 +1,14 @@
 package api
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
+	"github.com/cute-angelia/go-utils/utils/generator/random"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -22,6 +29,8 @@ type Res struct {
 	Msg string `json:"msg"`
 	// Data 响应的具体数据
 	Data interface{} `json:"data"`
+	// Crypto 加密 Key：使用AES-GCM模式,处理密钥、认证、加密一次完成
+	Crypto string `json:"crypto"`
 }
 
 // ResPage 带分页的标准JSON输出格式
@@ -37,6 +46,37 @@ type Pagination struct {
 	PageSize int `json:"pageSize"`
 	// Total 总页数
 	Total int64 `json:"total"`
+}
+
+// SuccessEncrypt 成功返回
+func SuccessEncrypt(w http.ResponseWriter, r *http.Request, data interface{}, msg string, cryptoKey string) {
+	// 上线改这个
+	// debug := r.URL.Query().Get("debug")
+	//if len(debug) == 0 || debug == "false" {
+	//	cryptoId = random.RandString(16, random.LetterAll)
+	//}
+	crypto := r.URL.Query().Get("crypto")
+	if crypto == "crypto" {
+		// 调试参数
+		var randomKey = random.RandString(16, random.LetterAll)
+		cryptoId := fmt.Sprintf("%s%s", cryptoKey, randomKey)
+		datam, _ := json.Marshal(data)
+		EncryptData, _ := Encrypt(datam, []byte(cryptoId))
+		response := Res{
+			Code:   0,
+			Msg:    msg,
+			Data:   base64.StdEncoding.EncodeToString(EncryptData),
+			Crypto: randomKey,
+		}
+		doResp(w, r, response)
+	} else {
+		response := Res{
+			Code: 0,
+			Msg:  msg,
+			Data: data,
+		}
+		doResp(w, r, response)
+	}
 }
 
 // Success 成功返回
@@ -153,4 +193,29 @@ func logr(r *http.Request, response interface{}, msg string) {
 		log.Printf("%s 用户: %s, 请求地址: %s, 响应数据: %s", msg, zuid, r.URL.Path, z2)
 		log.Println("------------------------------------------------------------------------------")
 	}()
+}
+
+func Encrypt(plaintext []byte, key []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, err
+	}
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+		return nil, err
+	}
+	ciphertext := gcm.Seal(nonce, nonce, plaintext, nil)
+	return ciphertext, nil
+}
+
+func EncryptToString(plaintext string, key []byte) (string, error) {
+	ciphertext, err := Encrypt([]byte(plaintext), key)
+	if err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
