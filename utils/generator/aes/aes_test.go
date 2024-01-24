@@ -1,7 +1,11 @@
 package aes
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
 	"github.com/cute-angelia/go-utils/utils/generator/base"
+	"io"
 	"log"
 	"testing"
 )
@@ -41,4 +45,34 @@ func TestJsDecrypt(t *testing.T) {
 
 	// 目前 iv 算法取 secret 前16位
 	log.Println("EncryptCBC", iaes.EncryptCBC([]byte("hello world --> replay"), PaddingPkcs7).ToStringHex())
+}
+
+// 使用AES-GCM模式,处理密钥、认证、加密一次完成
+// 注意，nodejs 需要 tag ，需要返回tag
+func encryptGcm(plaintext []byte, key []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, err
+	}
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+		return nil, err
+	}
+	ciphertext := gcm.Seal(nonce, nonce, plaintext, nil)
+	return ciphertext, nil
+}
+
+func encryptGCMWithTag(plaintext []byte, key []byte) ([]byte, []byte, error) {
+	block, err := aes.NewCipher(key)
+	gcm, err := cipher.NewGCM(block)
+	nonce := make([]byte, gcm.NonceSize())
+	io.ReadFull(rand.Reader, nonce)
+	ciphertext := gcm.Seal(nonce, nonce, plaintext, nil)
+	// 取出tag
+	tag := ciphertext[len(ciphertext)-gcm.Overhead():]
+	return ciphertext, tag, err
 }
