@@ -1,11 +1,11 @@
 package api
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/cute-angelia/go-utils/utils/generator/random"
 	"github.com/cute-angelia/go-utils/utils/iAes"
+	"github.com/cute-angelia/go-utils/utils/iXor"
 	"log"
 	"net/http"
 	"strconv"
@@ -50,28 +50,33 @@ func SuccessEncrypt(w http.ResponseWriter, r *http.Request, data interface{}, ms
 	//if len(debug) == 0 || debug == "false" {
 	//	cryptoId = random.RandString(16, random.LetterAll)
 	//}
+
+	response := Res{
+		Code: 0,
+		Msg:  msg,
+		Data: data,
+	}
+
 	crypto := r.URL.Query().Get("crypto")
-	// Crypto 加密 Key：使用AES-GCM模式,处理密钥、认证、加密一次完成
-	if crypto == "crypto" && len(cryptoKey) == 16 {
-		// 调试参数
+	if len(cryptoKey) > 0 {
 		var randomKey = random.RandString(16, random.LetterAll)
 		cryptoId := fmt.Sprintf("%s%s", cryptoKey, randomKey)
 		datam, _ := json.Marshal(data)
-		EncryptData, _ := iAes.EncryptCBC(datam, []byte(cryptoId))
-		response := Res{
-			Code: 0,
-			Msg:  msg,
-			Data: randomKey + base64.StdEncoding.EncodeToString(EncryptData),
+
+		log.Println(cryptoId, "cryptoId")
+
+		// Crypto 加密 Key：使用AES-GCM模式,处理密钥、认证、加密一次完成
+		if crypto == "1" {
+			encryptData, _ := iAes.EncryptCBCToBase64(datam, []byte(cryptoId))
+			response.Data = randomKey + encryptData
 		}
-		doResp(w, r, response)
-	} else {
-		response := Res{
-			Code: 0,
-			Msg:  msg,
-			Data: data,
+		// xor
+		if crypto == "2" {
+			encryptData := iXor.XorEncrypt(datam, cryptoId)
+			response.Data = randomKey + encryptData
 		}
-		doResp(w, r, response)
 	}
+	doResp(w, r, response)
 }
 
 // Success 成功返回

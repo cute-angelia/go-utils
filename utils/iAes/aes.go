@@ -27,6 +27,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"encoding/base64"
 	"io"
 )
 
@@ -45,4 +46,13 @@ func EncryptCBC(plaintext []byte, key []byte) ([]byte, error) {
 	mode := cipher.NewCBCEncrypter(block, iv)
 	mode.CryptBlocks(ciphertext[aes.BlockSize:], plaintext)
 	return ciphertext, nil
+}
+
+// EncryptCBCToBase64 密码块链接加密
+func EncryptCBCToBase64(plaintext []byte, key []byte) (string, error) {
+	if result, err := EncryptCBC(plaintext, key); err != nil {
+		return "", err
+	} else {
+		return base64.StdEncoding.EncodeToString(result), nil
+	}
 }
