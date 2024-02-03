@@ -1,6 +1,8 @@
 package ffmpeg
 
 import (
+	"github.com/cute-angelia/go-utils/syntax/ifile"
+	"log"
 	"time"
 )
 
@@ -24,6 +26,9 @@ func Load() *Container {
 
 func WithFfmpegPath(ffmpegPath string) Option {
 	return func(c *Container) {
+		if !ifile.IsExist(ffmpegPath) {
+			log.Println("ffmpegPath not exist", ffmpegPath)
+		}
 		c.config.FfmpegPath = ffmpegPath
 	}
 }
