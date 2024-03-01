@@ -10,8 +10,8 @@ up:
 tag:
 	git pull origin master
 	git add .
-	git commit -am "ijson"
+	git commit -am "ibunt 增加两个方法 GetAny SetAny 用于结构体缓存"
 	git push origin master
-	git tag v1.8.44
+	git tag v1.8.45
 	git push --tags
 	@echo "\n tags 发布中..."

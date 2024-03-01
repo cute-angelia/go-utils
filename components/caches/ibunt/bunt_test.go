@@ -12,6 +12,38 @@ func initDb() {
 	New(WithName("cache"), WithDbFile("/tmp/test.db"))
 }
 
+type TestA struct {
+	A string
+}
+
+func TestGetSet(t *testing.T) {
+	log.SetFlags(log.Lshortfile)
+	initDb()
+
+	testV := TestA{}
+
+	cacheKey := "TestGetSet4"
+	err1 := GetAny("cache", cacheKey, &testV)
+	log.Println(err1, testV)
+	// error:GetAny:TestGetSet4:缓存内容不存在
+	// error:nil
+
+	err2 := SetAny("cache", cacheKey, TestA{A: "apple"}, time.Hour)
+	log.Println(err2, testV)
+
+	err3 := GetAny("cache", cacheKey, &testV)
+	log.Println(err3, testV)
+
+	var testV2 interface{}
+	err4 := GetAny("cache", cacheKey, &testV2)
+	log.Println(err4, testV2)
+
+	var testV3 string
+	err5 := GetAny("cache", cacheKey, &testV3)
+	log.Println(err5, testV3)
+	// error:json: cannot unmarshal object into Go value of type string
+}
+
 func TestTimeout(t *testing.T) {
 	initDb()
 	cacheKey := "testtimeout"

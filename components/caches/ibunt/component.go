@@ -1,6 +1,7 @@
 package ibunt
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/cute-angelia/go-utils/syntax/ijson"
@@ -172,6 +173,25 @@ func Get(dbname string, key string) string {
 	} else {
 		log.Println(fmt.Errorf("无法找到 db" + dbname))
 		return ""
+	}
+}
+
+// SetAny 保存结构型数据
+func SetAny(dbname string, key string, val any, ttl time.Duration) error {
+	if vals, err := json.Marshal(val); err != nil {
+		return errors.New("SetAny:" + key + ":" + err.Error())
+	} else {
+		return Set(dbname, key, string(vals), ttl)
+	}
+}
+
+// GetAny 获取数据，并赋值给v
+func GetAny(dbname string, key string, v any) error {
+	result := Get(dbname, key)
+	if len(result) > 0 {
+		return json.Unmarshal([]byte(result), v)
+	} else {
+		return errors.New("GetAny:" + key + ":缓存内容不存在")
 	}
 }
 
