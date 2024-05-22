@@ -3,6 +3,7 @@ package apiV2
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/gorilla/schema"
 	jsoniter "github.com/json-iterator/go"
 	"io"
 	"log"
@@ -22,36 +23,50 @@ type body struct {
 	isJson      bool
 	dataJson    map[string]interface{}
 	dataWWWForm url.Values
+	dataBody    []byte
 }
 
 var jsonLib = jsoniter.ConfigCompatibleWithStandardLibrary
 
-func NewBody(r *http.Request) *body {
+// SetMemory 设置内存
+func SetMemory(r *http.Request, max int64) {
+	r.ParseMultipartForm(max)
+}
+
+func NewBody(thatReq *http.Request) *body {
 	b := body{
-		r: r,
+		r: thatReq,
 	}
-	if r.Header.Get("Content-Type") == ContentTypeWWWForm {
-		if r.PostForm == nil {
-			r.ParseMultipartForm(32 << 20) // 32MB
+	if thatReq.Header.Get("Content-Type") == ContentTypeWWWForm {
+		if thatReq.PostForm == nil {
+			thatReq.ParseMultipartForm(32 << 20) // 32MB
 		}
-		b.dataWWWForm = r.Form
+		b.dataWWWForm = thatReq.Form
 	}
-	if r.Header.Get("Content-Type") == ContentTypeJson || strings.Contains(r.Header.Get("Content-Type"), ContentTypeJson) {
+	if thatReq.Header.Get("Content-Type") == ContentTypeJson || strings.Contains(thatReq.Header.Get("Content-Type"), ContentTypeJson) {
 		b.isJson = true
 
-		buf, _ := io.ReadAll(r.Body)
+		buf, _ := io.ReadAll(thatReq.Body)
+		b.dataBody = buf
 
-		d := jsonLib.NewDecoder(bytes.NewReader(buf))
-		d.UseNumber()
-		d.Decode(&b.dataJson)
-
-		r.Body = io.NopCloser(bytes.NewReader(buf))
+		thatReq.Body = io.NopCloser(bytes.NewReader(buf))
 	}
 	return &b
 }
 
-// from post
-func (b *body) PostBody() (val string) {
+// Decode 解码器
+func (b *body) Decode(dst interface{}) error {
+	if b.isJson {
+		d := jsonLib.NewDecoder(bytes.NewReader(b.dataBody))
+		d.UseNumber()
+		return d.Decode(dst)
+	} else {
+		var decoder = schema.NewDecoder()
+		return decoder.Decode(dst, b.r.PostForm)
+	}
+}
+
+func (b *body) EncodeJson() (val string) {
 	if b.isJson {
 		val1, _ := jsonLib.Marshal(b.dataJson)
 		return string(val1)
@@ -61,7 +76,8 @@ func (b *body) PostBody() (val string) {
 	}
 }
 
-func (b *body) PostString(key string) (val string) {
+// Get Value
+func (b *body) GetString(key string) (val string) {
 	if b.isJson {
 		if value, ok := b.dataJson[key]; ok {
 			if strValue, ok := value.(string); ok {
@@ -75,7 +91,7 @@ func (b *body) PostString(key string) (val string) {
 }
 
 // PostSlice 数组，组合可能很多，有map ，strings ，int
-func (b *body) PostSlice(key string) (val []interface{}) {
+func (b *body) GetSlice(key string) (val []interface{}) {
 	if b.isJson {
 		if _, ok := b.dataJson[key]; !ok {
 			return []interface{}{}
@@ -88,8 +104,7 @@ func (b *body) PostSlice(key string) (val []interface{}) {
 	}
 	return val
 }
-
-func (b *body) PostBool(key string) (val bool) {
+func (b *body) GetBool(key string) (val bool) {
 	if b.isJson {
 		if value, ok := b.dataJson[key]; ok {
 			if strValue, ok := value.(bool); ok {
@@ -101,8 +116,7 @@ func (b *body) PostBool(key string) (val bool) {
 	}
 	return val
 }
-
-func (b *body) PostInt(key string) (val int) {
+func (b *body) GetInt(key string) (val int) {
 	if b.isJson {
 		if value, ok := b.dataJson[key]; ok {
 			if strValue, err := value.(json.Number).Int64(); err == nil {
@@ -117,7 +131,7 @@ func (b *body) PostInt(key string) (val int) {
 	}
 	return val
 }
-func (b *body) PostInt32(key string) (val int32) {
+func (b *body) GetInt32(key string) (val int32) {
 	if b.isJson {
 		if value, ok := b.dataJson[key]; ok {
 			if strValue, err := value.(json.Number).Int64(); err == nil {
@@ -132,7 +146,7 @@ func (b *body) PostInt32(key string) (val int32) {
 	}
 	return val
 }
-func (b *body) PostInt64(key string) (val int64) {
+func (b *body) GetInt64(key string) (val int64) {
 	if b.isJson {
 		if value, ok := b.dataJson[key]; ok {
 			if strValue, err := value.(json.Number).Int64(); err == nil {
@@ -147,7 +161,7 @@ func (b *body) PostInt64(key string) (val int64) {
 	}
 	return val
 }
-func (b *body) PostFloat64(key string) (val float64) {
+func (b *body) GetFloat64(key string) (val float64) {
 	if b.isJson {
 		if value, ok := b.dataJson[key]; ok {
 			if strValue, err := value.(json.Number).Float64(); err == nil {
@@ -160,22 +174,10 @@ func (b *body) PostFloat64(key string) (val float64) {
 	}
 	return val
 }
-
-// from upload
-
-func (b *body) UploadParseMultipartForm(maxMemory int64) error {
-	return b.r.ParseMultipartForm(maxMemory)
-}
-
-func (b *body) Upload(key string) string {
+func (b *body) GetUploadString(key string) string {
 	return b.r.FormValue(key)
 }
-
-func (b *body) Upload32(key string) int32 {
+func (b *body) GetUploadInt32(key string) int32 {
 	p, _ := strconv.Atoi(b.r.FormValue(key))
 	return int32(p)
-}
-
-func (b *body) PostArray(key string) []string {
-	return b.r.PostForm[key]
 }

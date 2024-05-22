@@ -1,6 +1,6 @@
 module github.com/cute-angelia/go-utils
 
-go 1.18
+go 1.22
 
 require (
 	git.mills.io/prologic/bitcask v1.0.2
@@ -15,6 +15,7 @@ require (
 	github.com/go-cmd/cmd v1.3.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/go-github v17.0.0+incompatible
+	github.com/gorilla/schema v1.3.0
 	github.com/gotomicro/ego v0.6.2
 	github.com/guonaihong/gout v0.2.11
 	github.com/jinzhu/gorm v1.9.16
