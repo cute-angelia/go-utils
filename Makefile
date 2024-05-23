@@ -10,7 +10,7 @@ up:
 tag:
 	git pull origin master
 	git add .
-	git commit -am "优化http body json 获取"
+	git commit -am "apiv3"
 	git push origin master
 	git tag v1.8.47
 	git push --tags
