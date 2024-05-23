@@ -10,8 +10,8 @@ up:
 tag:
 	git pull origin master
 	git add .
-	git commit -am "fix itime"
+	git commit -am "优化http body json 获取"
 	git push origin master
-	git tag v1.8.46
+	git tag v1.8.47
 	git push --tags
 	@echo "\n tags 发布中..."
