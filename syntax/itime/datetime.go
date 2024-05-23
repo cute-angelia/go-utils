@@ -1,6 +1,7 @@
 package itime
 
 import (
+	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -164,11 +165,11 @@ func (t *TheTime) FormatTime() string {
 }
 
 func (t *TheTime) FormatTimeZeroSec() string {
-	return time.Unix(t.unix, 0).Format("2006-01-02 00:00:00")
+	return fmt.Sprintf("%s 00:00:00", t.FormatDate())
 }
 
 func (t *TheTime) FormatTimeLastSec() string {
-	return time.Unix(t.unix, 0).Format("2006-01-02 23:59:59")
+	return fmt.Sprintf("%s 23:59:59", t.FormatDate())
 }
 
 // FormatForTpl return the time string which format is specified tpl
