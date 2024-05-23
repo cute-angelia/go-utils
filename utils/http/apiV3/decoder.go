@@ -22,9 +22,7 @@ type decoder struct{}
 
 // Decode detects the correct decoder for use on an HTTP request and
 // marshals into a given interface.
-func (that decoder) Decode(r *http.Request, v interface{}) error {
-	var err error
-
+func (that decoder) Decode(r *http.Request, v any) (resp any, err error) {
 	switch ContentTyper.GetRequestContentType(r) {
 	case ContentTypeJSON:
 		err = that.DecodeJSON(r.Body, v)
@@ -35,8 +33,8 @@ func (that decoder) Decode(r *http.Request, v interface{}) error {
 	default:
 		err = errors.New("render: unable to automatically decode the request content type")
 	}
-
-	return err
+	resp = v
+	return
 }
 
 // DecodeJSON decodes a given reader into an interface using the json decoder.
