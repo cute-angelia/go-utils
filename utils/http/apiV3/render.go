@@ -39,15 +39,45 @@ type Res struct {
 	Data interface{} `json:"data"`
 
 	Pagination *Pagination `json:"pagination,omitempty"`
+
+	Ext *Ext `json:"ext"`
+}
+
+type Ext struct {
+	ShowTips bool `json:"showTips"` // 弹消息提示
 }
 
 type Pagination struct {
-	// Current 当前页
-	Current int `json:"current"`
+	//  当前页
+	PageNo int `json:"pageNo"`
 	// PageSize 每页记录数
 	PageSize int `json:"pageSize"`
-	// Total 总页数
-	Total int64 `json:"total"`
+	// PageTotal 总页数
+	PageTotal int `json:"pageTotal"`
+	// 总条数
+	Count int `json:"count"`
+}
+
+// CalcTotal 计算总页数
+func (p Pagination) CalcTotal(count int, pageSize int) int {
+	var totalPages int
+
+	if pageSize == 0 {
+		pageSize = 1
+	}
+
+	if count%pageSize == 0 {
+		totalPages = count / pageSize
+	} else {
+		totalPages = count/pageSize + 1
+	}
+	return totalPages
+}
+
+func NewPagination(count int, pageNo, pageSize int) Pagination {
+	paginationor := Pagination{PageNo: pageNo, PageSize: pageSize, Count: count}
+	paginationor.PageTotal = paginationor.CalcTotal(count, pageSize)
+	return paginationor
 }
 
 func NewRender(w http.ResponseWriter, r *http.Request) *render {
@@ -65,12 +95,6 @@ func (that *render) Decode(v any) error {
 	body, err := Decoder.Decode(that.r, v)
 	that.reqStruct = body
 	return err
-}
-
-func (that *render) SetData(data interface{}, msg string) *render {
-	that.respStruct.Data = data
-	that.respStruct.Msg = msg
-	return that
 }
 
 // Success 成功返回
@@ -125,9 +149,23 @@ func (that *render) Error(err error) {
 	}
 }
 
-func (that *render) SetPage(pager *Pagination) {
-	that.respStruct.Pagination = pager
+// SetData set data
+func (that *render) SetData(data interface{}, msg string) *render {
+	that.respStruct.Data = data
+	that.respStruct.Msg = msg
+	return that
 }
+
+func (that *render) SetPage(pager *Pagination) *render {
+	that.respStruct.Pagination = pager
+	return that
+}
+
+func (that *render) SetExt(ext *Ext) *render {
+	that.respStruct.Ext = ext
+	return that
+}
+
 func (that *render) SetLog(on bool) {
 	that.isLogOn = on
 }
