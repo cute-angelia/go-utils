@@ -42,10 +42,10 @@ require (
 	github.com/tidwall/buntdb v1.3.0
 	github.com/yitter/idgenerator-go v1.3.3
 	golang.org/x/crypto v0.21.0
-	golang.org/x/image v0.10.0
+	golang.org/x/image v0.18.0
 	golang.org/x/net v0.23.0
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
-	golang.org/x/text v0.14.0
+	golang.org/x/text v0.16.0
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gorm.io/driver/mysql v1.4.7
@@ -119,7 +119,7 @@ require (
 	github.com/tidwall/rtred v0.1.2 // indirect
 	github.com/tidwall/tinyqueue v0.1.1 // indirect
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
-	golang.org/x/sync v0.1.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/term v0.18.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
