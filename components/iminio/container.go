@@ -1,7 +1,6 @@
 package iminio
 
 import (
-	"github.com/gotomicro/ego/core/econf"
 	"log"
 	"strings"
 	"time"
@@ -18,18 +17,6 @@ func DefaultContainer() *Container {
 	return &Container{
 		config: DefaultConfig(),
 	}
-}
-
-func Load(key string) *Container {
-	c := DefaultContainer()
-	// 两种方式，一种是 ego 的 config 加载，一种是option with 加载
-	if err := econf.UnmarshalKey(key, &c.config); err != nil {
-		panic("error parse config file")
-		return c
-	}
-
-	c.name = key
-	return c
 }
 
 func WithEndpoint(Endpoint string) Option {

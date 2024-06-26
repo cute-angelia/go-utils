@@ -16,7 +16,6 @@ require (
 	github.com/go-cmd/cmd v1.3.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/go-github v17.0.0+incompatible
-	github.com/gotomicro/ego v0.6.2
 	github.com/guonaihong/gout v0.2.11
 	github.com/jinzhu/gorm v1.9.16
 	github.com/json-iterator/go v1.1.12
