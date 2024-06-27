@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-type render struct {
+type api struct {
 	w http.ResponseWriter
 	r *http.Request
 
@@ -80,8 +80,8 @@ func NewPagination(count int, pageNo, pageSize int) Pagination {
 	return paginationor
 }
 
-func NewRender(w http.ResponseWriter, r *http.Request) *render {
-	return &render{
+func NewApi(w http.ResponseWriter, r *http.Request) *api {
+	return &api{
 		w:          w,
 		r:          r,
 		isLogOn:    true,                              // 默认：打开日志
@@ -91,14 +91,14 @@ func NewRender(w http.ResponseWriter, r *http.Request) *render {
 }
 
 // Decode request
-func (that *render) Decode(v any) error {
+func (that *api) Decode(v any) error {
 	body, err := Decoder.Decode(that.r, v)
 	that.reqStruct = body
 	return err
 }
 
 // Success 成功返回
-func (that *render) Success() {
+func (that *api) Success() {
 	that.respStruct.Code = 0
 	// 日志
 	if that.isLogOn {
@@ -116,12 +116,12 @@ func (that *render) Success() {
 	}
 }
 
-func (that *render) ErrorCodeMsg(code int32, msg string) {
+func (that *api) ErrorCodeMsg(code int32, msg string) {
 	err := NewApiError(code, msg)
 	that.Error(err)
 }
 
-func (that *render) Error(err error) {
+func (that *api) Error(err error) {
 	that.respStruct.Code = -1
 
 	if err != nil {
@@ -150,35 +150,35 @@ func (that *render) Error(err error) {
 }
 
 // SetData set data
-func (that *render) SetData(data interface{}, msg string) *render {
+func (that *api) SetData(data interface{}, msg string) *api {
 	that.respStruct.Data = data
 	that.respStruct.Msg = msg
 	return that
 }
 
-func (that *render) SetPage(pager *Pagination) *render {
+func (that *api) SetPage(pager *Pagination) *api {
 	that.respStruct.Pagination = pager
 	return that
 }
 
-func (that *render) SetExt(ext *Ext) *render {
+func (that *api) SetExt(ext *Ext) *api {
 	that.respStruct.Ext = ext
 	return that
 }
 
-func (that *render) SetLog(on bool) {
+func (that *api) SetLog(on bool) {
 	that.isLogOn = on
 }
-func (that *render) SetCryptoType(cryptoType int32) *render {
+func (that *api) SetCryptoType(cryptoType int32) *api {
 	that.cryptoType = cryptoType
 	return that
 }
-func (that *render) SetCryptoKey(cryptoKey string) *render {
+func (that *api) SetCryptoKey(cryptoKey string) *api {
 	that.cryptoKey = cryptoKey
 	return that
 }
 
-func (that *render) cryptoData() {
+func (that *api) cryptoData() {
 	crypto := that.r.URL.Query().Get("crypto")
 	if len(crypto) > 0 {
 		var randomKey = random.RandString(16, random.LetterAll)
@@ -198,7 +198,7 @@ func (that *render) cryptoData() {
 	}
 }
 
-func (that *render) logr(msg string) {
+func (that *api) logr(msg string) {
 	// 数据
 	dataReq, _ := json.Marshal(that.reqStruct)
 	dataResp, _ := json.Marshal(that.respStruct)

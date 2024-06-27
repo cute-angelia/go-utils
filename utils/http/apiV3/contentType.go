@@ -38,6 +38,7 @@ const (
 	ContentTypeXML
 	ContentTypeForm
 	ContentTypeEventStream
+	ContentTypeMultipart // 文件上传 multipart/form-data
 )
 
 func GetContentType(s string) TypeContent {
@@ -55,6 +56,8 @@ func GetContentType(s string) TypeContent {
 		return ContentTypeForm
 	case "text/event-stream":
 		return ContentTypeEventStream
+	case "multipart/form-data":
+		return ContentTypeMultipart
 	default:
 		return ContentTypeUnknown
 	}

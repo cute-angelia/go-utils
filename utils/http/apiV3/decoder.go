@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -23,15 +24,18 @@ type decoder struct{}
 // Decode detects the correct decoder for use on an HTTP request and
 // marshals into a given interface.
 func (that decoder) Decode(r *http.Request, v any) (resp any, err error) {
-	switch ContentTyper.GetRequestContentType(r) {
+	conType := ContentTyper.GetRequestContentType(r)
+	switch conType {
 	case ContentTypeJSON:
 		err = that.DecodeJSON(r.Body, v)
 	case ContentTypeXML:
 		err = that.DecodeXML(r.Body, v)
 	case ContentTypeForm:
 		err = that.DecodeForm(r.Body, v)
+	case ContentTypeMultipart:
+		err = that.DecodeForm(r.Body, v)
 	default:
-		err = errors.New("render: unable to automatically decode the request content type")
+		err = errors.New(fmt.Sprintf("render: unable to automatically decode the request content type [%d]", conType))
 	}
 	resp = v
 	return

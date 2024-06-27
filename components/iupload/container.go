@@ -34,7 +34,28 @@ func WithReplaceMode(ReplaceMode int) Option {
 	}
 }
 
-func (c *Container) New(options ...Option) *Component {
+func WithUploadDirectory(uploadDirectory string) Option {
+	return func(c *Container) {
+		c.config.UploadDirectory = uploadDirectory
+	}
+}
+
+func WithUploadImageSize(uploadImageSize int64) Option {
+	return func(c *Container) {
+		c.config.UploadImageSize = uploadImageSize
+	}
+}
+
+func WithUploadVideoSize(uploadVideoSize int64) Option {
+	return func(c *Container) {
+		c.config.UploadVideoSize = uploadVideoSize
+	}
+}
+
+func New(options ...Option) *Component {
+	c := &Container{
+		config: DefaultConfig(),
+	}
 	for _, option := range options {
 		option(c)
 	}
