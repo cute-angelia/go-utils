@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+var DefaultLockerOpt LockerOpts
+
 // LockerOpts
 // 次数限制
 // 每日次数限制

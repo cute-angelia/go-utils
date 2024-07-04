@@ -8,7 +8,7 @@ require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible
 	github.com/anthonynsimon/bild v0.13.0
 	github.com/astaxie/beego v1.12.3
-	github.com/dustin/go-humanize v1.0.0
+	github.com/dustin/go-humanize v1.0.1
 	github.com/faabiosr/cachego v0.17.0
 	github.com/fastwego/wxwork v1.0.0-beta.8
 	github.com/go-chi/chi v1.5.4
@@ -22,7 +22,7 @@ require (
 	github.com/k0kubun/go-ansi v0.0.0-20180517002512-3bf9e2903213
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/markity/minio-progress v0.0.0-20200201094755-8dec4f4191f2
-	github.com/minio/minio-go/v7 v7.0.13
+	github.com/minio/minio-go/v7 v7.0.73
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/panjf2000/ants/v2 v2.4.6
@@ -38,14 +38,14 @@ require (
 	github.com/sony/sonyflake v1.0.0
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/viper v1.11.0
-	github.com/stretchr/testify v1.8.3
+	github.com/stretchr/testify v1.9.0
 	github.com/tidwall/buntdb v1.3.0
 	github.com/yitter/idgenerator-go v1.3.3
-	golang.org/x/crypto v0.21.0
+	golang.org/x/crypto v0.24.0
 	golang.org/x/image v0.10.0
-	golang.org/x/net v0.23.0
+	golang.org/x/net v0.26.0
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
-	golang.org/x/text v0.14.0
+	golang.org/x/text v0.16.0
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gorm.io/driver/mysql v1.4.7
@@ -64,24 +64,27 @@ require (
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/gin-gonic/gin v1.9.1 // indirect
-	github.com/go-ini/ini v1.46.0 // indirect
+	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.14.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
+	github.com/goccy/go-json v0.10.3 // indirect
 	github.com/gofrs/flock v0.8.0 // indirect
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/google/uuid v1.3.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/goware/singleflight v0.2.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jonboulle/clockwork v0.2.2 // indirect
+	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/klauspost/cpuid v1.3.1 // indirect
+	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/lestrrat-go/strftime v1.0.5 // indirect
 	github.com/lib/pq v1.3.0 // indirect
@@ -91,7 +94,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/microsoft/go-mssqldb v0.20.0 // indirect
-	github.com/minio/md5-simd v1.1.0 // indirect
+	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/minio-go v6.0.14+incompatible // indirect
 	github.com/minio/sha256-simd v0.1.1 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
@@ -104,7 +107,7 @@ require (
 	github.com/plar/go-adaptive-radix-tree v1.0.4 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/rs/xid v1.4.0 // indirect
+	github.com/rs/xid v1.5.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/shiena/ansicolor v0.0.0-20151119151921-a422bbe96644 // indirect
 	github.com/spf13/afero v1.8.2 // indirect
@@ -119,9 +122,9 @@ require (
 	github.com/tidwall/rtred v0.1.2 // indirect
 	github.com/tidwall/tinyqueue v0.1.1 // indirect
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
-	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
-	golang.org/x/term v0.18.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
+	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/term v0.21.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/ini.v1 v1.66.4 // indirect

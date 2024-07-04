@@ -10,7 +10,6 @@ type Option func(c *Container)
 
 type Container struct {
 	config *config
-	name   string
 }
 
 func DefaultContainer() *Container {
@@ -69,8 +68,11 @@ func WithReferer(Referer string) Option {
 	}
 }
 
-// Build ...
-func (c *Container) Build(options ...Option) *Component {
+// New options 模式
+func New(options ...Option) *Component {
+	c := &Container{
+		config: DefaultConfig(),
+	}
 	for _, option := range options {
 		option(c)
 	}
@@ -79,6 +81,5 @@ func (c *Container) Build(options ...Option) *Component {
 		log.Println("请初始化配置， 未能获取到配置信息")
 	}
 
-	// log.Println(PackageName, fmt.Sprintf("%+v", c.config))
-	return newComponent(c.name, c.config)
+	return newComponent(c.config)
 }

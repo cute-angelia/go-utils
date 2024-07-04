@@ -34,7 +34,7 @@ type Component struct {
 }
 
 // newComponent ...
-func newComponent(compName string, config *config) *Component {
+func newComponent(config *config) *Component {
 	minioClient, err := minio.New(config.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(config.AccesskeyId, config.SecretaccessKey, ""),
 		Secure: config.UseSSL,
@@ -43,7 +43,7 @@ func newComponent(compName string, config *config) *Component {
 		log.Println("发生错误" + err.Error())
 	}
 	return &Component{
-		name:   compName,
+		name:   PackageName,
 		config: config,
 		Client: minioClient,
 	}
