@@ -52,6 +52,10 @@ func (e *Component) SignUrlPublic(key string) string {
 	return e.Client.EndpointURL().String() + "/" + key
 }
 
+func (e *Component) SignUrlBucketAndKey(bucket, key string) string {
+	return e.Client.EndpointURL().String() + "/" + path.Join(bucket, key)
+}
+
 // SignUrlWithCache 获取链接 不带bucket
 func (e *Component) SignUrlWithCache(bucket string, key string, t time.Duration, cacheObj caches.Cache) (string, error) {
 
@@ -366,18 +370,32 @@ func (e *Component) PutObjectWithSrc(dnComponent *idownload.Component, uri strin
 func (e *Component) DeleteObject(objectNameWithBucket string) error {
 	opts := minio.RemoveObjectOptions{}
 	bucket, objectName := e.GetBucketAndObjectName(objectNameWithBucket)
-
-	log.Println(PackageName, "删除对象", fmt.Sprintf("Bucket:%s; Object:%s", bucket, objectName))
-
 	if len(bucket) == 0 || len(objectName) == 0 {
 		return nil
 	}
-
 	err := e.Client.RemoveObject(context.Background(), bucket, objectName, opts)
 	if err != nil {
 		log.Println(PackageName, "删除对象失败：❌", fmt.Sprintf("Bucket:%s; Object:%s; 失败原因：", bucket, objectName), err)
 		return err
 	}
+	log.Println(PackageName, "删除对象成功：✅", fmt.Sprintf("Bucket:%s; Object:%s", bucket, objectName))
+	return nil
+}
+
+// DeleteObjectWithBucketAndKey 删除文件
+func (e *Component) DeleteObjectWithBucketAndKey(bucket, key string) error {
+	opts := minio.RemoveObjectOptions{}
+
+	if len(bucket) == 0 || len(key) == 0 {
+		return nil
+	}
+	err := e.Client.RemoveObject(context.Background(), bucket, key, opts)
+	if err != nil {
+		log.Println(PackageName, "删除对象失败：❌", fmt.Sprintf("Bucket:%s; Object:%s; 失败原因：", bucket, key), err)
+		return err
+	}
+
+	log.Println(PackageName, "删除对象成功：✅", fmt.Sprintf("Bucket:%s; Object:%s", bucket, key))
 	return nil
 }
 
