@@ -24,8 +24,6 @@ import (
 	"time"
 )
 
-const PackageName = "component.store.iminio"
-
 type Component struct {
 	name   string
 	config *config
@@ -205,6 +203,12 @@ func (e *Component) CheckMode(objectName string) (newObjectName string, canuploa
 	return
 }
 
+// CopyObject 复制对象
+func (e *Component) CopyObject(dst minio.CopyDestOptions, src minio.CopySrcOptions) (uploadInfo minio.UploadInfo, err error) {
+	uploadInfo, err = e.Client.CopyObject(context.Background(), dst, src)
+	return
+}
+
 // PutObject 上传-按读取文件数据
 func (e *Component) PutObject(bucket string, objectNameIn string, reader io.Reader, objectSize int64, objopt minio.PutObjectOptions) (minio.UploadInfo, error) {
 	if objectName, ok := e.CheckMode(objectNameIn); ok {
@@ -363,11 +367,15 @@ func (e *Component) DeleteObject(objectNameWithBucket string) error {
 	opts := minio.RemoveObjectOptions{}
 	bucket, objectName := e.GetBucketAndObjectName(objectNameWithBucket)
 
-	log.Println(PackageName, "删除对象1", objectNameWithBucket, bucket, objectName)
+	log.Println(PackageName, "删除对象", fmt.Sprintf("Bucket:%s; Object:%s", bucket, objectName))
+
+	if len(bucket) == 0 || len(objectName) == 0 {
+		return nil
+	}
 
 	err := e.Client.RemoveObject(context.Background(), bucket, objectName, opts)
 	if err != nil {
-		log.Println(PackageName, "删除对象失败：❌", err, objectNameWithBucket, bucket, objectName)
+		log.Println(PackageName, "删除对象失败：❌", fmt.Sprintf("Bucket:%s; Object:%s; 失败原因：", bucket, objectName), err)
 		return err
 	}
 	return nil
@@ -376,6 +384,15 @@ func (e *Component) DeleteObject(objectNameWithBucket string) error {
 // GetBucketAndObjectName 根据路径获取bucket 和 object name
 func (e *Component) GetBucketAndObjectName(objectNameWithBucket string) (string, string) {
 	if len(objectNameWithBucket) > 0 {
+
+		// 处理 http 问题
+		if strings.Contains(objectNameWithBucket, "http:") || strings.Contains(objectNameWithBucket, "https:") {
+			temparray := strings.Split(objectNameWithBucket, "/")
+			if len(temparray) >= 3 {
+				objectNameWithBucket = strings.Join(temparray[3:], "/")
+			}
+		}
+
 		objectNameWithBucket = strings.TrimLeft(objectNameWithBucket, "/")
 		temp := strings.Split(objectNameWithBucket, "/")
 		if len(temp) > 1 {
@@ -388,14 +405,6 @@ func (e *Component) GetBucketAndObjectName(objectNameWithBucket string) (string,
 		return "", ""
 	}
 }
-
-// ContentType 类型
-type ContentType string
-
-const (
-	TypeMp4 ContentType = "video/mp4,video/webm,video/ogg"
-	TypeJpg ContentType = "image/jpeg,image/png"
-)
 
 // 快速
 func (e *Component) GetPutObjectOptionByFlag(contentType ContentType) minio.PutObjectOptions {
@@ -413,7 +422,6 @@ func (e *Component) GetPutObjectOptions(contentType string) minio.PutObjectOptio
 
 // GetPutObjectOptionByExt 根据类型获取对象
 func (e *Component) GetPutObjectOptionByExt(uri string) minio.PutObjectOptions {
-
 	fileExt := path.Ext(uri)
 	if len(uri) == 0 {
 		fileExt = ".jpg"

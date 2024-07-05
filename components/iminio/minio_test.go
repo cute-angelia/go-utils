@@ -3,8 +3,36 @@ package iminio
 import (
 	"log"
 	"path"
+	"strings"
 	"testing"
 )
+
+func TestGetBucketName(t *testing.T) {
+	bucket := ""
+	object := ""
+	objectNameWithBucket := "http://home.xxxxx.cn:xxxxx/paopao-station/public/image/2024/470501184742042175_20240704175041.jpg"
+	if len(objectNameWithBucket) > 0 {
+
+		if strings.Contains(objectNameWithBucket, "http:") || strings.Contains(objectNameWithBucket, "https:") {
+			temparray := strings.Split(objectNameWithBucket, "/")
+			if len(temparray) >= 3 {
+				objectNameWithBucket = strings.Join(temparray[3:], "/")
+			}
+		}
+
+		objectNameWithBucket = strings.TrimLeft(objectNameWithBucket, "/")
+		temp := strings.Split(objectNameWithBucket, "/")
+		if len(temp) > 1 {
+			objkey := temp[1:len(temp)]
+
+			bucket = temp[0]
+			object = strings.Join(objkey, "/")
+		}
+	}
+
+	log.Println("bucket:", bucket)
+	log.Println("object:", object)
+}
 
 func TestMinioUpload(t *testing.T) {
 	t.Log("good ->")
