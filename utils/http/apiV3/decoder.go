@@ -6,9 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/ajg/form"
+	"github.com/gorilla/schema"
 )
 
 var Decoder = decoder{}
@@ -21,9 +23,11 @@ var Decoder = decoder{}
 // bytes allowed to be read from the request body.
 type decoder struct{}
 
+var decoderFormSchema = schema.NewDecoder()
+
 // Decode detects the correct decoder for use on an HTTP request and
 // marshals into a given interface.
-func (that decoder) Decode(r *http.Request, v any) (resp any, err error) {
+func (that decoder) Decode(r *http.Request, v interface{}) (resp any, err error) {
 	conType := ContentTyper.GetRequestContentType(r)
 	switch conType {
 	case ContentTypeJSON:
@@ -31,7 +35,13 @@ func (that decoder) Decode(r *http.Request, v any) (resp any, err error) {
 	case ContentTypeXML:
 		err = that.DecodeXML(r.Body, v)
 	case ContentTypeForm:
-		err = that.DecodeForm(r.Body, v)
+		errParse := r.ParseForm()
+		if errParse != nil {
+			log.Println(errParse)
+		}
+		//log.Println(ijson.Pretty(r.PostForm))
+		err = decoderFormSchema.Decode(v, r.PostForm)
+		//log.Println(ijson.Pretty(v))
 	case ContentTypeMultipart:
 		err = that.DecodeForm(r.Body, v)
 	default:

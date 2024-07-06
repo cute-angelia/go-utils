@@ -16,6 +16,7 @@ require (
 	github.com/go-cmd/cmd v1.3.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/go-github v17.0.0+incompatible
+	github.com/gorilla/schema v1.4.1
 	github.com/guonaihong/gout v0.2.11
 	github.com/jinzhu/gorm v1.9.16
 	github.com/json-iterator/go v1.1.12
@@ -83,7 +84,6 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jonboulle/clockwork v0.2.2 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
-	github.com/klauspost/cpuid v1.3.1 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/lestrrat-go/strftime v1.0.5 // indirect
@@ -96,7 +96,6 @@ require (
 	github.com/microsoft/go-mssqldb v0.20.0 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/minio-go v6.0.14+incompatible // indirect
-	github.com/minio/sha256-simd v0.1.1 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect

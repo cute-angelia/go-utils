@@ -25,7 +25,6 @@ type api struct {
 
 	isLogOn bool // 打印日志
 
-	reqBody    any
 	reqStruct  any // 请求结构体
 	respStruct Res // 返回结构体
 }
@@ -92,9 +91,7 @@ func NewApi(w http.ResponseWriter, r *http.Request) *api {
 }
 
 // Decode request
-func (that *api) Decode(v any) error {
-	that.reqBody = v
-
+func (that *api) Decode(v interface{}) error {
 	body, err := Decoder.Decode(that.r, v)
 	that.reqStruct = body
 	return err
@@ -203,7 +200,7 @@ func (that *api) cryptoData() {
 
 func (that *api) logr(msg string) {
 	// 数据
-	dataReq, _ := json.Marshal(that.reqBody)
+	dataReq, _ := json.Marshal(that.reqStruct)
 	dataResp, _ := json.Marshal(that.respStruct)
 
 	// header
