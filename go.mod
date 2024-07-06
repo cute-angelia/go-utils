@@ -43,7 +43,7 @@ require (
 	github.com/tidwall/buntdb v1.3.0
 	github.com/yitter/idgenerator-go v1.3.3
 	golang.org/x/crypto v0.24.0
-	golang.org/x/image v0.10.0
+	golang.org/x/image v0.18.0
 	golang.org/x/net v0.26.0
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
 	golang.org/x/text v0.16.0
