@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/gin-gonic/gin/binding"
 	"io"
 	"log"
 	"net/http"
@@ -35,13 +36,11 @@ func (that decoder) Decode(r *http.Request, v interface{}) (resp any, err error)
 	case ContentTypeXML:
 		err = that.DecodeXML(r.Body, v)
 	case ContentTypeForm:
-		errParse := r.ParseForm()
-		if errParse != nil {
-			log.Println(errParse)
+		// 使用 gin 的 binding 组件， 注意标签 form 和 binding
+		// https://gin-gonic.com/docs/examples/binding-and-validation/
+		if errBinding := binding.Form.Bind(r, v); errBinding != nil {
+			log.Println(errBinding)
 		}
-		//log.Println(ijson.Pretty(r.PostForm))
-		err = decoderFormSchema.Decode(v, r.PostForm)
-		//log.Println(ijson.Pretty(v))
 	case ContentTypeMultipart:
 		err = that.DecodeForm(r.Body, v)
 	default:
