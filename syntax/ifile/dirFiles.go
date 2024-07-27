@@ -7,6 +7,9 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
+	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -33,7 +36,11 @@ func GetDepthOnePathsAndFilesIncludeExt(dirPath string, exts ...string) (dirPath
 	}
 
 	// 读取文件和文件夹
-	files, err := ioutil.ReadDir(dirPath)
+	files, err := os.ReadDir(dirPath)
+
+	// 按数字排序
+	sort.Sort(byNumber(files))
+
 	if err != nil {
 		return
 	}
@@ -87,7 +94,11 @@ func GetFilelist(searchDir string) []string {
 func GetFileMapList(searchDir string, data map[string][]string) map[string][]string {
 	// log.SetFlags(log.Lshortfile)
 	// log.Println("dir:",searchDir,path.Base(searchDir))
-	files, err := ioutil.ReadDir(searchDir)
+	files, err := os.ReadDir(searchDir)
+
+	// 按数字排序
+	sort.Sort(byNumber(files))
+
 	if err != nil {
 		log.Println("GetFileMapList error:", err.Error())
 		return nil
@@ -103,4 +114,26 @@ func GetFileMapList(searchDir string, data map[string][]string) map[string][]str
 		}
 	}
 	return data
+}
+
+// 按数字排序
+type byNumber []os.DirEntry
+
+func (a byNumber) Len() int      { return len(a) }
+func (a byNumber) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a byNumber) Less(i, j int) bool {
+
+	iname := a[i].Name()
+	jname := a[j].Name()
+
+	re := regexp.MustCompile("[^a-zA-Z0-9]") // 匹配非字母数字字符
+	iname = re.ReplaceAllString(iname, "")
+	jname = re.ReplaceAllString(jname, "")
+
+	// 自定义排序逻辑，提取文件名中的数字部分进行比较
+	reNum := regexp.MustCompile(`\d+`)
+	iNum, _ := strconv.Atoi(reNum.FindString(iname))
+	jNum, _ := strconv.Atoi(reNum.FindString(jname))
+
+	return iNum < jNum
 }
