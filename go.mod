@@ -13,7 +13,7 @@ require (
 	github.com/fastwego/wxwork v1.0.0-beta.8
 	github.com/go-chi/chi v1.5.4
 	github.com/go-chi/stampede v0.6.0
-	github.com/go-cmd/cmd v1.3.0
+	github.com/go-cmd/cmd v1.4.3
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/gorilla/schema v1.4.1
