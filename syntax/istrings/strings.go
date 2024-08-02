@@ -72,3 +72,17 @@ func Clone(s string) string {
 	copy(b, s)
 	return *(*string)(unsafe.Pointer(&b))
 }
+
+// MaxLength 文本最大长度
+func MaxLength(txt string, size int) string {
+	//将字符串转为[]rune类型
+	txtRune := []rune(txt)
+	fLength := len(txtRune)
+	diff := fLength - size
+
+	if diff > 0 {
+		return string(txtRune[diff:fLength])
+	} else {
+		return txt
+	}
+}
