@@ -8,3 +8,13 @@ func InSlice[T comparable](s []T, x T) bool {
 	}
 	return false
 }
+
+// InSliceBy returns true if predicate function return true.
+func InSliceBy[T any](slice []T, predicate func(item T) bool) bool {
+	for _, item := range slice {
+		if predicate(item) {
+			return true
+		}
+	}
+	return false
+}
