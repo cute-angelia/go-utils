@@ -25,7 +25,7 @@ import (
 var iHttpClient *gout.Client
 
 func init() {
-	iHttpClient = gout.NewWithOpt(gout.WithInsecureSkipVerify(), gout.WithClose3xxJump())
+	iHttpClient = gout.NewWithOpt(gout.WithInsecureSkipVerify())
 }
 
 var (

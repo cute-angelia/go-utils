@@ -5,6 +5,7 @@ import (
 	"github.com/cute-angelia/go-utils/syntax/ifile"
 	"github.com/cute-angelia/go-utils/syntax/ijson"
 	"log"
+	"net/http"
 	"testing"
 	"time"
 )
@@ -12,6 +13,19 @@ import (
 type datas struct {
 	Uri    string
 	Socket string
+}
+
+func TestLocation(t *testing.T) {
+	uri := "https://videocelebs.net/get_file/1/011ca90b914025264f75527a7b1529085280883d0e/7000/7311/7311.mp4/"
+	idown := New()
+	header := http.Header{}
+	err := idown.getGoHttpClient(uri, "HEAD").Debug(true).BindHeader(&header).Do()
+	log.Println(err)
+
+	// gout.HEAD(uri).Debug(true).BindHeader(&header).Do()
+
+	log.Println(header)
+
 }
 
 func TestRosemm(t *testing.T) {
@@ -188,7 +202,7 @@ func TestRetryFuc(t *testing.T) {
 	}).Do(ctx)
 }
 
-//TestTwitter go test -v --run TestTwitter
+// TestTwitter go test -v --run TestTwitter
 func TestTwitter(t *testing.T) {
 	log.SetFlags(log.Lshortfile)
 	idownloader := New(
