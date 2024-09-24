@@ -36,11 +36,11 @@ type Res struct {
 	// Msg 响应的参考消息。前端可使用msg来做提示
 	Msg string `json:"msg"`
 	// Data 响应的具体数据
-	Data interface{} `json:"data"`
+	Data interface{} `json:"data,omitempty"`
 
 	Pagination *Pagination `json:"pagination,omitempty"`
 
-	Ext *Ext `json:"ext"`
+	Ext *Ext `json:"ext,omitempty"`
 }
 
 type Ext struct {
