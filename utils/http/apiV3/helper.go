@@ -16,6 +16,29 @@ func GetUid(r *http.Request) int64 {
 	return int64(uid)
 }
 
+func GetUidV2[T int | int32 | int64](r *http.Request) T {
+	uidStr := GetHeaderValue(r, "jwt_uid")
+	if uidStr == "" {
+		return 0
+	}
+
+	uid, err := strconv.ParseInt(uidStr, 10, 64)
+	if err != nil {
+		return 0
+	}
+
+	switch any(T(0)).(type) {
+	case int:
+		return T(int(uid))
+	case int32:
+		return T(int32(uid))
+	case int64:
+		return T(uid)
+	default:
+		return 0
+	}
+}
+
 func GetAppId(r *http.Request) string {
 	return GetHeaderValue(r, "jwt_appid")
 }
