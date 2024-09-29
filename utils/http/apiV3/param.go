@@ -3,7 +3,6 @@ package apiV3
 import (
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 // from header
@@ -14,6 +13,20 @@ func GetHeaderValue(r *http.Request, key string) string {
 func GetUid(r *http.Request) int64 {
 	uid, _ := strconv.Atoi(GetHeaderValue(r, "jwt_uid"))
 	return int64(uid)
+}
+
+func GetUidV2[T int | int32 | int64](r *http.Request) T {
+	uid, _ := strconv.ParseInt(GetHeaderValue(r, "jwt_uid"), 10, 64)
+	switch any(T(0)).(type) {
+	case int:
+		return T(int(uid))
+	case int32:
+		return T(int32(uid))
+	case int64:
+		return T(uid)
+	default:
+		return T(int(uid))
+	}
 }
 
 func GetAppId(r *http.Request) string {
@@ -38,28 +51,4 @@ func QueryStringInt32(r *http.Request, key string) int32 {
 	v := r.URL.Query().Get(key)
 	val, _ := strconv.Atoi(v)
 	return int32(val)
-}
-
-func CompareVersion(version1 string, version2 string) int {
-	versionA := strings.Split(version1, ".")
-	versionB := strings.Split(version2, ".")
-
-	for i := len(versionA); i < 4; i++ {
-		versionA = append(versionA, "0")
-	}
-	for i := len(versionB); i < 4; i++ {
-		versionB = append(versionB, "0")
-	}
-	for i := 0; i < 4; i++ {
-		version1, _ := strconv.Atoi(versionA[i])
-		version2, _ := strconv.Atoi(versionB[i])
-		if version1 == version2 {
-			continue
-		} else if version1 > version2 {
-			return 1
-		} else {
-			return -1
-		}
-	}
-	return 0
 }
