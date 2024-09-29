@@ -17,6 +17,16 @@ func GetUid(r *http.Request) int64 {
 
 func GetUidV2[T int | int32 | int64](r *http.Request) T {
 	uid, _ := strconv.ParseInt(GetHeaderValue(r, "jwt_uid"), 10, 64)
+	uidStr := GetHeaderValue(r, "jwt_uid")
+	if uidStr == "" {
+		return 0
+	}
+
+	uid, err := strconv.ParseInt(uidStr, 10, 64)
+	if err != nil {
+		return 0
+	}
+
 	switch any(T(0)).(type) {
 	case int:
 		return T(int(uid))
@@ -25,7 +35,7 @@ func GetUidV2[T int | int32 | int64](r *http.Request) T {
 	case int64:
 		return T(uid)
 	default:
-		return T(int(uid))
+		return 0
 	}
 }
 
