@@ -3,6 +3,7 @@ package iredis
 import (
 	"context"
 	"github.com/cute-angelia/go-utils/utils/conf"
+	"github.com/go-redis/redis/v8"
 	"log"
 	"testing"
 	"time"
@@ -24,7 +25,7 @@ func TestRedis(t *testing.T) {
 	ctx := context.Background()
 	rdb.Set(ctx, redisKey, "world", time.Minute*1)
 	val, err := rdb.Get(ctx, redisKey).Result()
-	if err != nil {
+	if err != nil && err != redis.Nil {
 		log.Println(err)
 	} else {
 		log.Println(redisKey, val)
