@@ -12,6 +12,6 @@ tag:
 	git add .
 	git commit -am "snowflake v2"
 	git push origin master
-	git tag v1.8.55
+	git tag v1.8.56
 	git push --tags
 	@echo "\n tags 发布中..."
