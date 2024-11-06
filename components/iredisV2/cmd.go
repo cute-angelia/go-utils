@@ -16,7 +16,7 @@ func (c *RedisMgr) Set(key string, val string, expire time.Duration) error {
 	return c.opts.client.SetEX(c.ctx, key, val, expire).Err()
 }
 
-// Get
+// Get SingleFlight 处理
 func (c *RedisMgr) Get(key string) string {
 	val, err, _ := c.sfg.Do(key, func() (interface{}, error) {
 		val, err := c.opts.client.Get(c.ctx, key).Result()
@@ -37,6 +37,7 @@ func (c *RedisMgr) HSet(key string, field string, value string) error {
 	return c.opts.client.HSet(c.ctx, key, field, value).Err()
 }
 
+// HGet SingleFlight 处理
 func (c *RedisMgr) HGet(key string, field string) string {
 	val, err, _ := c.sfg.Do(key+field, func() (interface{}, error) {
 		val, err := c.opts.client.HGet(c.ctx, key, field).Result()
@@ -82,7 +83,7 @@ func (c *RedisMgr) HDel(key string, field string) (bool, error) {
 	}
 }
 
-// LRange 分页获取数据
+// LRange 特殊处理：分页获取数据
 func (c *RedisMgr) LRange(key string, page int64, perpage int64) ([]string, error) {
 	start := (page - 1) * perpage
 	stop := start + perpage
@@ -100,7 +101,7 @@ func (c *RedisMgr) LRange(key string, page int64, perpage int64) ([]string, erro
 	return val.([]string), nil
 }
 
-// LTrimLimit 只保留N个数据
+// LTrimLimit 特殊处理：只保留N个数据
 func (c *RedisMgr) LTrimLimit(key string, n int64) (string, error) {
 	if n >= 1 {
 		n--
