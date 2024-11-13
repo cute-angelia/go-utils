@@ -10,8 +10,8 @@ up:
 tag:
 	git pull origin master
 	git add .
-	git commit -am "snowflake v2"
+	git commit -am "update"
 	git push origin master
-	git tag v1.8.56
+	git tag v1.8.57
 	git push --tags
 	@echo "\n tags 发布中..."

@@ -1,4 +1,4 @@
-package iSnowflakeV2
+package iSnowflakeV23
 
 import "github.com/yitter/idgenerator-go/idgen"
 

@@ -1,5 +1,7 @@
 package itime
 
+var Placeholder struct{}
+
 // 时间相关
 const (
 	TIME_FORMAT       = "2006-01-02 15:04:05"
