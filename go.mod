@@ -25,6 +25,7 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/k0kubun/go-ansi v0.0.0-20180517002512-3bf9e2903213
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
+	github.com/looplab/fsm v1.0.2
 	github.com/markity/minio-progress v0.0.0-20200201094755-8dec4f4191f2
 	github.com/minio/minio-go/v7 v7.0.73
 	github.com/mitchellh/go-homedir v1.1.0
@@ -49,6 +50,7 @@ require (
 	golang.org/x/image v0.18.0
 	golang.org/x/net v0.29.0
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
+	golang.org/x/sync v0.8.0
 	golang.org/x/text v0.18.0
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
@@ -128,7 +130,6 @@ require (
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
-	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/term v0.24.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect

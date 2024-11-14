@@ -24,7 +24,6 @@ func TestDemo(t *testing.T) {
 	}()
 
 	// do
-
 	var count uint64
 	tw, err := NewTimingWheel(time.Second, 20, func(key, value interface{}) {
 		log.Println(key, value, "key-value")
