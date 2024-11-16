@@ -1,4 +1,4 @@
-package random
+package irandom
 
 import (
 	"github.com/stretchr/testify/assert"

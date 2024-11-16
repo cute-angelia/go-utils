@@ -1,4 +1,4 @@
-package random
+package irandom
 
 type letter string
 

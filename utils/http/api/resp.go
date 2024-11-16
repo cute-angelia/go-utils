@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cute-angelia/go-utils/utils/generator/random"
+	"github.com/cute-angelia/go-utils/syntax/irandom"
 	"github.com/cute-angelia/go-utils/utils/iAes"
 	"github.com/cute-angelia/go-utils/utils/iXor"
 	"log"
@@ -59,7 +59,7 @@ func SuccessEncrypt(w http.ResponseWriter, r *http.Request, data interface{}, ms
 
 	crypto := r.URL.Query().Get("crypto")
 	if len(cryptoKey) > 0 {
-		var randomKey = random.RandString(16, random.LetterAll)
+		var randomKey = irandom.RandString(16, irandom.LetterAll)
 		cryptoId := fmt.Sprintf("%s%s", cryptoKey, randomKey)
 		datam, _ := json.Marshal(data)
 

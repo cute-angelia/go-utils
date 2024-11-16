@@ -1,4 +1,4 @@
-package random
+package irandom
 
 // RandInt generate random int between min and max, maybe min,  not be max
 func RandInt(min, max int) int {

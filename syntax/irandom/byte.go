@@ -1,4 +1,4 @@
-package random
+package irandom
 
 import (
 	crand "crypto/rand"
