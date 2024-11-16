@@ -77,6 +77,11 @@ func (t *TheTime) GetUnix() int64 {
 	return t.unix
 }
 
+// GetMillisecond 获取毫秒
+func (t *TheTime) GetMillisecond() int64 {
+	return t.GetTime().UnixNano() / int64(time.Millisecond)
+}
+
 // GetTimeZero 获取零点
 func (t *TheTime) GetTimeZero() *TheTime {
 	timeStr := t.FormatDate()

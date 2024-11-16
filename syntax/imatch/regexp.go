@@ -1,4 +1,4 @@
-package iregexp
+package imatch
 
 import "regexp"
 

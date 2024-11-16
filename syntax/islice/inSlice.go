@@ -18,3 +18,14 @@ func InSliceBy[T any](slice []T, predicate func(item T) bool) bool {
 	}
 	return false
 }
+
+// IndexOf returns the index of the first occurrence of v in s,
+// or -1 if v is not present in s.
+func IndexOf[T comparable](s []T, v T) int {
+	for i, item := range s {
+		if item == v {
+			return i
+		}
+	}
+	return -1
+}
