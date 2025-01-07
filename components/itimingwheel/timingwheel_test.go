@@ -35,8 +35,13 @@ func TestDemo(t *testing.T) {
 
 	defer tw.Stop()
 	for i := 0; i < 10; i++ {
-		tw.SetTimer(i, i, time.Second*1)
+		tw.SetTimer(i, i+100, time.Second*1)
 	}
+
+	// 同样的 key
+	tw.SetTimer("samekey", 1, time.Second*2)
+	tw.SetTimer("samekey", 2, time.Second*3)
+	tw.SetTimer("samekey", 100, time.Second*5) // 最终执行
 
 	tw.SetTimer("ok", "value", time.Second*10)
 	tw.MoveTimer("ok", time.Second*4) // 修改延迟到 4 秒，就执行
